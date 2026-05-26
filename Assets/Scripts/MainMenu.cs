@@ -8,6 +8,16 @@ public class MainMenu : MonoBehaviour
         SceneManager.LoadScene("SampleScene");
     }
 
+    public void OpenShop()
+    {
+        SceneManager.LoadScene("Shop");
+    }
+
+    public void OpenCollection()
+    {
+        SceneManager.LoadScene("Collection");
+    }
+
     public void KoniecHry()
     {
         Application.Quit();
