@@ -3,7 +3,7 @@ using UnityEngine.InputSystem;
 
 public class WeaponHit : MonoBehaviour
 {
-    public float hitDistance = 3f;
+    public float hitDistance = 3.5f;
     public Camera playerCamera;
     private int layerMask;
 
@@ -17,18 +17,14 @@ public class WeaponHit : MonoBehaviour
         if (Mouse.current.leftButton.wasPressedThisFrame)
         {
             Ray ray = playerCamera.ScreenPointToRay(
-                new Vector3(Screen.width / 2, Screen.height / 2, 0));
+                new Vector3(Screen.width / 2f, Screen.height / 2f, 0));
+
             RaycastHit hit;
             if (Physics.Raycast(ray, out hit, hitDistance, layerMask))
             {
-                // Skontroluj samotny objekt aj jeho parent
-                Breakable breakable = hit.collider.GetComponent<Breakable>()
-                                   ?? hit.collider.GetComponentInParent<Breakable>();
+                Breakable breakable = hit.collider.GetComponent<Breakable>();
                 if (breakable != null)
-                {
-                    breakable.Hit();
-                    Debug.Log("Zasiahnuty objekt: " + hit.collider.name);
-                }
+                    breakable.Hit(hit.point, ray.direction);
             }
         }
     }
