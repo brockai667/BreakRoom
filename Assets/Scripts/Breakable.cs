@@ -81,7 +81,25 @@ public class Breakable : MonoBehaviour
             Destroy(frag, 7f);
         }
 
-        Destroy(gameObject);
+        
+        // Skontroluj objekty nad sebou a nechaj ich padnúť
+        Collider[] objectsAbove = Physics.OverlapBox(
+            transform.position + Vector3.up * transform.lossyScale.y,
+            transform.lossyScale * 0.6f
+        );
+
+        foreach (Collider hitcol in objectsAbove)
+        {
+            if (hitcol.gameObject == gameObject) continue;
+
+            Rigidbody rb = hitcol.GetComponent<Rigidbody>();
+            if (rb == null)
+                rb = hitcol.gameObject.AddComponent<Rigidbody>();
+
+            rb.isKinematic = false;
+        }
+
+        Destroy(gameObject); // <-- tento riadok uz tam mas
     }
 
     System.Collections.IEnumerator ShakeOnHit()
