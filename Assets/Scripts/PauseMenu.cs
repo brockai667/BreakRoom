@@ -5,23 +5,19 @@ using UnityEngine.InputSystem;
 public class PauseMenu : MonoBehaviour
 {
     public GameObject pausePanel;
-    public GameObject crosshairCanvas;
-
+    private GameObject crosshairDot;   // len samotny crosshair bod, nie cely canvas
     private bool isPaused = false;
 
     void Start()
     {
-        // Auto-najdi ak nie su priradene
         if (pausePanel == null)
             pausePanel = GameObject.Find("PausePanel");
 
-        if (crosshairCanvas == null)
-            crosshairCanvas = GameObject.Find("Canvas");
+        // Skryj len crosshair DOT, nie cely canvas (XP HUD zostane)
+        crosshairDot = GameObject.Find("Crosshair");
 
-        if (pausePanel != null)
-            pausePanel.SetActive(false);
+        if (pausePanel != null) pausePanel.SetActive(false);
 
-        // Uisti sa ze hra bezi normalne
         Time.timeScale = 1f;
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
@@ -29,6 +25,7 @@ public class PauseMenu : MonoBehaviour
 
     void Update()
     {
+        if (Keyboard.current == null) return;
         if (Keyboard.current.tabKey.wasPressedThisFrame ||
             Keyboard.current.escapeKey.wasPressedThisFrame)
         {
@@ -39,8 +36,8 @@ public class PauseMenu : MonoBehaviour
 
     public void Resume()
     {
-        if (pausePanel != null) pausePanel.SetActive(false);
-        if (crosshairCanvas != null) crosshairCanvas.SetActive(true);
+        if (pausePanel  != null) pausePanel.SetActive(false);
+        if (crosshairDot!= null) crosshairDot.SetActive(true);
         Time.timeScale = 1f;
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
@@ -55,8 +52,8 @@ public class PauseMenu : MonoBehaviour
 
     void Pause()
     {
-        if (pausePanel != null) pausePanel.SetActive(true);
-        if (crosshairCanvas != null) crosshairCanvas.SetActive(false);
+        if (pausePanel  != null) pausePanel.SetActive(true);
+        if (crosshairDot!= null) crosshairDot.SetActive(false);
         Time.timeScale = 0f;
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
