@@ -2,10 +2,10 @@ using UnityEngine;
 
 public class Breakable : MonoBehaviour
 {
-    public int hp = 3;
-    public int damage = 1;
-    public int xpValue = 10;
-    public int fragmentCount = 7;
+    public int hp           = 3;
+    public int damage       = 1;
+    public int xpValue      = 10;
+    public int fragmentCount= 7;
 
     public void Hit(Vector3 hitPoint, Vector3 swingDir)
     {
@@ -14,17 +14,23 @@ public class Breakable : MonoBehaviour
         if (hp <= 0) Break(hitPoint, swingDir);
     }
 
-    // Legacy overload (no hit info)
-    public void Hit()
-    {
-        Hit(transform.position, Vector3.forward);
-    }
+    public void Hit() { Hit(transform.position, Vector3.forward); }
 
     void Break(Vector3 hitPoint, Vector3 swingDir)
     {
-        if (XPManager.Instance != null)
-            XPManager.Instance.AddXP(xpValue);
+        // XP
+        if (XPManager.Instance != null) XPManager.Instance.AddXP(xpValue);
+        // Peniaze (instant, malá čiastka)
+        if (PlayerInventory.Instance != null) PlayerInventory.Instance.AddMoney(xpValue / 2);
+        // Skóre
+        if (GameManager.Instance != null) GameManager.Instance.RegisterDestroy();
 
+        SpawnFragments(hitPoint, swingDir);
+        Destroy(gameObject);
+    }
+
+    void SpawnFragments(Vector3 hitPoint, Vector3 swingDir)
+    {
         Color col = GetComponent<Renderer>().material.color;
         Vector3 size = transform.lossyScale;
         float maxDim = Mathf.Max(size.x, size.y, size.z);
@@ -35,71 +41,38 @@ public class Breakable : MonoBehaviour
             Vector3 fragScale = new Vector3(
                 Mathf.Max(0.04f, size.x * s * UnityEngine.Random.Range(0.5f, 1.2f)),
                 Mathf.Max(0.04f, size.y * s * UnityEngine.Random.Range(0.5f, 1.2f)),
-                Mathf.Max(0.04f, size.z * s * UnityEngine.Random.Range(0.5f, 1.2f))
-            );
+                Mathf.Max(0.04f, size.z * s * UnityEngine.Random.Range(0.5f, 1.2f)));
 
-            // Random scatter within object bounds
             Vector3 scatter = new Vector3(
-                UnityEngine.Random.Range(-1f, 1f),
-                UnityEngine.Random.Range(-1f, 1f),
-                UnityEngine.Random.Range(-1f, 1f)
-            ).normalized * maxDim * 0.35f;
+                UnityEngine.Random.Range(-1f,1f),
+                UnityEngine.Random.Range(-1f,1f),
+                UnityEngine.Random.Range(-1f,1f)).normalized * maxDim * 0.35f;
 
-            GameObject frag = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            frag.transform.position = transform.position + scatter;
-            frag.transform.localScale = fragScale;
-            frag.transform.rotation = UnityEngine.Random.rotation;
+            var frag = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            frag.transform.position    = transform.position + scatter;
+            frag.transform.localScale  = fragScale;
+            frag.transform.rotation    = UnityEngine.Random.rotation;
 
-            // Slightly varied colour
             var mat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
-            if (mat.shader.name == "Hidden/InternalErrorShader")
-                mat = new Material(Shader.Find("Standard"));
-            float dark = UnityEngine.Random.Range(0.75f, 1.05f);
-            mat.color = new Color(
-                Mathf.Clamp01(col.r * dark),
-                Mathf.Clamp01(col.g * dark),
-                Mathf.Clamp01(col.b * dark));
+            if (mat.shader.name == "Hidden/InternalErrorShader") mat = new Material(Shader.Find("Standard"));
+            float d = UnityEngine.Random.Range(0.72f, 1.05f);
+            mat.color = new Color(Mathf.Clamp01(col.r*d), Mathf.Clamp01(col.g*d), Mathf.Clamp01(col.b*d));
             frag.GetComponent<Renderer>().material = mat;
 
-            Rigidbody rb = frag.AddComponent<Rigidbody>();
+            var rb = frag.AddComponent<Rigidbody>();
             rb.mass = 0.3f;
             rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
 
-            // Baseball-bat force: outward + swing direction + up arc
-            Vector3 outward = (frag.transform.position - hitPoint).normalized;
+            Vector3 outward  = (frag.transform.position - hitPoint).normalized;
             Vector3 forceDir = (outward * 1.5f + swingDir * 2.5f + Vector3.up * UnityEngine.Random.Range(0.4f, 1.4f)).normalized;
-            float power = UnityEngine.Random.Range(350f, 700f);
-            rb.AddForce(forceDir * power);
-
-            // Random tumble
-            Vector3 torque = new Vector3(
-                UnityEngine.Random.Range(-400f, 400f),
-                UnityEngine.Random.Range(-400f, 400f),
-                UnityEngine.Random.Range(-400f, 400f));
-            rb.AddTorque(torque);
+            rb.AddForce(forceDir * UnityEngine.Random.Range(380f, 720f));
+            rb.AddTorque(new Vector3(
+                UnityEngine.Random.Range(-400f,400f),
+                UnityEngine.Random.Range(-400f,400f),
+                UnityEngine.Random.Range(-400f,400f)));
 
             Destroy(frag, 7f);
         }
-
-        
-        // Skontroluj objekty nad sebou a nechaj ich padnúť
-        Collider[] objectsAbove = Physics.OverlapBox(
-            transform.position + Vector3.up * transform.lossyScale.y,
-            transform.lossyScale * 0.6f
-        );
-
-        foreach (Collider hitcol in objectsAbove)
-        {
-            if (hitcol.gameObject == gameObject) continue;
-
-            Rigidbody rb = hitcol.GetComponent<Rigidbody>();
-            if (rb == null)
-                rb = hitcol.gameObject.AddComponent<Rigidbody>();
-
-            rb.isKinematic = false;
-        }
-
-        Destroy(gameObject); // <-- tento riadok uz tam mas
     }
 
     System.Collections.IEnumerator ShakeOnHit()
@@ -110,9 +83,9 @@ public class Breakable : MonoBehaviour
         {
             t += Time.deltaTime;
             transform.localPosition = origin + new Vector3(
-                UnityEngine.Random.Range(-0.03f, 0.03f),
-                UnityEngine.Random.Range(-0.03f, 0.03f),
-                UnityEngine.Random.Range(-0.03f, 0.03f));
+                UnityEngine.Random.Range(-0.03f,0.03f),
+                UnityEngine.Random.Range(-0.03f,0.03f),
+                UnityEngine.Random.Range(-0.03f,0.03f));
             yield return null;
         }
         if (this != null) transform.localPosition = origin;
