@@ -51,7 +51,14 @@ public class ShopManager : MonoBehaviour
         var cardImg = cardGO.AddComponent<Image>();
         cardImg.color = new Color(0.15f, 0.08f, 0.04f, 0.95f);
         var cardRect = cardGO.GetComponent<RectTransform>();
+        cardRect.anchorMin = new Vector2(0.5f, 0.5f);
+        cardRect.anchorMax = new Vector2(0.5f, 0.5f);
+        cardRect.pivot     = new Vector2(0.5f, 0.5f);
         cardRect.sizeDelta = new Vector2(200, 290);
+        // Pevná veľkosť karty, aby ju HorizontalLayoutGroup nezrazil na nulu
+        var cardLE = cardGO.AddComponent<LayoutElement>();
+        cardLE.preferredWidth = 200; cardLE.minWidth = 200;
+        cardLE.preferredHeight = 290; cardLE.minHeight = 290;
 
         // Weapon icon (colored square)
         var iconGO = new GameObject("Icon"); iconGO.transform.SetParent(cardGO.transform, false);

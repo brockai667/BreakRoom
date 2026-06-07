@@ -1,0 +1,35 @@
+using UnityEngine;
+
+/// Drží stav medzi scénami počas behu hry (neprežije reštart aplikácie).
+/// Slúži na výber mapy, počiatočný tab v hube a výsledky posledného kola
+/// (na animáciu počítania peňazí v hube).
+public static class GameSession
+{
+    // Vybraná mapa, ktorú spustí tlačidlo START v hube
+    public static string SelectedMap = "Office";
+
+    // Ktorý tab sa otvorí pri vstupe do hubu ("Play", "Loadout", "Shop")
+    public static string InitialHubTab = "Play";
+
+    // --- Výsledky posledného kola (na animáciu v hube) ---
+    public static bool  HasPendingResult = false;
+    public static int   PendingEarned    = 0;
+    public static int   PendingDestroyed = 0;
+    public static float PendingTime      = 0f;
+
+    public static void SetResult(int earned, int destroyed, float time)
+    {
+        PendingEarned    = earned;
+        PendingDestroyed = destroyed;
+        PendingTime      = time;
+        HasPendingResult = true;
+    }
+
+    public static void ClearResult()
+    {
+        HasPendingResult = false;
+        PendingEarned    = 0;
+        PendingDestroyed = 0;
+        PendingTime      = 0f;
+    }
+}

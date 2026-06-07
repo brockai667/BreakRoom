@@ -7,11 +7,12 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance { get; private set; }
 
     [Header("State")]
-    public float elapsedTime = 0f;
-    public int destroyedCount = 0;
-    public bool roundActive = true;
+    public float elapsedTime    = 0f;
+    public int   destroyedCount = 0;
+    public int   roundMoney     = 0;   // peniaze nazbierané v tomto kole (pridajú sa v hube)
+    public bool  roundActive    = true;
 
-    [Header("End Round UI")]
+    [Header("End Round UI (legacy - nepoužité v novom hub flow)")]
     public GameObject endPanel;
     public Text timeText;
     public Text destroyedText;
@@ -27,9 +28,10 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         if (endPanel != null) endPanel.SetActive(false);
-        roundActive = true;
-        elapsedTime = 0f;
+        roundActive    = true;
+        elapsedTime    = 0f;
         destroyedCount = 0;
+        roundMoney     = 0;
 
         if (PlayerInventory.Instance != null)
         {
@@ -44,61 +46,49 @@ public class GameManager : MonoBehaviour
     {
         if (!roundActive) return;
 
-        elapsedTime += Time.deltaTime;
-
-        // Skontroluj pauzu - ak je hra pauzovaná, nevolaj EndRound
+        // Ak je hra pauzovaná, nerátaj čas (TAB aj ESC pauzuje cez PauseMenu)
         var pm = FindObjectOfType<PauseMenu>();
         if (pm != null && pm.IsPaused) return;
 
-        if (UnityEngine.InputSystem.Keyboard.current == null) return;
-
-        // TAB alebo END = koniec kola
-        if (UnityEngine.InputSystem.Keyboard.current.tabKey.wasPressedThisFrame ||
-            UnityEngine.InputSystem.Keyboard.current.endKey.wasPressedThisFrame)
-        {
-            EndRound();
-        }
+        elapsedTime += Time.deltaTime;
     }
 
     public void RegisterDestroy() => destroyedCount++;
+    public void AddRoundMoney(int amount) => roundMoney += amount;
 
-    public void EndRound()
+    /// Bonus na konci kola (rýchlosť + combo). Priebežné peniaze sú v roundMoney.
+    public int CalculateBonus()
     {
-        if (!roundActive) return;
-        roundActive = false;
-        Time.timeScale = 0f;
+        float speedMul   = Mathf.Max(0f, 300f - elapsedTime);
+        int   timeBonus  = (int)(speedMul * 0.5f);
+        int   comboBonus = destroyedCount >= 30 ? 200
+                         : destroyedCount >= 20 ? 100
+                         : destroyedCount >= 10 ? 40 : 0;
+        return timeBonus + comboBonus;
+    }
+
+    /// Ukonči kolo a choď do hubu. Peniaze sa NEpridajú tu - hub ich
+    /// animovane pripočíta k celkovej sume. Volá to tlačidlo QUIT v pauze.
+    public void QuitToHub()
+    {
+        Time.timeScale = 1f;
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
 
-        int earned = CalculateMoney();
-        // Peniaze za kolo (nad priebežné peniaze za každý objekt)
-        if (PlayerInventory.Instance != null)
-            PlayerInventory.Instance.AddMoney(earned);
+        if (roundActive)
+        {
+            roundActive = false;
+            int earned = roundMoney + CalculateBonus();
+            GameSession.SetResult(earned, destroyedCount, elapsedTime);
+        }
 
-        int total = PlayerInventory.Instance != null ? PlayerInventory.Instance.Money : earned;
-
-        if (endPanel != null) endPanel.SetActive(true);
-
-        int min = (int)elapsedTime / 60;
-        float sec = elapsedTime % 60f;
-        if (timeText        != null) timeText.text        = $"Čas: {min:00}:{sec:00.0}";
-        if (destroyedText   != null) destroyedText.text   = $"Rozbité: {destroyedCount} objektov";
-        if (moneyEarnedText != null) moneyEarnedText.text = $"+${earned}";
-        if (totalMoneyText  != null) totalMoneyText.text  = $"Celkom: ${total}";
+        SceneManager.LoadScene("Hub");
     }
 
-    int CalculateMoney()
-    {
-        int baseM      = destroyedCount * 15;
-        float speedMul = Mathf.Max(0f, 300f - elapsedTime);
-        int timeBonus  = (int)(speedMul * 0.5f);
-        int comboBonus = destroyedCount >= 30 ? 200
-                       : destroyedCount >= 20 ? 100
-                       : destroyedCount >= 10 ? 40 : 0;
-        return baseM + timeBonus + comboBonus;
-    }
+    // Legacy: ak by niečo ešte volalo EndRound, presmeruj na nový flow
+    public void EndRound() => QuitToHub();
 
     public void GoToMenu()  { Time.timeScale = 1f; SceneManager.LoadScene("MainMenu"); }
-    public void GoToShop()  { Time.timeScale = 1f; SceneManager.LoadScene("Shop"); }
+    public void GoToShop()  { Time.timeScale = 1f; GameSession.InitialHubTab = "Shop"; SceneManager.LoadScene("Hub"); }
     public void Replay()    { Time.timeScale = 1f; SceneManager.LoadScene(SceneManager.GetActiveScene().name); }
 }

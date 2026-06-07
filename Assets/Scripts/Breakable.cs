@@ -20,8 +20,9 @@ public class Breakable : MonoBehaviour
     {
         // XP
         if (XPManager.Instance != null) XPManager.Instance.AddXP(xpValue);
-        // Peniaze (instant, malá čiastka)
-        if (PlayerInventory.Instance != null) PlayerInventory.Instance.AddMoney(xpValue / 2);
+        // Peniaze za kolo - nazbierajú sa a pripočítajú animovane v hube na konci kola
+        if (GameManager.Instance != null) GameManager.Instance.AddRoundMoney(xpValue / 2);
+        else if (PlayerInventory.Instance != null) PlayerInventory.Instance.AddMoney(xpValue / 2);
         // Skóre
         if (GameManager.Instance != null) GameManager.Instance.RegisterDestroy();
 

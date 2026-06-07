@@ -11,6 +11,7 @@ public class WeaponHit : MonoBehaviour
     private float swingSpeed = 1f;
     private int   layerMask;
     private HandDisplay handDisplay;
+    private PauseMenu   pauseMenu;
     private float cooldown = 0f;
 
     void Start()
@@ -19,6 +20,7 @@ public class WeaponHit : MonoBehaviour
         if (PlayerInventory.Instance != null)
             ApplyWeapon(PlayerInventory.Instance.GetEquipped());
         handDisplay = FindObjectOfType<HandDisplay>();
+        pauseMenu   = FindObjectOfType<PauseMenu>();
     }
 
     public void ApplyWeapon(WeaponData w)
@@ -33,6 +35,8 @@ public class WeaponHit : MonoBehaviour
     {
         // Neswinguj ak kolo skončilo alebo hra je pauzovaná
         if (GameManager.Instance != null && !GameManager.Instance.roundActive) return;
+        if (pauseMenu == null) pauseMenu = FindObjectOfType<PauseMenu>();
+        if (pauseMenu != null && pauseMenu.IsPaused) return;
 
         if (cooldown > 0f) { cooldown -= Time.deltaTime; return; }
 

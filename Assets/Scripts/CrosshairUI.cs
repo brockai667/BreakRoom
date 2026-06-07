@@ -2,8 +2,20 @@ using UnityEngine;
 
 public class CrosshairUI : MonoBehaviour
 {
+    private PauseMenu pause;
+
+    void Start()
+    {
+        pause = FindObjectOfType<PauseMenu>();
+    }
+
     void OnGUI()
     {
+        // Skry crosshair počas pauzy alebo po skončení kola
+        if (GameManager.Instance != null && !GameManager.Instance.roundActive) return;
+        if (pause == null) pause = FindObjectOfType<PauseMenu>();
+        if (pause != null && pause.IsPaused) return;
+
         float cx = Screen.width / 2;
         float cy = Screen.height / 2;
         float size = 10f;

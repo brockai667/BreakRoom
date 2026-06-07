@@ -28,8 +28,9 @@ public class PauseMenu : MonoBehaviour
     {
         if (Keyboard.current == null) return;
 
-        // ESCAPE = pauza (Tab je pre EndRound v GameManager)
-        if (Keyboard.current.escapeKey.wasPressedThisFrame)
+        // ESC alebo TAB = pauza
+        if (Keyboard.current.escapeKey.wasPressedThisFrame ||
+            Keyboard.current.tabKey.wasPressedThisFrame)
         {
             if (isPaused) Resume();
             else Pause();
@@ -46,15 +47,24 @@ public class PauseMenu : MonoBehaviour
         isPaused = false;
     }
 
+    /// Tlačidlo QUIT v pause menu: ukonči kolo, spočítaj peniaze a choď do hubu.
+    /// (Názov metódy ostal kvôli existujúcemu prepojeniu tlačidla v scéne.)
     public void GoToMainMenu()
     {
+        isPaused = false;
         Time.timeScale = 1f;
-        SceneManager.LoadScene("MainMenu");
+        if (GameManager.Instance != null)
+            GameManager.Instance.QuitToHub();
+        else
+            SceneManager.LoadScene("Hub");
     }
+
+    // Alias s jasnejším názvom
+    public void QuitToHub() => GoToMainMenu();
 
     void Pause()
     {
-        // Nedovoľ pauzu ak hra skončila
+        // Nedovoľ pauzu ak kolo skončilo
         if (GameManager.Instance != null && !GameManager.Instance.roundActive) return;
 
         if (pausePanel   != null) pausePanel.SetActive(true);

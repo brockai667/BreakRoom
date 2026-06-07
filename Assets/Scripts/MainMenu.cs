@@ -5,12 +5,14 @@ public class MainMenu : MonoBehaviour
 {
     public void HratHru()
     {
-        SceneManager.LoadScene("SampleScene");
+        GameSession.InitialHubTab = "Play";
+        SceneManager.LoadScene("Hub");
     }
 
     public void OpenShop()
     {
-        SceneManager.LoadScene("Shop");
+        GameSession.InitialHubTab = "Shop";
+        SceneManager.LoadScene("Hub");
     }
 
     public void OpenCollection()
