@@ -26,13 +26,11 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        // Vždy skryj end panel na začiatku
         if (endPanel != null) endPanel.SetActive(false);
         roundActive = true;
         elapsedTime = 0f;
         destroyedCount = 0;
 
-        // Aplikuj vybranú zbraň
         if (PlayerInventory.Instance != null)
         {
             var wh = FindObjectOfType<WeaponHit>();
@@ -45,29 +43,35 @@ public class GameManager : MonoBehaviour
     void Update()
     {
         if (!roundActive) return;
+
         elapsedTime += Time.deltaTime;
 
-        if (UnityEngine.InputSystem.Keyboard.current != null &&
-            (UnityEngine.InputSystem.Keyboard.current.tabKey.wasPressedThisFrame ||
-             UnityEngine.InputSystem.Keyboard.current.endKey.wasPressedThisFrame))
+        // Skontroluj pauzu - ak je hra pauzovaná, nevolaj EndRound
+        var pm = FindObjectOfType<PauseMenu>();
+        if (pm != null && pm.IsPaused) return;
+
+        if (UnityEngine.InputSystem.Keyboard.current == null) return;
+
+        // TAB alebo END = koniec kola
+        if (UnityEngine.InputSystem.Keyboard.current.tabKey.wasPressedThisFrame ||
+            UnityEngine.InputSystem.Keyboard.current.endKey.wasPressedThisFrame)
         {
             EndRound();
         }
     }
 
-    public void RegisterDestroy()
-    {
-        destroyedCount++;
-    }
+    public void RegisterDestroy() => destroyedCount++;
 
     public void EndRound()
     {
+        if (!roundActive) return;
         roundActive = false;
         Time.timeScale = 0f;
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
 
         int earned = CalculateMoney();
+        // Peniaze za kolo (nad priebežné peniaze za každý objekt)
         if (PlayerInventory.Instance != null)
             PlayerInventory.Instance.AddMoney(earned);
 
@@ -77,36 +81,24 @@ public class GameManager : MonoBehaviour
 
         int min = (int)elapsedTime / 60;
         float sec = elapsedTime % 60f;
-        if (timeText       != null) timeText.text       = $"Čas: {min:00}:{sec:00.0}";
-        if (destroyedText  != null) destroyedText.text  = $"Rozbité objekty: {destroyedCount}";
-        if (moneyEarnedText!= null) moneyEarnedText.text= $"+${earned}";
-        if (totalMoneyText != null) totalMoneyText.text = $"Celkom peňazí: ${total}";
+        if (timeText        != null) timeText.text        = $"Čas: {min:00}:{sec:00.0}";
+        if (destroyedText   != null) destroyedText.text   = $"Rozbité: {destroyedCount} objektov";
+        if (moneyEarnedText != null) moneyEarnedText.text = $"+${earned}";
+        if (totalMoneyText  != null) totalMoneyText.text  = $"Celkom: ${total}";
     }
 
     int CalculateMoney()
     {
-        int base_ = destroyedCount * 15;
-        float speedBonus = Mathf.Max(0f, 300f - elapsedTime);
-        int timeBonus  = (int)(speedBonus * 0.5f);
-        int countBonus = destroyedCount >= 20 ? 100 : destroyedCount >= 10 ? 40 : 0;
-        return base_ + timeBonus + countBonus;
+        int baseM      = destroyedCount * 15;
+        float speedMul = Mathf.Max(0f, 300f - elapsedTime);
+        int timeBonus  = (int)(speedMul * 0.5f);
+        int comboBonus = destroyedCount >= 30 ? 200
+                       : destroyedCount >= 20 ? 100
+                       : destroyedCount >= 10 ? 40 : 0;
+        return baseM + timeBonus + comboBonus;
     }
 
-    public void GoToMenu()
-    {
-        Time.timeScale = 1f;
-        SceneManager.LoadScene("MainMenu");
-    }
-
-    public void GoToShop()
-    {
-        Time.timeScale = 1f;
-        SceneManager.LoadScene("Shop");
-    }
-
-    public void Replay()
-    {
-        Time.timeScale = 1f;
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-    }
+    public void GoToMenu()  { Time.timeScale = 1f; SceneManager.LoadScene("MainMenu"); }
+    public void GoToShop()  { Time.timeScale = 1f; SceneManager.LoadScene("Shop"); }
+    public void Replay()    { Time.timeScale = 1f; SceneManager.LoadScene(SceneManager.GetActiveScene().name); }
 }
