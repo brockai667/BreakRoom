@@ -96,16 +96,33 @@ public class HubManager : MonoBehaviour
     }
 
     // ---------- MAPA ----------
-    public void SelectOffice()
+    static readonly string[] MAPS = { "Office", "Obyvacka" };
+
+    // Tlačidlo mapy: prepína medzi dostupnými mapami
+    public void SelectOffice() => CycleMap();
+
+    public void CycleMap()
     {
-        GameSession.SelectedMap = "Office";
+        int i = System.Array.IndexOf(MAPS, GameSession.SelectedMap);
+        i = (i + 1) % MAPS.Length;
+        GameSession.SelectedMap = MAPS[i];
         UpdateMapLabel();
     }
 
     void UpdateMapLabel()
     {
         if (mapLabel != null)
-            mapLabel.text = "Vybraná mapa: " + GameSession.SelectedMap;
+            mapLabel.text = "Vybraná mapa: " + FriendlyMap(GameSession.SelectedMap);
+    }
+
+    static string FriendlyMap(string id)
+    {
+        switch (id)
+        {
+            case "Obyvacka": return "Obývačka";
+            case "Office":   return "Kancelária";
+            default:         return id;
+        }
     }
 
     public void StartGame()
