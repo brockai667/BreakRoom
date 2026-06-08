@@ -3,66 +3,63 @@ using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
-    public float speed = 5f;
+    public float speed = 6f;
     public float mouseSensitivity = 2f;
-    public float jumpHeight = 1.5f;
+    public float jumpHeight = 1.4f;
     public float gravity = -20f;
-    public LayerMask groundMask;
 
     private float verticalRotation = 0f;
     private CharacterController controller;
     private Camera playerCamera;
     private Vector3 velocity;
-    private bool isGrounded;
+    private PauseMenu pauseMenu;
 
     void Start()
     {
-        controller = GetComponent<CharacterController>();
+        controller   = GetComponent<CharacterController>();
         playerCamera = GetComponentInChildren<Camera>();
+        pauseMenu    = FindObjectOfType<PauseMenu>();
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
 
     void Update()
     {
-        // Vlastná detekcia zeme
-        isGrounded = Physics.CheckSphere(transform.position - new Vector3(0, 1f, 0), 0.3f, groundMask);
+        if (Keyboard.current == null || Mouse.current == null) return;
 
-        // Myš
+        // Nehýb sa počas pauzy alebo po skončení kola
+        if (pauseMenu != null && pauseMenu.IsPaused) return;
+        if (GameManager.Instance != null && !GameManager.Instance.roundActive) return;
+
+        // Spoľahlivá detekcia zeme cez CharacterController (netreba LayerMask)
+        bool grounded = controller.isGrounded;
+        if (grounded && velocity.y < 0f) velocity.y = -2f;
+
+        // Otáčanie myšou
         Vector2 mouseDelta = Mouse.current.delta.ReadValue();
         float mouseX = mouseDelta.x * mouseSensitivity * Time.deltaTime * 10f;
         float mouseY = mouseDelta.y * mouseSensitivity * Time.deltaTime * 10f;
-
         verticalRotation -= mouseY;
         verticalRotation = Mathf.Clamp(verticalRotation, -80f, 80f);
         playerCamera.transform.localRotation = Quaternion.Euler(verticalRotation, 0f, 0f);
         transform.Rotate(Vector3.up * mouseX);
 
-        // Pohyb
+        // Pohyb WASD
         float x = 0f, z = 0f;
         if (Keyboard.current.dKey.isPressed) x = 1f;
         if (Keyboard.current.aKey.isPressed) x = -1f;
         if (Keyboard.current.wKey.isPressed) z = 1f;
         if (Keyboard.current.sKey.isPressed) z = -1f;
-
-        Vector3 move = transform.right * x + transform.forward * z;
+        Vector3 move = (transform.right * x + transform.forward * z);
+        if (move.sqrMagnitude > 1f) move.Normalize();
         controller.Move(move * speed * Time.deltaTime);
 
-        // Skok + gravitácia
-        if (isGrounded && velocity.y < 0)
-            velocity.y = -4f;
-
-        if (isGrounded && Keyboard.current.spaceKey.wasPressedThisFrame)
+        // Skok (medzerník)
+        if (grounded && Keyboard.current.spaceKey.wasPressedThisFrame)
             velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
 
+        // Gravitácia
         velocity.y += gravity * Time.deltaTime;
         controller.Move(velocity * Time.deltaTime);
-
-        // Escape
-        if (Keyboard.current.escapeKey.wasPressedThisFrame)
-        {
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
-        }
     }
 }

@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using TMPro;
 
 public class GameManager : MonoBehaviour
 {
@@ -11,6 +12,10 @@ public class GameManager : MonoBehaviour
     public int   destroyedCount = 0;
     public int   roundMoney     = 0;   // peniaze nazbierané v tomto kole (pridajú sa v hube)
     public bool  roundActive    = true;
+
+    [Header("Round timer")]
+    public float    roundDuration = 300f;   // dĺžka kola v sekundách (5:00)
+    public TMP_Text timerText;
 
     [Header("End Round UI (legacy - nepoužité v novom hub flow)")]
     public GameObject endPanel;
@@ -51,6 +56,17 @@ public class GameManager : MonoBehaviour
         if (pm != null && pm.IsPaused) return;
 
         elapsedTime += Time.deltaTime;
+
+        // Odpočítavací časovač
+        float left = Mathf.Max(0f, roundDuration - elapsedTime);
+        if (timerText != null)
+        {
+            int m = (int)left / 60;
+            int s = (int)left % 60;
+            timerText.text = $"{m:00}:{s:00}";
+            timerText.color = left <= 30f ? new Color(1f, 0.3f, 0.2f) : Color.white;
+        }
+        if (left <= 0f) QuitToHub();   // čas vypršal -> koniec kola, do hubu
     }
 
     public void RegisterDestroy() => destroyedCount++;

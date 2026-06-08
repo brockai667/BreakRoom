@@ -112,6 +112,67 @@ public class FixUI
         Debug.Log("✅ Office pause menu postavené: PAUSED + RESUME + QUIT");
     }
 
+    // ===================== OFFICE TIMER =====================
+    [MenuItem("BreakRoom/Add Office Timer")]
+    public static void AddOfficeTimer()
+    {
+        var scene = EditorSceneManager.OpenScene("Assets/Scenes/Office.unity");
+        var bangers = LoadBangers();
+        var gm = Object.FindObjectOfType<GameManager>();
+        if (gm == null) { Debug.LogError("GameManager nenájdený v Office scéne."); return; }
+
+        var old = GameObject.Find("TimerCanvas");
+        if (old != null) Object.DestroyImmediate(old);
+
+        var cvGO = new GameObject("TimerCanvas");
+        var cv = cvGO.AddComponent<Canvas>(); cv.renderMode = RenderMode.ScreenSpaceOverlay; cv.sortingOrder = 50;
+        var sc = cvGO.AddComponent<CanvasScaler>();
+        sc.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize; sc.referenceResolution = new Vector2(1920, 1080);
+        cvGO.AddComponent<GraphicRaycaster>();
+
+        // tmavé pozadie pre čitateľnosť
+        var bg = new GameObject("TimerBG"); bg.transform.SetParent(cvGO.transform, false);
+        var bgImg = bg.AddComponent<Image>(); bgImg.color = new Color(0f, 0f, 0f, 0.45f);
+        var bgRt = bg.GetComponent<RectTransform>();
+        bgRt.anchorMin = new Vector2(0.5f, 1f); bgRt.anchorMax = new Vector2(0.5f, 1f); bgRt.pivot = new Vector2(0.5f, 1f);
+        bgRt.anchoredPosition = new Vector2(0, -14); bgRt.sizeDelta = new Vector2(230, 88);
+
+        var t = MkTMP(cvGO, "TimerText", "05:00", 64, bangers, Color.white, Vector2.zero, new Vector2(320, 90));
+        var trt = t.GetComponent<RectTransform>();
+        trt.anchorMin = new Vector2(0.5f, 1f); trt.anchorMax = new Vector2(0.5f, 1f); trt.pivot = new Vector2(0.5f, 1f);
+        trt.anchoredPosition = new Vector2(0, -10);
+
+        gm.timerText = t.GetComponent<TMP_Text>();
+        gm.roundDuration = 300f;
+
+        EditorSceneManager.MarkSceneDirty(scene);
+        EditorSceneManager.SaveScene(scene);
+        Debug.Log("✅ Časovač pridaný do Office (05:00, odpočítava hore v strede).");
+    }
+
+    // ===================== KNIŽNICE ROZBÍJATEĽNÉ =====================
+    [MenuItem("BreakRoom/Make Bookshelves Breakable")]
+    public static void MakeBookshelvesBreakable()
+    {
+        var scene = EditorSceneManager.OpenScene("Assets/Scenes/Office.unity");
+        int added = 0, cols = 0;
+        var all = Object.FindObjectsByType<Transform>(FindObjectsSortMode.None);
+        foreach (var tr in all)
+        {
+            if (!tr.name.StartsWith("Shelf_")) continue;
+            var go = tr.gameObject;
+            if (go.GetComponent<MeshRenderer>() == null) continue;
+            if (go.GetComponent<Breakable>() != null) continue;
+            if (go.GetComponent<Collider>() == null) { go.AddComponent<BoxCollider>(); cols++; }
+            var b = go.AddComponent<Breakable>();
+            b.hp = 4; b.damage = 1; b.xpValue = 8; b.fragmentCount = 6;
+            added++;
+        }
+        EditorSceneManager.MarkSceneDirty(scene);
+        EditorSceneManager.SaveScene(scene);
+        Debug.Log($"✅ Knižnice: pridané Breakable na {added} dielov (+{cols} colliderov).");
+    }
+
     // ===================== HELPERY =====================
     static void EnsureEventSystem()
     {
