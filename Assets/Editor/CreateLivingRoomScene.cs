@@ -35,64 +35,21 @@ public class CreateLivingRoomScene
         Prop("Stena_Prava", PrimitiveType.Cube, new Vector3(6, 2.5f, 0),   new Vector3(0.3f, 5, 12), wallCol, 0, false);
         Prop("Strop",       PrimitiveType.Cube, new Vector3(0, 5, 0),      new Vector3(12, 0.3f, 12), ceilCol, 0, false);
         // koberec (nerozbitný)
-        Prop("Koberec", PrimitiveType.Cube, new Vector3(0, 0.02f, 1.2f), new Vector3(4.2f, 0.04f, 3f), new Color(0.5f, 0.18f, 0.18f), 0, false);
+        PlacePrefab("Rug_Apt_01", new Vector3(0, 0.02f, 1.4f), Vector3.zero, 0, false);  // koberec (nerozbitný)
 
-        // ---------- NÁBYTOK (rozbíjateľný) ----------
-        Color sofa = new Color(0.30f, 0.42f, 0.46f);
-        // Gauč pri zadnej stene (čelom do miestnosti, -z)
-        Prop("Gauc_base",  PrimitiveType.Cube, new Vector3(0, 0.45f, 4.6f), new Vector3(3.4f, 0.5f, 1.2f), sofa, 5);
-        Prop("Gauc_chrbat",PrimitiveType.Cube, new Vector3(0, 0.95f, 5.15f),new Vector3(3.4f, 0.9f, 0.3f), sofa, 5);
-        Prop("Gauc_armL",  PrimitiveType.Cube, new Vector3(-1.85f, 0.7f, 4.6f), new Vector3(0.3f, 0.8f, 1.2f), sofa, 4);
-        Prop("Gauc_armR",  PrimitiveType.Cube, new Vector3( 1.85f, 0.7f, 4.6f), new Vector3(0.3f, 0.8f, 1.2f), sofa, 4);
-        Prop("Vankus1", PrimitiveType.Cube, new Vector3(-1f, 0.78f, 4.6f), new Vector3(0.9f, 0.25f, 1f), new Color(0.7f,0.3f,0.3f), 2);
-        Prop("Vankus2", PrimitiveType.Cube, new Vector3( 1f, 0.78f, 4.6f), new Vector3(0.9f, 0.25f, 1f), new Color(0.7f,0.55f,0.25f), 2);
-
-        // Konferenčný stolík v strede
-        Color wood = new Color(0.5f, 0.33f, 0.16f);
-        Prop("Stolik_top", PrimitiveType.Cube, new Vector3(0, 0.5f, 1.3f), new Vector3(1.8f, 0.12f, 0.9f), wood, 4);
-        Prop("Stolik_n1", PrimitiveType.Cube, new Vector3(-0.8f,0.25f,0.9f), new Vector3(0.12f,0.5f,0.12f), wood, 3);
-        Prop("Stolik_n2", PrimitiveType.Cube, new Vector3( 0.8f,0.25f,0.9f), new Vector3(0.12f,0.5f,0.12f), wood, 3);
-        Prop("Stolik_n3", PrimitiveType.Cube, new Vector3(-0.8f,0.25f,1.7f), new Vector3(0.12f,0.5f,0.12f), wood, 3);
-        Prop("Stolik_n4", PrimitiveType.Cube, new Vector3( 0.8f,0.25f,1.7f), new Vector3(0.12f,0.5f,0.12f), wood, 3);
-        // veci na stolíku
-        Prop("Salka1", PrimitiveType.Cylinder, new Vector3(-0.4f,0.66f,1.2f), new Vector3(0.18f,0.08f,0.18f), new Color(0.9f,0.9f,0.95f), 1);
-        Prop("Salka2", PrimitiveType.Cylinder, new Vector3( 0.4f,0.66f,1.5f), new Vector3(0.18f,0.08f,0.18f), new Color(0.85f,0.3f,0.25f), 1);
-        Prop("Kniha_s", PrimitiveType.Cube, new Vector3(0.1f,0.62f,1.0f), new Vector3(0.4f,0.06f,0.28f), new Color(0.2f,0.4f,0.7f), 1);
-
-        // TV zostava pri prednej stene (čelom +z na gauč)
-        Prop("TV_skrinka", PrimitiveType.Cube, new Vector3(0, 0.4f, -5.4f), new Vector3(2.6f, 0.8f, 0.5f), new Color(0.28f,0.2f,0.12f), 5);
-        Prop("TV_obrazovka", PrimitiveType.Cube, new Vector3(0, 1.55f, -5.5f), new Vector3(2.2f, 1.2f, 0.12f), new Color(0.05f,0.05f,0.07f), 4);
-        Prop("TV_noha", PrimitiveType.Cube, new Vector3(0, 0.95f, -5.5f), new Vector3(0.2f, 0.3f, 0.15f), new Color(0.1f,0.1f,0.12f), 2);
-        Prop("Konzola", PrimitiveType.Cube, new Vector3(0.7f,0.85f,-5.4f), new Vector3(0.5f,0.1f,0.35f), new Color(0.12f,0.12f,0.14f), 2);
-
-        // Knižnica pri ľavej stene
-        Color shelfCol = new Color(0.45f, 0.3f, 0.15f);
-        Prop("Kniznica_ramec", PrimitiveType.Cube, new Vector3(-5.4f, 1.4f, -1.5f), new Vector3(0.4f, 2.8f, 2.4f), shelfCol, 6);
-        for (int i = 0; i < 3; i++)
-            Prop("Kniznica_polica" + i, PrimitiveType.Cube, new Vector3(-5.4f, 0.6f + i * 0.85f, -1.5f), new Vector3(0.42f, 0.08f, 2.3f), shelfCol, 3);
-        Color[] bookCols = { new Color(0.7f,0.2f,0.2f), new Color(0.2f,0.6f,0.3f), new Color(0.25f,0.4f,0.8f), new Color(0.8f,0.7f,0.2f), new Color(0.6f,0.3f,0.7f) };
-        for (int row = 0; row < 3; row++)
-            for (int b = 0; b < 5; b++)
-                Prop($"Kniha_{row}_{b}", PrimitiveType.Cube,
-                    new Vector3(-5.35f, 0.85f + row * 0.85f, -2.4f + b * 0.45f),
-                    new Vector3(0.28f, 0.5f, 0.32f), bookCols[(row + b) % bookCols.Length], 1);
-
-        // Stojaca lampa v rohu
-        Prop("Lampa_pat", PrimitiveType.Cylinder, new Vector3(4.8f, 0.1f, 4.8f), new Vector3(0.5f, 0.08f, 0.5f), new Color(0.2f,0.2f,0.22f), 2);
-        Prop("Lampa_tyc", PrimitiveType.Cylinder, new Vector3(4.8f, 1.1f, 4.8f), new Vector3(0.08f, 1f, 0.08f), new Color(0.25f,0.25f,0.27f), 2);
-        Prop("Lampa_tienidlo", PrimitiveType.Cylinder, new Vector3(4.8f, 2.05f, 4.8f), new Vector3(0.6f, 0.3f, 0.6f), new Color(0.9f,0.85f,0.6f), 2);
-
-        // Bočný stolík + váza
-        Prop("BocnyStolik", PrimitiveType.Cube, new Vector3(2.6f, 0.4f, 4.4f), new Vector3(0.7f, 0.8f, 0.7f), wood, 4);
-        Prop("Vaza", PrimitiveType.Cylinder, new Vector3(2.6f, 1.0f, 4.4f), new Vector3(0.3f, 0.25f, 0.3f), new Color(0.3f,0.55f,0.6f), 1);
-
-        // Rastlina v rohu
-        Prop("Kvetinac", PrimitiveType.Cylinder, new Vector3(-4.8f, 0.35f, 4.8f), new Vector3(0.5f, 0.35f, 0.5f), new Color(0.5f,0.3f,0.2f), 3);
-        Prop("Rastlina", PrimitiveType.Sphere, new Vector3(-4.8f, 1.1f, 4.8f), new Vector3(0.9f, 1.1f, 0.9f), new Color(0.2f,0.5f,0.2f), 2);
-
-        // Obrazy na stene
-        Prop("Obraz1", PrimitiveType.Cube, new Vector3(-2f, 3f, 5.85f), new Vector3(1.2f, 0.9f, 0.08f), new Color(0.3f,0.35f,0.5f), 2);
-        Prop("Obraz2", PrimitiveType.Cube, new Vector3( 2f, 3f, 5.85f), new Vector3(1.2f, 0.9f, 0.08f), new Color(0.5f,0.35f,0.3f), 2);
+        // ---------- NÁBYTOK (reálne prefaby z Apartment Kit) ----------
+        // Koberec (nerozbitný) je už pridaný vyššie. Nábytok:
+        PlacePrefab("Sofa_Apt_01",      new Vector3(0f, 0f, 4.7f),   new Vector3(0, 180, 0), 6);   // gauč pri zadnej stene, čelom do izby
+        PlacePrefab("Table_Coffee_01",  new Vector3(0f, 0f, 1.4f),   Vector3.zero,           4);   // konferenčný stolík
+        PlacePrefab("Table_Media_01",   new Vector3(0f, 0f, -5.4f),  new Vector3(0, 0, 0),   5);   // TV stolík pri prednej stene
+        PlacePrefab("TV_Apt_01",        new Vector3(0f, 0.55f, -5.4f), new Vector3(0, 0, 0), 4);   // TV na stolíku, čelom na gauč
+        PlacePrefab("Shelf_Apt_01",     new Vector3(-5.5f, 0f, -1.5f), new Vector3(0, 90, 0), 6);  // knižnica pri ľavej stene
+        PlacePrefab("Lamp_Floor_Apt_01",new Vector3(4.9f, 0f, 4.7f), Vector3.zero,           3);   // stojaca lampa v rohu
+        PlacePrefab("Table_Side_Apt_01",new Vector3(2.8f, 0f, 4.6f), Vector3.zero,           4);   // bočný stolík
+        PlacePrefab("Vase_Apt_01",      new Vector3(2.8f, 0.62f, 4.6f), Vector3.zero,        1);   // váza na bočnom stolíku
+        PlacePrefab("Chair_Apt_01",     new Vector3(-2.8f, 0f, 2.2f), new Vector3(0, 55, 0), 4);   // kreslo
+        PlacePrefab("Canvas_Painting_01", new Vector3(-2f, 3f, 5.86f), new Vector3(0, 180, 0), 2); // obraz na zadnej stene
+        PlacePrefab("Canvas_Painting_02", new Vector3( 2f, 3f, 5.86f), new Vector3(0, 180, 0), 2); // obraz na zadnej stene
 
         // ---------- HRÁČ ----------
         int playerLayer = LayerMask.NameToLayer("Player"); if (playerLayer < 0) playerLayer = 3;
@@ -200,6 +157,52 @@ public class CreateLivingRoomScene
         if (m.shader == null || m.shader.name == "Hidden/InternalErrorShader") m = new Material(Shader.Find("Standard"));
         m.color = c; if (m.HasProperty("_BaseColor")) m.SetColor("_BaseColor", c);
         return m;
+    }
+
+    // --- vkladanie reálnych prefabov z Apartment Kit ---
+    static GameObject LoadPrefab(string name)
+    {
+        foreach (var g in AssetDatabase.FindAssets(name + " t:Prefab"))
+        {
+            var path = AssetDatabase.GUIDToAssetPath(g);
+            if (System.IO.Path.GetFileNameWithoutExtension(path) == name)
+                return AssetDatabase.LoadAssetAtPath<GameObject>(path);
+        }
+        return null;
+    }
+
+    static GameObject PlacePrefab(string name, Vector3 pos, Vector3 euler, int hp, bool breakable = true)
+    {
+        var prefab = LoadPrefab(name);
+        if (prefab == null) { Debug.LogWarning("Prefab nenájdený: " + name); return null; }
+        var go = (GameObject)PrefabUtility.InstantiatePrefab(prefab);
+        go.transform.position = pos;
+        go.transform.eulerAngles = euler;
+        EnsureCollider(go);
+        if (breakable) EnsureBreakable(go, hp);
+        return go;
+    }
+
+    static void EnsureCollider(GameObject go)
+    {
+        if (go.GetComponentInChildren<Collider>() != null) return;
+        var rends = go.GetComponentsInChildren<Renderer>();
+        var bc = go.AddComponent<BoxCollider>();
+        if (rends.Length == 0) return;
+        Bounds b = rends[0].bounds;
+        foreach (var r in rends) b.Encapsulate(r.bounds);
+        Vector3 ls = go.transform.lossyScale;
+        bc.center = go.transform.InverseTransformPoint(b.center);
+        bc.size = new Vector3(b.size.x / Mathf.Max(0.001f, ls.x),
+                              b.size.y / Mathf.Max(0.001f, ls.y),
+                              b.size.z / Mathf.Max(0.001f, ls.z));
+    }
+
+    static void EnsureBreakable(GameObject go, int hp)
+    {
+        if (go.GetComponent<Breakable>() != null) return;
+        var bk = go.AddComponent<Breakable>();
+        bk.hp = Mathf.Max(1, hp); bk.damage = 1; bk.xpValue = 12; bk.fragmentCount = 8;
     }
 
     static void BuildHandDisplay(Canvas canvas)

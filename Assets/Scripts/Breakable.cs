@@ -32,8 +32,16 @@ public class Breakable : MonoBehaviour
 
     void SpawnFragments(Vector3 hitPoint, Vector3 swingDir)
     {
-        Color col = GetComponent<Renderer>().material.color;
-        Vector3 size = transform.lossyScale;
+        // Funguje aj pre prefaby kde renderer/collider je v deťoch
+        var rend = GetComponent<Renderer>();
+        if (rend == null) rend = GetComponentInChildren<Renderer>();
+        Color col = rend != null ? rend.material.color : new Color(0.6f, 0.6f, 0.62f);
+
+        var coll = GetComponent<Collider>();
+        Vector3 size = coll != null ? coll.bounds.size
+                     : rend != null ? rend.bounds.size
+                     : transform.lossyScale;
+        size = new Vector3(Mathf.Max(0.1f, size.x), Mathf.Max(0.1f, size.y), Mathf.Max(0.1f, size.z));
         float maxDim = Mathf.Max(size.x, size.y, size.z);
 
         for (int i = 0; i < fragmentCount; i++)
