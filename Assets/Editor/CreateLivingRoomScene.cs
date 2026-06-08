@@ -34,22 +34,20 @@ public class CreateLivingRoomScene
         Prop("Stena_Lava",  PrimitiveType.Cube, new Vector3(-6, 2.5f, 0),  new Vector3(0.3f, 5, 12), wallCol, 0, false);
         Prop("Stena_Prava", PrimitiveType.Cube, new Vector3(6, 2.5f, 0),   new Vector3(0.3f, 5, 12), wallCol, 0, false);
         Prop("Strop",       PrimitiveType.Cube, new Vector3(0, 5, 0),      new Vector3(12, 0.3f, 12), ceilCol, 0, false);
-        // koberec (nerozbitný)
-        PlacePrefab("Rug_Apt_01", new Vector3(0, 0.02f, 1.4f), Vector3.zero, 0, false);  // koberec (nerozbitný)
-
-        // ---------- NÁBYTOK (reálne prefaby z Apartment Kit) ----------
-        // Koberec (nerozbitný) je už pridaný vyššie. Nábytok:
-        PlacePrefab("Sofa_Apt_01",      new Vector3(0f, 0f, 4.7f),   new Vector3(0, 180, 0), 6);   // gauč pri zadnej stene, čelom do izby
-        PlacePrefab("Table_Coffee_01",  new Vector3(0f, 0f, 1.4f),   Vector3.zero,           4);   // konferenčný stolík
-        PlacePrefab("Table_Media_01",   new Vector3(0f, 0f, -5.4f),  new Vector3(0, 0, 0),   5);   // TV stolík pri prednej stene
-        PlacePrefab("TV_Apt_01",        new Vector3(0f, 0.55f, -5.4f), new Vector3(0, 0, 0), 4);   // TV na stolíku, čelom na gauč
-        PlacePrefab("Shelf_Apt_01",     new Vector3(-5.5f, 0f, -1.5f), new Vector3(0, 90, 0), 6);  // knižnica pri ľavej stene
-        PlacePrefab("Lamp_Floor_Apt_01",new Vector3(4.9f, 0f, 4.7f), Vector3.zero,           3);   // stojaca lampa v rohu
-        PlacePrefab("Table_Side_Apt_01",new Vector3(2.8f, 0f, 4.6f), Vector3.zero,           4);   // bočný stolík
-        PlacePrefab("Vase_Apt_01",      new Vector3(2.8f, 0.62f, 4.6f), Vector3.zero,        1);   // váza na bočnom stolíku
-        PlacePrefab("Chair_Apt_01",     new Vector3(-2.8f, 0f, 2.2f), new Vector3(0, 55, 0), 4);   // kreslo
-        PlacePrefab("Canvas_Painting_01", new Vector3(-2f, 3f, 5.86f), new Vector3(0, 180, 0), 2); // obraz na zadnej stene
-        PlacePrefab("Canvas_Painting_02", new Vector3( 2f, 3f, 5.86f), new Vector3(0, 180, 0), 2); // obraz na zadnej stene
+        // ---------- NÁBYTOK (Kenney Furniture Kit - low-poly cartoon, OAR štýl) ----------
+        float S = 0.4f; // mierka Kenney nábytku
+        PlacePrefab("rugRectangle",     new Vector3(0f, 0.02f, 1.4f), Vector3.zero,         0, false, S * 1.4f); // koberec
+        PlacePrefab("loungeSofa",       new Vector3(0f, 0f, 4.6f),  new Vector3(0,180,0),   6, true,  S);  // gauč
+        PlacePrefab("tableCoffee",      new Vector3(0f, 0f, 1.4f),  Vector3.zero,           4, true,  S);  // konferenčný stolík
+        PlacePrefab("cabinetTelevision",new Vector3(0f, 0f, -5.2f), Vector3.zero,           5, true,  S);  // TV skrinka
+        PlacePrefab("televisionModern", new Vector3(0f, 0.9f, -5.2f), new Vector3(0,180,0), 4, true,  S);  // TV (čelom na gauč)
+        PlacePrefab("bookcaseOpen",     new Vector3(-5.2f, 0f, -1.5f), new Vector3(0,90,0), 6, true,  S);  // knižnica
+        PlacePrefab("lampRoundFloor",   new Vector3(4.9f, 0f, 4.6f), Vector3.zero,          3, true,  S);  // stojaca lampa
+        PlacePrefab("sideTable",        new Vector3(2.9f, 0f, 4.6f), Vector3.zero,          4, true,  S);  // bočný stolík
+        PlacePrefab("loungeChair",      new Vector3(-2.9f, 0f, 2.2f), new Vector3(0,55,0),  4, true,  S);  // kreslo
+        PlacePrefab("pottedPlant",      new Vector3(-4.9f, 0f, 4.6f), Vector3.zero,         3, true,  S);  // rastlina v rohu
+        PlacePrefab("books",            new Vector3(0f, 0.55f, 1.4f), Vector3.zero,         1, true,  S);  // knihy na stolíku
+        PlacePrefab("radio",            new Vector3(2.9f, 0.85f, 4.6f), Vector3.zero,       2, true,  S);  // rádio na stolíku
 
         // ---------- HRÁČ ----------
         int playerLayer = LayerMask.NameToLayer("Player"); if (playerLayer < 0) playerLayer = 3;
@@ -162,22 +160,26 @@ public class CreateLivingRoomScene
     // --- vkladanie reálnych prefabov z Apartment Kit ---
     static GameObject LoadPrefab(string name)
     {
-        foreach (var g in AssetDatabase.FindAssets(name + " t:Prefab"))
+        foreach (var g in AssetDatabase.FindAssets(name))
         {
             var path = AssetDatabase.GUIDToAssetPath(g);
-            if (System.IO.Path.GetFileNameWithoutExtension(path) == name)
-                return AssetDatabase.LoadAssetAtPath<GameObject>(path);
+            string ext = System.IO.Path.GetExtension(path).ToLower();
+            if (ext != ".prefab" && ext != ".fbx") continue;
+            if (System.IO.Path.GetFileNameWithoutExtension(path) != name) continue;
+            var go = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+            if (go != null) return go;
         }
         return null;
     }
 
-    static GameObject PlacePrefab(string name, Vector3 pos, Vector3 euler, int hp, bool breakable = true)
+    static GameObject PlacePrefab(string name, Vector3 pos, Vector3 euler, int hp, bool breakable = true, float scale = 1f)
     {
         var prefab = LoadPrefab(name);
-        if (prefab == null) { Debug.LogWarning("Prefab nenájdený: " + name); return null; }
+        if (prefab == null) { Debug.LogWarning("Model/prefab nenájdený: " + name); return null; }
         var go = (GameObject)PrefabUtility.InstantiatePrefab(prefab);
         go.transform.position = pos;
         go.transform.eulerAngles = euler;
+        if (scale != 1f) go.transform.localScale = go.transform.localScale * scale;
         EnsureCollider(go);
         if (breakable) EnsureBreakable(go, hp);
         return go;

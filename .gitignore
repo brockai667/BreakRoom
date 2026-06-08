@@ -111,3 +111,7 @@ git_sync.bat
 git_pull.bat
 git_sync.log
 shutdown.bat
+import_kit.bat
+import_kit.log
+cleanup_kit.bat
+cleanup_kit.log
