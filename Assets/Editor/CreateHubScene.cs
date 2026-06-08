@@ -41,6 +41,13 @@ public class CreateHubScene
         MkBox("Monitor",     new Vector3(0, 1.35f, 0.55f), new Vector3(0.9f, 0.55f, 0.08f), new Color(0.07f, 0.07f, 0.09f));
         MkBox("PC",          new Vector3(0.85f, 1.1f, 0.4f), new Vector3(0.3f, 0.6f, 0.5f), new Color(0.12f, 0.12f, 0.14f));
 
+        // Pódium pre 3D náhľad zbrane (vpravo v izbe, viditeľné popri shop mriežke)
+        MkBox("PodiumBase",  new Vector3(2.7f, 0.15f, 0.6f), new Vector3(1.3f, 0.3f, 1.3f), new Color(0.45f, 0.18f, 0.07f));
+        var previewGO = new GameObject("WeaponPreview");
+        previewGO.transform.position = new Vector3(2.7f, 1.45f, 0.6f);
+        previewGO.transform.localScale = Vector3.one * 1.3f;
+        previewGO.AddComponent<WeaponPreview>();
+
         // ---------- CANVAS ----------
         var cvGO = new GameObject("UICanvas");
         var cv = cvGO.AddComponent<Canvas>(); cv.renderMode = RenderMode.ScreenSpaceOverlay;
@@ -137,29 +144,33 @@ public class CreateHubScene
         var shTrt = shTitle.GetComponent<RectTransform>();
         shTrt.pivot = new Vector2(0.5f, 1); shTrt.anchoredPosition = new Vector2(0, -30); shTrt.sizeDelta = new Vector2(900, 56);
 
+        // Vertikálny scroll s mriežkou kariet — vľavo (vpravo ostáva pódium s náhľadom)
         var shScroll = new GameObject("ShopScroll"); shScroll.transform.SetParent(shopPanel.transform, false);
         var shSR = shScroll.AddComponent<ScrollRect>();
         var shSRt = shScroll.GetComponent<RectTransform>();
-        shSRt.anchorMin = new Vector2(0.02f, 0.10f); shSRt.anchorMax = new Vector2(0.98f, 0.80f);
+        shSRt.anchorMin = new Vector2(0.02f, 0.05f); shSRt.anchorMax = new Vector2(0.60f, 0.86f);
         shSRt.offsetMin = shSRt.offsetMax = Vector2.zero;
-        shSR.horizontal = true; shSR.vertical = false;
+        shSR.horizontal = false; shSR.vertical = true; shSR.scrollSensitivity = 25;
 
         var shVp = new GameObject("Viewport"); shVp.transform.SetParent(shScroll.transform, false);
         var shVpRt = shVp.AddComponent<RectTransform>();
-        shVp.AddComponent<RectMask2D>();   // spoľahlivé orezanie (Mask s alfa 0 by skryl všetko)
+        shVp.AddComponent<RectMask2D>();
         shVpRt.anchorMin = Vector2.zero; shVpRt.anchorMax = Vector2.one; shVpRt.offsetMin = shVpRt.offsetMax = Vector2.zero;
         shSR.viewport = shVpRt;
 
         var shContent = new GameObject("CardContainer"); shContent.transform.SetParent(shVp.transform, false);
         var shCRt = shContent.AddComponent<RectTransform>();
-        shCRt.anchorMin = new Vector2(0, 0); shCRt.anchorMax = new Vector2(0, 1); shCRt.pivot = new Vector2(0, 0.5f);
-        shCRt.offsetMin = shCRt.offsetMax = Vector2.zero;
-        shCRt.sizeDelta = new Vector2(WeaponData.All.Length * 240f, 0);
-        var shHlg = shContent.AddComponent<HorizontalLayoutGroup>();
-        shHlg.spacing = 30; shHlg.padding = new RectOffset(30, 30, 20, 20);
-        shHlg.childAlignment = TextAnchor.MiddleLeft;
-        shHlg.childControlWidth = true;  shHlg.childControlHeight = true;
-        shHlg.childForceExpandWidth = false; shHlg.childForceExpandHeight = false;
+        shCRt.anchorMin = new Vector2(0, 1); shCRt.anchorMax = new Vector2(1, 1); shCRt.pivot = new Vector2(0.5f, 1);
+        shCRt.anchoredPosition = Vector2.zero; shCRt.sizeDelta = Vector2.zero;
+        var grid = shContent.AddComponent<GridLayoutGroup>();
+        grid.cellSize = new Vector2(205, 275);
+        grid.spacing = new Vector2(20, 20);
+        grid.padding = new RectOffset(20, 20, 20, 20);
+        grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+        grid.constraintCount = 3;
+        grid.childAlignment = TextAnchor.UpperLeft;
+        var shCsf = shContent.AddComponent<ContentSizeFitter>();
+        shCsf.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
         shSR.content = shCRt;
 
         var smGO = new GameObject("ShopManager");

@@ -76,6 +76,15 @@ public class HubManager : MonoBehaviour
         SetTabColor(loadoutTab, tab == "Loadout");
         SetTabColor(shopTab,    tab == "Shop");
 
+        // 3D náhľad zbrane na pódiu — viditeľný na Shop/Loadout, skrytý na Play
+        if (WeaponPreview.Instance != null)
+        {
+            bool show = tab != "Play";
+            if (show && PlayerInventory.Instance != null)
+                WeaponPreview.Instance.Show(PlayerInventory.Instance.GetEquipped());
+            WeaponPreview.Instance.SetVisible(show);
+        }
+
         if (tab == "Loadout") BuildLoadout();
     }
 
@@ -140,7 +149,11 @@ public class HubManager : MonoBehaviour
             var btn = row.GetComponent<Button>();
             string id = w.id;
             if (owned && !equipped)
-                btn.onClick.AddListener(() => { inv.Equip(id); BuildLoadout(); });
+                btn.onClick.AddListener(() => {
+                    inv.Equip(id);
+                    if (WeaponPreview.Instance != null) WeaponPreview.Instance.Show(WeaponData.Get(id));
+                    BuildLoadout();
+                });
             else
                 btn.interactable = false;
         }

@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 public class ShopManager : MonoBehaviour
 {
     [Header("UI Root")]
-    public Transform cardContainer;   // auto-nájdený
+    public Transform cardContainer;   // obsah GridLayoutGroup
     public Text moneyText;
 
     void Start()
@@ -15,7 +15,6 @@ public class ShopManager : MonoBehaviour
         if (moneyText == null)
             moneyText = GameObject.Find("MoneyText")?.GetComponent<Text>();
 
-        // Vytvor PlayerInventory ak neexistuje
         if (PlayerInventory.Instance == null)
             new GameObject("PlayerInventory").AddComponent<PlayerInventory>();
 
@@ -43,96 +42,163 @@ public class ShopManager : MonoBehaviour
         foreach (var w in WeaponData.All) CreateCard(w);
     }
 
+    // ---------- RARITA ----------
+    static void Rarity(WeaponData w, out string name, out Color col)
+    {
+        if (w.price == 0)        { name = "COMMON";    col = new Color(0.60f, 0.60f, 0.62f); }
+        else if (w.price <= 300) { name = "UNCOMMON";  col = new Color(0.30f, 0.80f, 0.35f); }
+        else if (w.price <= 1200){ name = "RARE";      col = new Color(0.30f, 0.60f, 1.00f); }
+        else if (w.price <= 2500){ name = "EPIC";      col = new Color(0.72f, 0.35f, 1.00f); }
+        else                     { name = "LEGENDARY"; col = new Color(1.00f, 0.65f, 0.10f); }
+    }
+
+    // ---------- KARTA ----------
     void CreateCard(WeaponData w)
     {
-        // Card background
-        var cardGO = new GameObject("Card_" + w.id);
-        cardGO.transform.SetParent(cardContainer, false);
-        var cardImg = cardGO.AddComponent<Image>();
-        cardImg.color = new Color(0.15f, 0.08f, 0.04f, 0.95f);
-        var cardRect = cardGO.GetComponent<RectTransform>();
-        cardRect.anchorMin = new Vector2(0.5f, 0.5f);
-        cardRect.anchorMax = new Vector2(0.5f, 0.5f);
-        cardRect.pivot     = new Vector2(0.5f, 0.5f);
-        cardRect.sizeDelta = new Vector2(200, 290);
-        // Pevná veľkosť karty, aby ju HorizontalLayoutGroup nezrazil na nulu
-        var cardLE = cardGO.AddComponent<LayoutElement>();
-        cardLE.preferredWidth = 200; cardLE.minWidth = 200;
-        cardLE.preferredHeight = 290; cardLE.minHeight = 290;
-
-        // Weapon icon (colored square)
-        var iconGO = new GameObject("Icon"); iconGO.transform.SetParent(cardGO.transform, false);
-        var iconImg = iconGO.AddComponent<Image>(); iconImg.color = w.handColor;
-        var iconRect = iconGO.GetComponent<RectTransform>();
-        iconRect.anchoredPosition = new Vector2(0, 70);
-        iconRect.sizeDelta = new Vector2(80, 80);
-
-        // Handle indicator
-        var hndGO = new GameObject("Handle"); hndGO.transform.SetParent(cardGO.transform, false);
-        var hndImg = hndGO.AddComponent<Image>(); hndImg.color = w.handleColor;
-        var hndRect = hndGO.GetComponent<RectTransform>();
-        hndRect.anchoredPosition = new Vector2(0, 20);
-        hndRect.sizeDelta = new Vector2(14, 50);
-
-        // Name text
-        var nameGO = MakeText(cardGO, w.displayName, 18, FontStyle.Bold,
-            new Color(1f, 0.85f, 0.1f), new Vector2(0, -45), new Vector2(180, 28));
-
-        // Description
-        MakeText(cardGO, w.description, 13, FontStyle.Normal,
-            Color.white, new Vector2(0, -95), new Vector2(180, 55));
-
-        // Splash info
-        string splashTxt = w.splashRadius > 0 ? $"Splash: {w.splashRadius:0.0}m" : "Bez splash";
-        MakeText(cardGO, $"DMG: {w.damage}  {splashTxt}", 12, FontStyle.Normal,
-            new Color(0.7f, 0.9f, 1f), new Vector2(0, -135), new Vector2(180, 22));
-
-        // Price text
-        string priceTxt = w.price == 0 ? "ZADARMO" : "$" + w.price;
-        MakeText(cardGO, priceTxt, 16, FontStyle.Bold,
-            w.price == 0 ? Color.green : new Color(1f, 0.85f, 0.1f),
-            new Vector2(0, -110), new Vector2(180, 24));
-
-        // Button
         bool owned    = PlayerInventory.Instance.Owns(w.id);
         bool equipped = PlayerInventory.Instance.EquippedId == w.id;
-        string btnLabel = equipped ? "✓ EQUIPPED" : owned ? "EQUIP" : "$" + w.price + " KÚPIŤ";
-        Color  btnColor = equipped ? new Color(0.1f,0.5f,0.1f) :
-                          owned    ? new Color(0.1f,0.3f,0.6f) : new Color(0.5f,0.15f,0.05f);
+        Rarity(w, out string rarName, out Color rarCol);
 
-        var btnGO = new GameObject("Btn"); btnGO.transform.SetParent(cardGO.transform, false);
-        var btnImg2 = btnGO.AddComponent<Image>(); btnImg2.color = btnColor;
-        var btnRect = btnGO.GetComponent<RectTransform>();
-        btnRect.anchoredPosition = new Vector2(0, -105);
-        btnRect.sizeDelta = new Vector2(175, 38);
-        var btn = btnGO.AddComponent<Button>(); btn.targetGraphic = btnImg2;
-        MakeText(btnGO, btnLabel, 14, FontStyle.Bold, Color.white, Vector2.zero, new Vector2(170,34));
+        // Rámik = farba rarity (veľkosť riadi GridLayoutGroup)
+        var card = new GameObject("Card_" + w.id);
+        card.transform.SetParent(cardContainer, false);
+        var border = card.AddComponent<Image>();
+        border.color = rarCol;
 
-        string capturedId = w.id;
-        btn.onClick.AddListener(() => OnCardClick(capturedId));
+        // Telo karty (tmavé, mierne odsadené od rámika)
+        var body = new GameObject("Body"); body.transform.SetParent(card.transform, false);
+        var bodyImg = body.AddComponent<Image>(); bodyImg.color = new Color(0.10f, 0.07f, 0.05f, 0.99f);
+        Stretch(body.GetComponent<RectTransform>(), 4, 4);
+
+        // Hover efekt
+        var hover = card.AddComponent<CardHover>();
+        hover.border = border; hover.normal = rarCol; hover.highlight = Color.white;
+
+        // Klik na kartu = náhľad na pódiu
+        var cardBtn = body.AddComponent<Button>(); cardBtn.targetGraphic = bodyImg;
+        string pid = w.id;
+        cardBtn.onClick.AddListener(() => Preview(pid));
+
+        // Ikona zbrane (silueta)
+        BuildIcon(body, w);
+
+        // Názov
+        MakeText(body, w.displayName, 19, FontStyle.Bold, new Color(1f, 0.9f, 0.45f),
+                 0.04f, 0.47f, 0.96f, 0.57f, TextAnchor.MiddleCenter);
+        // Rarita
+        MakeText(body, rarName, 12, FontStyle.Bold, rarCol,
+                 0.04f, 0.40f, 0.96f, 0.47f, TextAnchor.MiddleCenter);
+        // DMG / splash
+        string splashTxt = w.splashRadius > 0 ? $"Splash {w.splashRadius:0.0}m" : "Bez splash";
+        MakeText(body, $"DMG {w.damage}    {splashTxt}", 12, FontStyle.Normal, new Color(0.75f, 0.85f, 1f),
+                 0.04f, 0.33f, 0.96f, 0.40f, TextAnchor.MiddleCenter);
+
+        // Tlačidlo (kúpiť / equip / equipped)
+        string btnLabel = equipped ? "✓ EQUIPPED" : owned ? "EQUIP" : (w.price == 0 ? "ZADARMO" : "$" + w.price);
+        Color  btnColor = equipped ? new Color(0.10f, 0.45f, 0.12f)
+                        : owned    ? new Color(0.12f, 0.32f, 0.60f)
+                                   : new Color(0.55f, 0.16f, 0.05f);
+
+        var btnGO = new GameObject("BuyBtn"); btnGO.transform.SetParent(body.transform, false);
+        var btnImg = btnGO.AddComponent<Image>(); btnImg.color = btnColor;
+        PlaceFrac(btnGO.GetComponent<RectTransform>(), 0.10f, 0.07f, 0.90f, 0.20f);
+        var btn = btnGO.AddComponent<Button>(); btn.targetGraphic = btnImg;
+        MakeTextRect(btnGO, btnLabel, 15, FontStyle.Bold, Color.white, TextAnchor.MiddleCenter);
+        btn.onClick.AddListener(() => OnCardClick(pid));
         if (equipped) btn.interactable = false;
+
+        // Badge OWNED v rohu (ak vlastní a nie je equipnuté)
+        if (owned && !equipped)
+        {
+            var badge = new GameObject("Badge"); badge.transform.SetParent(body.transform, false);
+            var bImg = badge.AddComponent<Image>(); bImg.color = new Color(0.12f, 0.32f, 0.60f, 0.95f);
+            PlaceFrac(badge.GetComponent<RectTransform>(), 0.55f, 0.88f, 0.97f, 0.98f);
+            MakeTextRect(badge, "OWNED", 11, FontStyle.Bold, Color.white, TextAnchor.MiddleCenter);
+        }
+    }
+
+    void BuildIcon(GameObject parent, WeaponData w)
+    {
+        var area = new GameObject("IconArea", typeof(RectTransform));
+        area.transform.SetParent(parent.transform, false);
+        PlaceFrac(area.GetComponent<RectTransform>(), 0.2f, 0.58f, 0.8f, 0.95f);
+
+        var handle = new GameObject("Handle"); handle.transform.SetParent(area.transform, false);
+        var hi = handle.AddComponent<Image>(); hi.color = w.handleColor;
+        var hr = handle.GetComponent<RectTransform>();
+        hr.anchorMin = hr.anchorMax = new Vector2(0.5f, 0f); hr.pivot = new Vector2(0.5f, 0f);
+        hr.anchoredPosition = new Vector2(0, 4); hr.sizeDelta = new Vector2(14, 52);
+
+        var head = new GameObject("Head"); head.transform.SetParent(area.transform, false);
+        var hdi = head.AddComponent<Image>(); hdi.color = w.handColor;
+        var hdr = head.GetComponent<RectTransform>();
+        hdr.anchorMin = hdr.anchorMax = new Vector2(0.5f, 0f); hdr.pivot = new Vector2(0.5f, 0f);
+        hdr.anchoredPosition = new Vector2(0, 42); hdr.sizeDelta = HeadSize(w.id);
+    }
+
+    static Vector2 HeadSize(string id)
+    {
+        switch (id)
+        {
+            case "fists":        return new Vector2(46, 44);
+            case "bat":          return new Vector2(20, 78);
+            case "gloves":       return new Vector2(56, 40);
+            case "hammer":       return new Vector2(62, 34);
+            case "axe":          return new Vector2(56, 56);
+            case "sledge":       return new Vector2(72, 44);
+            case "flamethrower": return new Vector2(82, 34);
+            default:             return new Vector2(40, 62);
+        }
+    }
+
+    void Preview(string id)
+    {
+        if (WeaponPreview.Instance != null) WeaponPreview.Instance.Show(WeaponData.Get(id));
     }
 
     void OnCardClick(string id)
     {
         var inv = PlayerInventory.Instance;
-        if (inv.Owns(id))
-            inv.Equip(id);
-        else
-            inv.TryBuy(id);
+        if (inv.Owns(id)) inv.Equip(id);
+        else inv.TryBuy(id);
+        Preview(id);
         RefreshCards();
     }
 
     void RefreshCards() { UpdateMoney(); BuildCards(); }
 
-    GameObject MakeText(GameObject parent, string txt, int size, FontStyle style,
-        Color col, Vector2 anchorPos, Vector2 sizeD)
+    // ---------- HELPERY ----------
+    static void Stretch(RectTransform r, float padX, float padY)
+    {
+        r.anchorMin = Vector2.zero; r.anchorMax = Vector2.one;
+        r.offsetMin = new Vector2(padX, padY); r.offsetMax = new Vector2(-padX, -padY);
+    }
+
+    static void PlaceFrac(RectTransform r, float xmin, float ymin, float xmax, float ymax)
+    {
+        r.anchorMin = new Vector2(xmin, ymin); r.anchorMax = new Vector2(xmax, ymax);
+        r.offsetMin = Vector2.zero; r.offsetMax = Vector2.zero;
+    }
+
+    GameObject MakeText(GameObject parent, string txt, int size, FontStyle style, Color col,
+        float xmin, float ymin, float xmax, float ymax, TextAnchor anchor)
     {
         var go = new GameObject("Txt"); go.transform.SetParent(parent.transform, false);
         var r = go.AddComponent<RectTransform>();
-        r.anchoredPosition = anchorPos; r.sizeDelta = sizeD;
-        var t = go.AddComponent<Text>(); t.text = txt; t.fontSize = size;
-        t.fontStyle = style; t.color = col; t.alignment = TextAnchor.MiddleCenter;
+        PlaceFrac(r, xmin, ymin, xmax, ymax);
+        var t = go.AddComponent<Text>(); t.text = txt; t.fontSize = size; t.fontStyle = style;
+        t.color = col; t.alignment = anchor; t.horizontalOverflow = HorizontalWrapMode.Overflow;
+        t.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        return go;
+    }
+
+    GameObject MakeTextRect(GameObject parent, string txt, int size, FontStyle style, Color col, TextAnchor anchor)
+    {
+        var go = new GameObject("Txt"); go.transform.SetParent(parent.transform, false);
+        var r = go.AddComponent<RectTransform>();
+        r.anchorMin = Vector2.zero; r.anchorMax = Vector2.one; r.offsetMin = r.offsetMax = Vector2.zero;
+        var t = go.AddComponent<Text>(); t.text = txt; t.fontSize = size; t.fontStyle = style;
+        t.color = col; t.alignment = anchor; t.horizontalOverflow = HorizontalWrapMode.Overflow;
         t.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
         return go;
     }
