@@ -5,8 +5,8 @@ using UnityEngine;
 /// (na animáciu počítania peňazí v hube).
 public static class GameSession
 {
-    // Vybraná mapa, ktorú spustí tlačidlo START v hube
-    public static string SelectedMap = "Office";
+    // Vybraná mapa, ktorú spustí tlačidlo START v hube (Obývačka = prvý level)
+    public static string SelectedMap = "Obyvacka";
 
     // Ktorý tab sa otvorí pri vstupe do hubu ("Play", "Loadout", "Shop")
     public static string InitialHubTab = "Play";

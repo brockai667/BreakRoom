@@ -114,8 +114,9 @@ public class CreateLivingRoomScene
         var wh = player.AddComponent<WeaponHit>();
         wh.playerCamera = cam; wh.hitDistance = 4.5f;
 
-        // ---------- PLAYER INVENTORY ----------
+        // ---------- PLAYER INVENTORY + XP ----------
         new GameObject("PlayerInventory").AddComponent<PlayerInventory>();
+        new GameObject("XPManager").AddComponent<XPManager>();   // ničenie -> XP -> level (odomykanie máp)
 
         // ---------- CROSSHAIR ----------
         var cross = new GameObject("Crosshair");

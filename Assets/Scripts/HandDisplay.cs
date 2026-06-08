@@ -14,7 +14,7 @@ public class HandDisplay : MonoBehaviour
     private Vector3 restPos;           // kľudová pozícia
     private bool swinging = false;
     private float swingT  = 0f;
-    private const float SWING_DUR = 0.18f;
+    private const float SWING_DUR = 0.24f;
 
     void Start()
     {
@@ -71,19 +71,22 @@ public class HandDisplay : MonoBehaviour
         swingT += Time.deltaTime / SWING_DUR;
         float t = swingT;
 
-        // Animácia: rýchle švihnutie hore-doprava, potom späť
-        float swing = Mathf.Sin(t * Mathf.PI);       // 0→1→0
-        Vector3 swingOffset = new Vector3(40f * swing, 55f * swing, 0f);
-        float   swingRotate = -35f * swing;
+        // Výrazný sekací švih: nadhoz a úder dole-dopredu, potom späť
+        float swing = Mathf.Sin(t * Mathf.PI);            // 0→1→0 (intenzita)
+        float chop  = Mathf.SmoothStep(0f, 1f, t);        // 0→1 (smer sekania)
+        Vector3 swingOffset = new Vector3(60f * swing, 80f * swing, 0f);
+        float   swingRotate = Mathf.Lerp(40f, -75f, chop) * swing;
 
         handleRect.localPosition = restPos + swingOffset;
         handleRect.localEulerAngles = new Vector3(0, 0, swingRotate);
+        handleRect.localScale = Vector3.one * (1f + 0.12f * swing);
 
         if (t >= 1f)
         {
             swinging = false;
             handleRect.localPosition    = restPos;
             handleRect.localEulerAngles = Vector3.zero;
+            handleRect.localScale       = Vector3.one;
         }
     }
 }

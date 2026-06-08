@@ -14,10 +14,16 @@ public class XPManager : MonoBehaviour
     public int currentLevel = 1;
     public int currentXP = 0;
 
+    // Trvalý level (na odomykanie máp) - čítateľný aj bez inštancie
+    public static int SavedLevel => PlayerPrefs.GetInt("Level", 1);
+
     void Awake()
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
+        // Načítaj trvalý postup
+        currentLevel = PlayerPrefs.GetInt("Level", 1);
+        currentXP    = PlayerPrefs.GetInt("XP", 0);
     }
 
     void Start()
@@ -31,6 +37,11 @@ public class XPManager : MonoBehaviour
 
         while (currentLevel < 100 && currentXP >= XPForLevel(currentLevel + 1))
             currentLevel++;
+
+        // Ulož postup (prežije scénu aj reštart)
+        PlayerPrefs.SetInt("Level", currentLevel);
+        PlayerPrefs.SetInt("XP", currentXP);
+        PlayerPrefs.Save();
 
         UpdateUI();
     }

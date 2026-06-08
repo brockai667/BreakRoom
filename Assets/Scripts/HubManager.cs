@@ -41,6 +41,7 @@ public class HubManager : MonoBehaviour
         if (resultsPanel != null) resultsPanel.SetActive(false);
 
         UpdateMoney();
+        SyncMapIndex();
         UpdateMapLabel();
         ShowTab(string.IsNullOrEmpty(GameSession.InitialHubTab) ? "Play" : GameSession.InitialHubTab);
 
@@ -96,39 +97,57 @@ public class HubManager : MonoBehaviour
     }
 
     // ---------- MAPA ----------
-    static readonly string[] MAPS = { "Office", "Obyvacka" };
+    // Mapy v poradí + level potrebný na odomknutie (Obývačka = prvý level)
+    static readonly (string scene, string label, int unlock)[] MAPS =
+    {
+        ("Obyvacka", "Obývačka",   1),
+        ("Office",   "Kancelária", 3),
+    };
+    int mapIndex = 0;
 
-    // Tlačidlo mapy: prepína medzi dostupnými mapami
+    // Tlačidlo mapy: prepína medzi mapami (vidíš aj zamknuté + ich požiadavku)
     public void SelectOffice() => CycleMap();
 
     public void CycleMap()
     {
-        int i = System.Array.IndexOf(MAPS, GameSession.SelectedMap);
-        i = (i + 1) % MAPS.Length;
-        GameSession.SelectedMap = MAPS[i];
+        mapIndex = (mapIndex + 1) % MAPS.Length;
+        GameSession.SelectedMap = MAPS[mapIndex].scene;
         UpdateMapLabel();
+    }
+
+    bool IsUnlocked(int unlockLevel) => XPManager.SavedLevel >= unlockLevel;
+
+    void SyncMapIndex()
+    {
+        mapIndex = 0;
+        for (int i = 0; i < MAPS.Length; i++)
+            if (MAPS[i].scene == GameSession.SelectedMap) { mapIndex = i; break; }
+        if (!IsUnlocked(MAPS[mapIndex].unlock)) mapIndex = 0; // Obývačka je vždy dostupná
+        GameSession.SelectedMap = MAPS[mapIndex].scene;
     }
 
     void UpdateMapLabel()
     {
-        if (mapLabel != null)
-            mapLabel.text = "Vybraná mapa: " + FriendlyMap(GameSession.SelectedMap);
-    }
-
-    static string FriendlyMap(string id)
-    {
-        switch (id)
-        {
-            case "Obyvacka": return "Obývačka";
-            case "Office":   return "Kancelária";
-            default:         return id;
-        }
+        if (mapLabel == null) return;
+        var m = MAPS[mapIndex];
+        int lvl = XPManager.SavedLevel;
+        bool ok = IsUnlocked(m.unlock);
+        mapLabel.color = ok ? Color.white : new Color(1f, 0.45f, 0.3f);
+        mapLabel.text = ok
+            ? $"Mapa: {m.label}    •    Level {lvl}"
+            : $"🔒 {m.label} — odomkne sa na leveli {m.unlock}  (máš level {lvl})";
     }
 
     public void StartGame()
     {
+        var m = MAPS[mapIndex];
+        if (!IsUnlocked(m.unlock))
+        {
+            UpdateMapLabel();   // zvýrazní zámok na červeno
+            return;
+        }
         Time.timeScale = 1f;
-        SceneManager.LoadScene(GameSession.SelectedMap);
+        SceneManager.LoadScene(m.scene);
     }
 
     public void BackToMainMenu()
