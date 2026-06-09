@@ -26,6 +26,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Obyvacka.unity
     guid: 3fed794f260eb4241a07e50b7c39a099
+  - enabled: 1
+    path: Assets/Scenes/Factory.unity
+    guid: aef54442ffa5d399c8eff0f8692880d8
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0
