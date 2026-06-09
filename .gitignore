@@ -115,3 +115,5 @@ import_kit.bat
 import_kit.log
 cleanup_kit.bat
 cleanup_kit.log
+git_fix.bat
+git_fix.log

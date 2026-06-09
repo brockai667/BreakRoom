@@ -12,6 +12,7 @@ public class WeaponHit : MonoBehaviour
     private bool  isFlamethrower = false;
     private int   layerMask;
     private HandDisplay handDisplay;
+    private FirstPersonHands fpHands;
     private PauseMenu   pauseMenu;
     private float cooldown = 0f;
 
@@ -23,10 +24,13 @@ public class WeaponHit : MonoBehaviour
     void Start()
     {
         layerMask = ~LayerMask.GetMask("Player");
-        if (PlayerInventory.Instance != null)
-            ApplyWeapon(PlayerInventory.Instance.GetEquipped());
         handDisplay = FindObjectOfType<HandDisplay>();
         pauseMenu   = FindObjectOfType<PauseMenu>();
+        if (playerCamera != null) fpHands = FirstPersonHands.Create(playerCamera);
+        // skry 2D ruku v rohu - nahradená 3D rukou v prvej osobe
+        var hud = GameObject.Find("HandDisplayRoot"); if (hud != null) hud.SetActive(false);
+        if (PlayerInventory.Instance != null)
+            ApplyWeapon(PlayerInventory.Instance.GetEquipped());
         BuildFlameFX();
     }
 
@@ -38,6 +42,7 @@ public class WeaponHit : MonoBehaviour
         swingSpeed     = w.swingSpeed;
         isFlamethrower = w.id == "flamethrower";
         if (!isFlamethrower) StopSpray();
+        if (fpHands != null) fpHands.SetWeapon(w);
     }
 
     void Update()
@@ -139,6 +144,7 @@ public class WeaponHit : MonoBehaviour
     void Swing()
     {
         if (handDisplay != null) handDisplay.PlaySwing();
+        if (fpHands != null) fpHands.PlaySwing();
         cooldown = 1f / Mathf.Max(0.1f, swingSpeed);
 
         if (playerCamera == null) return;

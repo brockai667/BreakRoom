@@ -21,7 +21,7 @@ public class WeaponPreview : MonoBehaviour
     {
         if (w == null) return;
         if (current != null) Destroy(current);
-        current = Build(w);
+        current = BuildModel(w);
         current.transform.SetParent(transform, false);
         current.transform.localPosition = Vector3.zero;
         current.SetActive(true);
@@ -33,7 +33,7 @@ public class WeaponPreview : MonoBehaviour
     }
 
     // ---------- STAVBA MODELU ----------
-    static GameObject Build(WeaponData w)
+    public static GameObject BuildModel(WeaponData w)
     {
         var root = new GameObject("WeaponModel_" + w.id);
         var handleMat = Mat(w.handleColor);
