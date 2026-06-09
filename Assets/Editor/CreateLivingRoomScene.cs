@@ -36,18 +36,34 @@ public class CreateLivingRoomScene
         Prop("Strop",       PrimitiveType.Cube, new Vector3(0, 5, 0),      new Vector3(12, 0.3f, 12), ceilCol, 0, false);
         // ---------- NÁBYTOK (Kenney Furniture Kit - low-poly cartoon, OAR štýl) ----------
         float S = 0.4f; // mierka Kenney nábytku
-        PlacePrefab("rugRectangle",     new Vector3(0f, 0.02f, 1.4f), Vector3.zero,         0, false, S * 1.4f); // koberec
-        PlacePrefab("loungeSofa",       new Vector3(0f, 0f, 4.6f),  new Vector3(0,180,0),   6, true,  S);  // gauč
-        PlacePrefab("tableCoffee",      new Vector3(0f, 0f, 1.4f),  Vector3.zero,           4, true,  S);  // konferenčný stolík
-        PlacePrefab("cabinetTelevision",new Vector3(0f, 0f, -5.2f), Vector3.zero,           5, true,  S);  // TV skrinka
-        PlacePrefab("televisionModern", new Vector3(0f, 0.9f, -5.2f), new Vector3(0,180,0), 4, true,  S);  // TV (čelom na gauč)
-        PlacePrefab("bookcaseOpen",     new Vector3(-5.2f, 0f, -1.5f), new Vector3(0,90,0), 6, true,  S);  // knižnica
-        PlacePrefab("lampRoundFloor",   new Vector3(4.9f, 0f, 4.6f), Vector3.zero,          3, true,  S);  // stojaca lampa
-        PlacePrefab("sideTable",        new Vector3(2.9f, 0f, 4.6f), Vector3.zero,          4, true,  S);  // bočný stolík
-        PlacePrefab("loungeChair",      new Vector3(-2.9f, 0f, 2.2f), new Vector3(0,55,0),  4, true,  S);  // kreslo
-        PlacePrefab("pottedPlant",      new Vector3(-4.9f, 0f, 4.6f), Vector3.zero,         3, true,  S);  // rastlina v rohu
-        PlacePrefab("books",            new Vector3(0f, 0.55f, 1.4f), Vector3.zero,         1, true,  S);  // knihy na stolíku
-        PlacePrefab("radio",            new Vector3(2.9f, 0.85f, 4.6f), Vector3.zero,       2, true,  S);  // rádio na stolíku
+        // --- Sedacia zóna: gauč + 2 kreslá + stolík na koberci, čelom k TV (+z) ---
+        PlacePrefab("rugRectangle",     new Vector3(0f, 0.02f, 3.0f), Vector3.zero,         0, false, S * 1.7f); // koberec
+        PlacePrefab("loungeSofa",       new Vector3(0f, 0f, 1.8f),    new Vector3(0,0,0),   6, true,  S);  // gauč čelom k TV
+        PlacePrefab("pillow",           new Vector3(-0.7f,0.34f,1.8f),new Vector3(0,0,0),   1, true,  S);  // vankúš
+        PlacePrefab("pillowBlue",       new Vector3( 0.7f,0.34f,1.8f),new Vector3(0,0,0),   1, true,  S);  // vankúš
+        PlacePrefab("loungeChair",      new Vector3( 3.1f, 0f, 2.9f), new Vector3(0,-30,0), 4, true,  S);  // kreslo vpravo
+        PlacePrefab("loungeChair",      new Vector3(-3.1f, 0f, 2.9f), new Vector3(0, 30,0), 4, true,  S);  // kreslo vľavo
+        PlacePrefab("tableCoffee",      new Vector3(0f, 0f, 3.3f),    Vector3.zero,         4, true,  S);  // konferenčný stolík
+        PlacePrefab("books",            new Vector3(0.2f,0.4f,3.3f),  Vector3.zero,         1, true,  S);  // knihy na stolíku
+        // --- TV pri zadnej stene, čelom na gauč (-z) ---
+        PlacePrefab("cabinetTelevision",new Vector3(0f, 0f, 5.4f),    new Vector3(0,180,0), 5, true,  S);  // TV skrinka
+        PlacePrefab("televisionModern", new Vector3(0f, 0.55f, 5.4f), new Vector3(0,180,0), 4, true,  S);  // TV
+        // --- Bočný stolík + stolová lampa + rádio pri gauči ---
+        PlacePrefab("sideTable",        new Vector3(-2.5f, 0f, 1.8f), Vector3.zero,         4, true,  S);  // bočný stolík
+        PlacePrefab("lampRoundTable",   new Vector3(-2.5f, 0.5f, 1.8f),Vector3.zero,        3, true,  S);  // stolová lampa
+        PlacePrefab("radio",            new Vector3( 2.5f, 0f, 1.8f), Vector3.zero,         2, true,  S);  // rádio
+        // --- Knižnica pri ľavej stene ---
+        PlacePrefab("bookcaseOpen",     new Vector3(-5.5f, 0f, -1.0f),new Vector3(0,90,0),  6, true,  S);  // knižnica
+        // --- Pracovný kút: stôl + stolička + laptop (ľavá-predná stena) ---
+        PlacePrefab("desk",             new Vector3(-5.0f, 0f, -4.4f),new Vector3(0,90,0),  5, true,  S);  // stôl
+        PlacePrefab("chairDesk",        new Vector3(-4.1f, 0f, -4.4f),new Vector3(0,-90,0), 4, true,  S);  // stolička
+        PlacePrefab("laptop",           new Vector3(-5.0f, 0.62f,-4.4f),new Vector3(0,90,0),2, true,  S);  // laptop
+        // --- Doplnky: stojaca lampa, rastliny, vešiak, kôš ---
+        PlacePrefab("lampRoundFloor",   new Vector3(5.3f, 0f, 5.2f),  Vector3.zero,         3, true,  S);  // stojaca lampa (roh)
+        PlacePrefab("pottedPlant",      new Vector3(-5.3f,0f, 5.2f),  Vector3.zero,         3, true,  S);  // veľká rastlina (roh)
+        PlacePrefab("plantSmall1",      new Vector3( 5.3f, 0f, -1.0f),Vector3.zero,         2, true,  S);  // malá rastlina
+        PlacePrefab("coatRackStanding", new Vector3( 4.6f, 0f, -5.0f),Vector3.zero,         3, true,  S);  // vešiak pri vchode
+        PlacePrefab("trashcan",         new Vector3(-3.4f,0f, -4.9f), Vector3.zero,         2, true,  S);  // kôš
 
         // ---------- HRÁČ ----------
         int playerLayer = LayerMask.NameToLayer("Player"); if (playerLayer < 0) playerLayer = 3;
