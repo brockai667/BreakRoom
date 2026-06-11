@@ -11,17 +11,22 @@ public static class GameSession
     // Ktorý tab sa otvorí pri vstupe do hubu ("Play", "Loadout", "Shop")
     public static string InitialHubTab = "Play";
 
-    // --- Výsledky posledného kola (na animáciu v hube) ---
-    public static bool  HasPendingResult = false;
-    public static int   PendingEarned    = 0;
-    public static int   PendingDestroyed = 0;
-    public static float PendingTime      = 0f;
+    // --- Výsledky posledného kola (na vyhodnotenie v hube) ---
+    public static bool   HasPendingResult = false;
+    public static int    PendingEarned    = 0;
+    public static int    PendingDestroyed = 0;
+    public static float  PendingTime      = 0f;
+    public static string PendingGrade     = "C";    // S/A/B/C/D
+    public static bool   PendingCleared   = false;  // zničil hráč celú miestnosť?
 
-    public static void SetResult(int earned, int destroyed, float time)
+    public static void SetResult(int earned, int destroyed, float time,
+                                 string grade = "C", bool cleared = false)
     {
         PendingEarned    = earned;
         PendingDestroyed = destroyed;
         PendingTime      = time;
+        PendingGrade     = grade;
+        PendingCleared   = cleared;
         HasPendingResult = true;
     }
 
@@ -31,5 +36,7 @@ public static class GameSession
         PendingEarned    = 0;
         PendingDestroyed = 0;
         PendingTime      = 0f;
+        PendingGrade     = "C";
+        PendingCleared   = false;
     }
 }

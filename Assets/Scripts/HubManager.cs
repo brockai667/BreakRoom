@@ -32,6 +32,8 @@ public class HubManager : MonoBehaviour
  
     static readonly Color TAB_ON  = new Color(0.55f, 0.15f, 0.05f, 1f);
     static readonly Color TAB_OFF = new Color(0.18f, 0.10f, 0.05f, 1f);
+
+    Text gradeLabel;   // veľké hodnotenie S/A/B/C nad výsledkami
  
     void Start()
     {
@@ -203,17 +205,21 @@ public class HubManager : MonoBehaviour
     // ---------- ANIMÁCIA PEŇAZÍ ----------
     IEnumerator AnimateEarnings()
     {
-        int   earned    = GameSession.PendingEarned;
-        int   destroyed = GameSession.PendingDestroyed;
-        float time      = GameSession.PendingTime;
+        int    earned    = GameSession.PendingEarned;
+        int    destroyed = GameSession.PendingDestroyed;
+        float  time      = GameSession.PendingTime;
+        string grade     = GameSession.PendingGrade;
+        bool   cleared   = GameSession.PendingCleared;
         int   startTotal = PlayerInventory.Instance != null ? PlayerInventory.Instance.Money : 0;
  
         if (resultsPanel != null) resultsPanel.SetActive(true);
+        ShowGrade(grade);
         if (resultsText != null)
         {
             int m = (int)time / 60;
             int s = (int)time % 60;
-            resultsText.text = $"Rozbité: {destroyed}    Čas: {m:00}:{s:00}";
+            resultsText.text = (cleared ? "PERFECT — celá miestnosť zničená!\n" : "")
+                             + $"Rozbité: {destroyed}    Čas: {m:00}:{s:00}    •    Hodnotenie: {grade}";
         }
         if (earnedFlyText != null) earnedFlyText.text = "";
  
@@ -251,6 +257,38 @@ public class HubManager : MonoBehaviour
         float t = 0f;
         while (t < secs) { t += Time.unscaledDeltaTime; yield return null; }
     }
+
+    // Veľké písmeno hodnotenia (S/A/B/C/D) nad výsledkovým panelom
+    void ShowGrade(string grade)
+    {
+        if (resultsPanel == null) return;
+        if (gradeLabel == null)
+        {
+            var go = new GameObject("GradeLabel");
+            go.transform.SetParent(resultsPanel.transform, false);
+            var r = go.AddComponent<RectTransform>();
+            r.anchorMin = new Vector2(0.5f, 1f); r.anchorMax = new Vector2(0.5f, 1f);
+            r.pivot = new Vector2(0.5f, 0f);
+            r.anchoredPosition = new Vector2(0, 14); r.sizeDelta = new Vector2(320, 130);
+            gradeLabel = go.AddComponent<Text>();
+            gradeLabel.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            gradeLabel.fontSize = 100; gradeLabel.fontStyle = FontStyle.Bold;
+            gradeLabel.alignment = TextAnchor.MiddleCenter;
+            gradeLabel.horizontalOverflow = HorizontalWrapMode.Overflow;
+            gradeLabel.verticalOverflow = VerticalWrapMode.Overflow;
+            var sh = go.AddComponent<Shadow>();
+            sh.effectColor = new Color(0f, 0f, 0f, 0.7f); sh.effectDistance = new Vector2(3, -3);
+        }
+        gradeLabel.text = grade;
+        gradeLabel.color = GradeColor(grade);
+    }
+
+    static Color GradeColor(string g)
+        => g == "S" ? new Color(1f, 0.84f, 0.1f)
+         : g == "A" ? new Color(0.30f, 0.9f, 0.35f)
+         : g == "B" ? new Color(0.35f, 0.6f, 1f)
+         : g == "C" ? new Color(1f, 0.6f, 0.2f)
+                    : new Color(0.7f, 0.7f, 0.72f);
  
     // ---------- HELPERY UI ----------
     GameObject MakeRowButton(Transform parent, string label, Color bg, Color iconCol)

@@ -13,6 +13,12 @@ public class GameManager : MonoBehaviour
     public int   roundMoney     = 0;   // peniaze nazbierané v tomto kole (pridajú sa v hube)
     public bool  roundActive    = true;
 
+    // --- Sledovanie "vyčistenia miestnosti" (auto-koniec) ---
+    int   liveBreakables = 0;   // koľko rozbitných vecí (vrátane kúskov) je práve v scéne
+    bool  anyRegistered  = false;
+    bool  warmupDone     = false;   // počkaj kým sa všetky veci zaregistrujú
+    float clearDelay     = -1f;     // po vyčistení krátka oslava, potom vyhodnotenie
+
     [Header("Round timer")]
     public float    roundDuration = 300f;   // dĺžka kola v sekundách (5:00)
     public TMP_Text timerText;
@@ -66,11 +72,38 @@ public class GameManager : MonoBehaviour
             timerText.text = $"{m:00}:{s:00}";
             timerText.color = left <= 30f ? new Color(1f, 0.3f, 0.2f) : Color.white;
         }
-        if (left <= 0f) QuitToHub();   // čas vypršal -> koniec kola, do hubu
+        if (left <= 0f) { EndAndGoHub(false); return; }   // čas vypršal -> vyhodnotenie
+
+        // --- Auto-koniec: keď je celá miestnosť zničená ---
+        if (!warmupDone && elapsedTime > 1.5f) warmupDone = true;  // počkaj na registráciu
+        if (warmupDone && anyRegistered)
+        {
+            if (clearDelay < 0f)
+            {
+                if (liveBreakables <= 0)
+                {
+                    clearDelay = 1.0f;                     // krátka oslava
+                    if (Announcer.Instance != null) Announcer.Show("VŠETKO ZNIČENÉ!", true);
+                }
+            }
+            else
+            {
+                if (liveBreakables > 0) clearDelay = -1f;  // objavili sa nové kúsky -> zruš
+                else
+                {
+                    clearDelay -= Time.deltaTime;
+                    if (clearDelay <= 0f) { EndAndGoHub(true); return; }
+                }
+            }
+        }
     }
 
     public void RegisterDestroy() => destroyedCount++;
     public void AddRoundMoney(int amount) => roundMoney += amount;
+
+    // Rozbitné veci sa hlásia sem, aby sme vedeli, kedy je miestnosť čistá
+    public void RegisterBreakable()   { liveBreakables++; anyRegistered = true; }
+    public void UnregisterBreakable() { liveBreakables--; }
 
     /// Bonus na konci kola = odmena za množstvo rozbitia (combo).
     /// Hlavné peniaze sú v roundMoney (súčet odmien za jednotlivé veci),
@@ -84,9 +117,12 @@ public class GameManager : MonoBehaviour
              : destroyedCount >=  20 ?  30 : 0;
     }
 
-    /// Ukonči kolo a choď do hubu. Peniaze sa NEpridajú tu - hub ich
-    /// animovane pripočíta k celkovej sume. Volá to tlačidlo QUIT v pauze.
-    public void QuitToHub()
+    /// Tlačidlo QUIT v pauze: ukonči kolo a ukáž vyhodnotenie v hube.
+    public void QuitToHub() => EndAndGoHub(false);
+
+    /// Ukonči kolo a choď na vyhodnotenie do hubu. Peniaze sa NEpridajú tu -
+    /// hub ich animovane pripočíta. cleared = hráč zničil celú miestnosť.
+    void EndAndGoHub(bool cleared)
     {
         Time.timeScale = 1f;
         Cursor.lockState = CursorLockMode.None;
@@ -95,11 +131,23 @@ public class GameManager : MonoBehaviour
         if (roundActive)
         {
             roundActive = false;
-            int earned = roundMoney + CalculateBonus();
-            GameSession.SetResult(earned, destroyedCount, elapsedTime);
+            int bonus = CalculateBonus();
+            if (cleared) bonus += 150;                  // bonus za vyčistenie miestnosti
+            int earned = roundMoney + bonus;
+            string grade = ComputeGrade(cleared);
+            GameSession.SetResult(earned, destroyedCount, elapsedTime, grade, cleared);
         }
 
         SceneManager.LoadScene("Hub");
+    }
+
+    // Hodnotenie kola: S / A / B / C / D
+    string ComputeGrade(bool cleared)
+    {
+        if (cleared)
+            return elapsedTime <= 90f ? "S" : elapsedTime <= 160f ? "A" : "B";
+        int d = destroyedCount;
+        return d >= 150 ? "S" : d >= 90 ? "A" : d >= 50 ? "B" : d >= 20 ? "C" : "D";
     }
 
     // Legacy: ak by niečo ešte volalo EndRound, presmeruj na nový flow

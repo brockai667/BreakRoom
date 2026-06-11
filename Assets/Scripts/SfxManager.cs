@@ -26,6 +26,9 @@ public class SfxManager : MonoBehaviour
     AudioClip   uiClip;
     AudioClip   coinClip;
     AudioClip   levelClip;
+    AudioClip   boomClip;
+    AudioClip   zapClip;
+    AudioClip   stingClip;
 
     AudioSource flameSource;   // looping plameňomet
     AudioSource uiSource;      // 2D UI / peniaze
@@ -131,6 +134,25 @@ public class SfxManager : MonoBehaviour
         Instance.uiSource.PlayOneShot(Instance.levelClip, 0.6f);
     }
 
+    public static void Boom(Vector3 pos)
+    {
+        if (Instance == null) return;
+        Instance.PlayAt(Instance.boomClip, pos, Random.Range(0.9f, 1.1f), 1f);
+    }
+
+    public static void Zap(Vector3 pos)
+    {
+        if (Instance == null) return;
+        Instance.PlayAt(Instance.zapClip, pos, Random.Range(0.95f, 1.2f), 0.5f);
+    }
+
+    public static void Sting()
+    {
+        if (Instance == null) return;
+        Instance.uiSource.pitch = 1f;
+        Instance.uiSource.PlayOneShot(Instance.stingClip, 0.55f);
+    }
+
     public static void FlameOn()
     {
         if (Instance == null || Instance.flameSource == null) return;
@@ -173,6 +195,59 @@ public class SfxManager : MonoBehaviour
         uiClip    = MakeBlip(0.06f, 760f);
         coinClip  = MakeCoin();
         levelClip = MakeLevel();
+        boomClip  = MakeBoom(0.7f);
+        zapClip   = MakeZap(0.18f);
+        stingClip = MakeSting(0.28f);
+    }
+
+    // Výbuch: hlboké dunenie + nárazový šum
+    AudioClip MakeBoom(float dur)
+    {
+        int n = (int)(SR * dur); var d = new float[n];
+        for (int i = 0; i < n; i++)
+        {
+            float t = i / (float)SR;
+            float env = Mathf.Exp(-t * 5f);
+            float rumble = Mathf.Sin(2f * Mathf.PI * Mathf.Lerp(78f, 36f, t / dur) * t) * 0.6f;
+            float noise = (Random.value * 2f - 1f) * Mathf.Exp(-t * 8f) * 0.6f;
+            float crack = i < 400 ? (Random.value * 2f - 1f) * (1f - i / 400f) * 0.5f : 0f;
+            d[i] = Mathf.Clamp(rumble * env + noise + crack, -1f, 1f);
+        }
+        return MakeClip("boom", d);
+    }
+
+    // Elektrické iskrenie: bzučivý šum s klesajúcim tónom
+    AudioClip MakeZap(float dur)
+    {
+        int n = (int)(SR * dur); var d = new float[n];
+        for (int i = 0; i < n; i++)
+        {
+            float t = i / (float)SR;
+            float env = Mathf.Exp(-t * 16f);
+            float f = Mathf.Lerp(1400f, 300f, t / dur);
+            float buzz = Mathf.Sign(Mathf.Sin(2f * Mathf.PI * f * t));
+            float noise = Random.value * 2f - 1f;
+            float am = 0.5f + 0.5f * Mathf.Sin(2f * Mathf.PI * 60f * t);
+            d[i] = Mathf.Clamp((buzz * 0.4f + noise * 0.4f) * am * env, -1f, 1f);
+        }
+        return MakeClip("zap", d);
+    }
+
+    // Hlásičový "sting": jasný úderový akord
+    AudioClip MakeSting(float dur)
+    {
+        int n = (int)(SR * dur); var d = new float[n];
+        float[] f = { 392f, 523f, 784f };
+        for (int i = 0; i < n; i++)
+        {
+            float t = i / (float)SR;
+            float env = Mathf.Exp(-t * 9f);
+            float s = 0f; for (int k = 0; k < f.Length; k++) s += Mathf.Sin(2f * Mathf.PI * f[k] * t);
+            s /= f.Length;
+            float atk = i < 300 ? (Random.value * 2f - 1f) * (1f - i / 300f) * 0.3f : 0f;
+            d[i] = Mathf.Clamp((s * 0.7f + atk) * env, -1f, 1f);
+        }
+        return MakeClip("sting", d);
     }
 
     AudioClip MakeClip(string name, float[] data)

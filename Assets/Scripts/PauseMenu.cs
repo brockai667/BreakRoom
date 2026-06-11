@@ -18,10 +18,24 @@ public class PauseMenu : MonoBehaviour
         crosshairDot = GameObject.Find("Crosshair");
 
         if (pausePanel != null) pausePanel.SetActive(false);
+        RelabelQuitButton();
 
         Time.timeScale = 1f;
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+    }
+
+    // Premenuj tlačidlo QUIT/MENU v pauze na jasné "UKONČIŤ — VYHODNOTENIE"
+    void RelabelQuitButton()
+    {
+        if (pausePanel == null) return;
+        foreach (var txt in pausePanel.GetComponentsInChildren<UnityEngine.UI.Text>(true))
+        {
+            string low = txt.text.ToLowerInvariant();
+            if (low.Contains("quit") || low.Contains("menu") || low.Contains("hub") ||
+                low.Contains("ukonč") || low.Contains("koniec") || low.Contains("odíst") || low.Contains("odísť"))
+                txt.text = "UKONČIŤ — VYHODNOTENIE";
+        }
     }
 
     void Update()

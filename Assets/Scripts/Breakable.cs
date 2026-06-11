@@ -22,11 +22,23 @@ public class Breakable : MonoBehaviour
     // serializácie). [NonSerialized] => scénové objekty to majú vždy false.
     [System.NonSerialized] public bool isChunk = false;
 
+    // Špeciálne typy (nastavuje SpecialObjects za behu)
+    [System.NonSerialized] public bool golden;      // bonusové peniaze
+    [System.NonSerialized] public bool explosive;   // výbuch + reťazová reakcia
+    [System.NonSerialized] public bool electronic;  // iskry pri rozbití
+
+    bool   broken;      // už rozbité? (proti dvojitému rozbitiu / reťazi)
     bool   configured;
+    bool   counted;     // zaregistrovaná v GameManager.liveBreakables?
     Color  baseColor = new Color(0.6f, 0.6f, 0.62f);
     Vector3 worldSize = Vector3.one;
 
     void Start() { Configure(); }
+
+    void OnDestroy()
+    {
+        if (counted && GameManager.Instance != null) GameManager.Instance.UnregisterBreakable();
+    }
 
     // Zistí farbu/veľkosť. Pre scénové veci odvodí odmenu/XP/delenie z
     // veľkosti (raz). Úlomky majú hodnoty nastavené ručne -> nechá ich tak.
@@ -34,6 +46,10 @@ public class Breakable : MonoBehaviour
     {
         if (configured) return;
         configured = true;
+
+        // Zaregistruj sa do počtu živých vecí (kúsky sú predregistrované v SpawnChunks)
+        if (!counted && GameManager.Instance != null)
+        { GameManager.Instance.RegisterBreakable(); counted = true; }
 
         var rend = GetComponent<Renderer>() ?? GetComponentInChildren<Renderer>();
         if (rend != null) baseColor = rend.material.color;
@@ -62,6 +78,7 @@ public class Breakable : MonoBehaviour
 
     public void Hit(Vector3 hitPoint, Vector3 swingDir)
     {
+        if (broken) return;
         if (!configured) Configure();
         hp -= damage;
         StartCoroutine(ShakeOnHit());
@@ -73,23 +90,65 @@ public class Breakable : MonoBehaviour
 
     void Break(Vector3 hitPoint, Vector3 swingDir)
     {
-        // XP
+        if (broken) return;
+        broken = true;
+
+        int pay = golden ? reward * 5 : reward;
         if (XPManager.Instance != null) XPManager.Instance.AddXP(xpValue);
-        // Peniaze za kolo - nazbierajú sa a v hube sa animovane pripočítajú
-        if (GameManager.Instance != null) GameManager.Instance.AddRoundMoney(reward);
-        else if (PlayerInventory.Instance != null) PlayerInventory.Instance.AddMoney(reward);
-        // Skóre
-        if (GameManager.Instance != null) GameManager.Instance.RegisterDestroy();
+        if (GameManager.Instance != null)
+        { GameManager.Instance.AddRoundMoney(pay); GameManager.Instance.RegisterDestroy(); }
+        else if (PlayerInventory.Instance != null) PlayerInventory.Instance.AddMoney(pay);
 
-        // Zvuk rozbitia
+        // Zvuk + hlášky
         SfxManager.Break(hitPoint);
+        if (golden)
+        {
+            SfxManager.Coin();
+            if (Announcer.Instance != null) Announcer.Show("ZLATÁ VEC!  +$" + pay, true);
+        }
+        else if (!isChunk && Random.value < 0.12f)
+            Announcer.Smash();                       // občasná smash hláška
 
-        // Veľké veci -> menšie rozbitné kúsky
-        if (subdivideStages > 0 && childPieces > 0)
+        // Špeciálne efekty
+        if (electronic) { Fx.Sparks(transform.position, baseColor); SfxManager.Zap(transform.position); }
+        if (explosive)  Explode(transform.position);
+
+        // Veľké veci -> menšie rozbitné kúsky (výbušné sa rovno vyparia)
+        if (!explosive && subdivideStages > 0 && childPieces > 0)
             SpawnChunks(hitPoint, swingDir);
 
         SpawnFragments(hitPoint, swingDir);
         Destroy(gameObject);
+    }
+
+    // Výbuch: reťazová reakcia, otras kamery, bonus.
+    void Explode(Vector3 center)
+    {
+        SfxManager.Boom(center);
+        CameraShaker.Shake(0.35f, 0.45f);
+        Fx.Explosion(center);
+        if (Announcer.Instance != null) Announcer.Show("BOOM!", true);
+        if (GameManager.Instance != null) GameManager.Instance.AddRoundMoney(15);
+
+        const float R = 3.2f;
+        foreach (var col in Physics.OverlapSphere(center, R))
+        {
+            if (col == null) continue;
+            var rb = col.attachedRigidbody;
+            if (rb != null) rb.AddExplosionForce(650f, center, R, 1.8f);
+            var b = col.GetComponent<Breakable>();
+            if (b != null && b != this) b.KillFromExplosion(center);
+        }
+    }
+
+    // Zničenie výbuchom suseda (reťazí ďalšie výbuchy).
+    public void KillFromExplosion(Vector3 source)
+    {
+        if (broken || this == null) return;
+        if (!configured) Configure();
+        Vector3 dir = (transform.position - source).normalized;
+        hp = 0;
+        Break(transform.position, dir);
     }
 
     // Menšie kúsky, ktoré sa dajú rozbíjať ďalej (o stupeň menej)
@@ -140,6 +199,11 @@ public class Breakable : MonoBehaviour
             b.fragmentCount = 4;
             b.subdivideStages = nextStage;        // bounded -> nakoniec 0
             b.childPieces = nextStage > 0 ? nextPieces : 0;
+
+            // Predregistruj hneď (nie až v Start), aby auto-koniec nefalšoval
+            // počas jedného snímku medzi zánikom starého kusu a vznikom nových
+            b.counted = true;
+            if (GameManager.Instance != null) GameManager.Instance.RegisterBreakable();
 
             Destroy(chunk, 40f);                  // upracenie, ak ich hráč nerozbije
         }
