@@ -72,15 +72,16 @@ public class GameManager : MonoBehaviour
     public void RegisterDestroy() => destroyedCount++;
     public void AddRoundMoney(int amount) => roundMoney += amount;
 
-    /// Bonus na konci kola (rýchlosť + combo). Priebežné peniaze sú v roundMoney.
+    /// Bonus na konci kola = odmena za množstvo rozbitia (combo).
+    /// Hlavné peniaze sú v roundMoney (súčet odmien za jednotlivé veci),
+    /// takže platí pravidlo "viac rozbiješ = viac zarobíš". Bonus je len
+    /// malá nadstavba za usilovnosť, nie hlavný zdroj peňazí.
     public int CalculateBonus()
     {
-        float speedMul   = Mathf.Max(0f, 300f - elapsedTime);
-        int   timeBonus  = (int)(speedMul * 0.5f);
-        int   comboBonus = destroyedCount >= 30 ? 200
-                         : destroyedCount >= 20 ? 100
-                         : destroyedCount >= 10 ? 40 : 0;
-        return timeBonus + comboBonus;
+        return destroyedCount >= 120 ? 250
+             : destroyedCount >=  80 ? 150
+             : destroyedCount >=  45 ?  80
+             : destroyedCount >=  20 ?  30 : 0;
     }
 
     /// Ukonči kolo a choď do hubu. Peniaze sa NEpridajú tu - hub ich

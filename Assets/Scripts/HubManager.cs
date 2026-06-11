@@ -41,6 +41,9 @@ public class HubManager : MonoBehaviour
  
         if (resultsPanel != null) resultsPanel.SetActive(false);
  
+        // Postavička robotníka v pozadí lobby (low-poly, OAR/Synty štýl)
+        LobbyCharacter.EnsureInScene();
+
         UpdateMoney();
         SyncMapIndex();
         UpdateMapLabel();
@@ -219,7 +222,7 @@ public class HubManager : MonoBehaviour
  
         // postupné odpočítavanie zarobeného a pripočítavanie k celku
         if (earnedFlyText != null) earnedFlyText.text = "+$" + earned;
-        float dur = 1.3f, t = 0f;
+        float dur = 1.3f, t = 0f, coinTick = 0f;
         while (t < dur)
         {
             t += Time.unscaledDeltaTime;
@@ -228,6 +231,8 @@ public class HubManager : MonoBehaviour
             int shownEarned  = Mathf.RoundToInt(earned * (1f - k));
             if (moneyText     != null) moneyText.text     = "$" + shownTotal;
             if (earnedFlyText != null) earnedFlyText.text = shownEarned > 0 ? "+$" + shownEarned : "";
+            coinTick -= Time.unscaledDeltaTime;
+            if (earned > 0 && coinTick <= 0f) { coinTick = 0.12f; SfxManager.Coin(); }
             yield return null;
         }
  

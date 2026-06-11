@@ -64,7 +64,7 @@ public class WeaponHit : MonoBehaviour
     {
         if (Mouse.current.leftButton.isPressed)
         {
-            if (!spraying) { spraying = true; if (flameFX != null) flameFX.Play(); }
+            if (!spraying) { spraying = true; if (flameFX != null) flameFX.Play(); SfxManager.FlameOn(); }
             fireTick -= Time.deltaTime;
             if (fireTick <= 0f) { fireTick = 0.08f; SprayDamage(); }
         }
@@ -73,7 +73,7 @@ public class WeaponHit : MonoBehaviour
 
     void StopSpray()
     {
-        if (spraying) { spraying = false; if (flameFX != null) flameFX.Stop(); }
+        if (spraying) { spraying = false; if (flameFX != null) flameFX.Stop(); SfxManager.FlameOff(); }
     }
 
     void SprayDamage()
@@ -145,6 +145,7 @@ public class WeaponHit : MonoBehaviour
     {
         if (handDisplay != null) handDisplay.PlaySwing();
         if (fpHands != null) fpHands.PlaySwing();
+        SfxManager.Swing();
         cooldown = 1f / Mathf.Max(0.1f, swingSpeed);
 
         if (playerCamera == null) return;
