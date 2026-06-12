@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerInventory : MonoBehaviour
@@ -7,6 +6,8 @@ public class PlayerInventory : MonoBehaviour
 
     public int Money { get; private set; }
     public string EquippedId { get; private set; } = "fists";
+
+    public const int MAX_UPGRADE = 3;
 
     public event System.Action OnChanged;
 
@@ -22,7 +23,6 @@ public class PlayerInventory : MonoBehaviour
     {
         Money      = PlayerPrefs.GetInt("Money", 0);
         EquippedId = PlayerPrefs.GetString("Equipped", "fists");
-        // Uisti sa, že vždy vlastníme holé ruky
         if (!Owns("fists")) GiveWeapon("fists");
     }
 
@@ -61,7 +61,6 @@ public class PlayerInventory : MonoBehaviour
         EquippedId = id;
         Save();
         OnChanged?.Invoke();
-        // Notify weapon hit in current scene
         var wh = FindFirstObjectByType<WeaponHit>();
         if (wh != null) wh.ApplyWeapon(WeaponData.Get(id));
         var hd = FindFirstObjectByType<HandDisplay>();
@@ -73,6 +72,41 @@ public class PlayerInventory : MonoBehaviour
         Money += amount;
         Save();
         OnChanged?.Invoke();
+    }
+
+    // ---------- UPGRADY ----------
+    public int UpgradeLevel(string id)
+    {
+        return Mathf.Clamp(PlayerPrefs.GetInt("Up_" + id, 0), 0, MAX_UPGRADE);
+    }
+
+    public int UpgradeCost(string id)
+    {
+        var w = WeaponData.Get(id);
+        int lvl = UpgradeLevel(id);
+        return Mathf.Max(80, w.price / 3) * (lvl + 1);
+    }
+
+    public bool CanUpgrade(string id)
+    {
+        return Owns(id) && UpgradeLevel(id) < MAX_UPGRADE;
+    }
+
+    public bool TryUpgrade(string id)
+    {
+        if (!CanUpgrade(id)) return false;
+        int cost = UpgradeCost(id);
+        if (Money < cost) return false;
+        Money -= cost;
+        PlayerPrefs.SetInt("Up_" + id, UpgradeLevel(id) + 1);
+        Save();
+        OnChanged?.Invoke();
+        if (EquippedId == id)
+        {
+            var wh = FindFirstObjectByType<WeaponHit>();
+            if (wh != null) wh.ApplyWeapon(WeaponData.Get(id));
+        }
+        return true;
     }
 
     public WeaponData GetEquipped() => WeaponData.Get(EquippedId);

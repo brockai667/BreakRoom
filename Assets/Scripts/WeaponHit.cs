@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -16,7 +17,7 @@ public class WeaponHit : MonoBehaviour
     private PauseMenu   pauseMenu;
     private float cooldown = 0f;
 
-    // Plameňomet
+    // Plamenomet
     private ParticleSystem flameFX;
     private bool  spraying = false;
     private float fireTick = 0f;
@@ -27,7 +28,6 @@ public class WeaponHit : MonoBehaviour
         handDisplay = FindFirstObjectByType<HandDisplay>();
         pauseMenu   = FindFirstObjectByType<PauseMenu>();
         if (playerCamera != null) fpHands = FirstPersonHands.Create(playerCamera);
-        // skry 2D ruku v rohu - nahradená 3D rukou v prvej osobe
         var hud = GameObject.Find("HandDisplayRoot"); if (hud != null) hud.SetActive(false);
         if (PlayerInventory.Instance != null)
             ApplyWeapon(PlayerInventory.Instance.GetEquipped());
@@ -36,8 +36,9 @@ public class WeaponHit : MonoBehaviour
 
     public void ApplyWeapon(WeaponData w)
     {
-        damage         = w.damage;
-        splash         = w.splashRadius;
+        int up = PlayerInventory.Instance != null ? PlayerInventory.Instance.UpgradeLevel(w.id) : 0;
+        damage         = w.damage + up;                 // +1 damage za upgrade level
+        splash         = w.splashRadius + up * 0.1f;    // +0.1 splash za level
         hitDistance    = w.hitDistance;
         swingSpeed     = w.swingSpeed;
         isFlamethrower = w.id == "flamethrower";
@@ -54,12 +55,11 @@ public class WeaponHit : MonoBehaviour
 
         if (isFlamethrower) { HandleFlamethrower(); return; }
 
-        // Bežné zbrane: klik + cooldown podľa rýchlosti švihu
         if (cooldown > 0f) { cooldown -= Time.deltaTime; return; }
         if (Mouse.current.leftButton.wasPressedThisFrame) Swing();
     }
 
-    // ---------- PLAMEŇOMET ----------
+    // ---------- PLAMENOMET ----------
     void HandleFlamethrower()
     {
         if (Mouse.current.leftButton.isPressed)
@@ -140,7 +140,7 @@ public class WeaponHit : MonoBehaviour
         psr.material = mat;
     }
 
-    // ---------- BEŽNÉ ZBRANE ----------
+    // ---------- BEZNE ZBRANE ----------
     void Swing()
     {
         if (handDisplay != null) handDisplay.PlaySwing();
@@ -148,13 +148,31 @@ public class WeaponHit : MonoBehaviour
         SfxManager.Swing();
         cooldown = 1f / Mathf.Max(0.1f, swingSpeed);
 
+        // Uder dopadne az v momente kontaktu animacie (realistickejsie)
+        float impactDelay = Mathf.Clamp(0.14f / Mathf.Max(0.4f, swingSpeed), 0.05f, 0.28f);
+        StartCoroutine(DoHitAfter(impactDelay));
+    }
+
+    IEnumerator DoHitAfter(float delay)
+    {
+        float t = 0f;
+        while (t < delay) { t += Time.deltaTime; yield return null; }
+        if (pauseMenu != null && pauseMenu.IsPaused) yield break;
+        if (GameManager.Instance != null && !GameManager.Instance.roundActive) yield break;
+        PerformHit();
+    }
+
+    void PerformHit()
+    {
         if (playerCamera == null) return;
 
+        bool connected = false;
         Ray ray = playerCamera.ScreenPointToRay(new Vector3(Screen.width / 2f, Screen.height / 2f, 0));
         RaycastHit hit;
         if (Physics.Raycast(ray, out hit, hitDistance, layerMask))
         {
             var b = hit.collider.GetComponent<Breakable>();
+            if (b != null) connected = true;
             HitBreakable(b, hit.point, ray.direction);
 
             if (splash > 0f)
@@ -165,6 +183,13 @@ public class WeaponHit : MonoBehaviour
                     HitBreakable(col.GetComponent<Breakable>(), hit.point, ray.direction);
                 }
             }
+        }
+
+        // Pocit z uderu: otras kamery + mikro hit-stop podla sily zbrane
+        if (connected)
+        {
+            CameraShaker.Shake(0.08f, 0.025f + damage * 0.006f);
+            Juice.HitStop(Mathf.Clamp(0.012f + damage * 0.004f, 0.012f, 0.05f));
         }
     }
 

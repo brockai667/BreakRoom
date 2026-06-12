@@ -107,6 +107,23 @@ public class ShopManager : MonoBehaviour
         btn.onClick.AddListener(() => OnCardClick(pid));
         if (equipped) btn.interactable = false;
 
+        // UPGRADE tlacidlo (len vlastnene zbrane, do max levelu)
+        if (owned)
+        {
+            int lvl = PlayerInventory.Instance.UpgradeLevel(pid);
+            bool maxed = lvl >= PlayerInventory.MAX_UPGRADE;
+            int cost = PlayerInventory.Instance.UpgradeCost(pid);
+            string upLabel = maxed ? "MAX UPGRADE" : ("UPGRADE Lv" + lvl + "  $" + cost);
+            Color upColor = maxed ? new Color(0.20f, 0.20f, 0.22f) : new Color(0.35f, 0.55f, 0.12f);
+            var upGO = new GameObject("UpgradeBtn"); upGO.transform.SetParent(body.transform, false);
+            var upImg = upGO.AddComponent<Image>(); upImg.color = upColor;
+            PlaceFrac(upGO.GetComponent<RectTransform>(), 0.10f, 0.205f, 0.90f, 0.30f);
+            var upBtn = upGO.AddComponent<Button>(); upBtn.targetGraphic = upImg;
+            MakeTextRect(upGO, upLabel, 12, FontStyle.Bold, Color.white, TextAnchor.MiddleCenter);
+            if (maxed) upBtn.interactable = false;
+            else upBtn.onClick.AddListener(() => OnUpgradeClick(pid));
+        }
+
         // Badge OWNED v rohu (ak vlastní a nie je equipnuté)
         if (owned && !equipped)
         {
@@ -161,6 +178,13 @@ public class ShopManager : MonoBehaviour
         var inv = PlayerInventory.Instance;
         if (inv.Owns(id)) inv.Equip(id);
         else inv.TryBuy(id);
+        Preview(id);
+        RefreshCards();
+    }
+
+    void OnUpgradeClick(string id)
+    {
+        if (PlayerInventory.Instance.TryUpgrade(id)) SfxManager.Coin();
         Preview(id);
         RefreshCards();
     }

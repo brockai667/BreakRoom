@@ -19,6 +19,12 @@ public class PlayerController : MonoBehaviour
         controller   = GetComponent<CharacterController>();
         playerCamera = GetComponentInChildren<Camera>();
         pauseMenu    = FindFirstObjectByType<PauseMenu>();
+
+        // Nastavenia z menu (citlivost + FOV)
+        mouseSensitivity = PlayerPrefs.GetFloat("Sensitivity", mouseSensitivity);
+        float fov = PlayerPrefs.GetFloat("FOV", 0f);
+        if (fov > 1f && playerCamera != null) playerCamera.fieldOfView = fov;
+
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
@@ -27,15 +33,12 @@ public class PlayerController : MonoBehaviour
     {
         if (Keyboard.current == null || Mouse.current == null) return;
 
-        // Nehýb sa počas pauzy alebo po skončení kola
         if (pauseMenu != null && pauseMenu.IsPaused) return;
         if (GameManager.Instance != null && !GameManager.Instance.roundActive) return;
 
-        // Spoľahlivá detekcia zeme cez CharacterController (netreba LayerMask)
         bool grounded = controller.isGrounded;
         if (grounded && velocity.y < 0f) velocity.y = -2f;
 
-        // Otáčanie myšou
         Vector2 mouseDelta = Mouse.current.delta.ReadValue();
         float mouseX = mouseDelta.x * mouseSensitivity * Time.deltaTime * 10f;
         float mouseY = mouseDelta.y * mouseSensitivity * Time.deltaTime * 10f;
@@ -44,7 +47,6 @@ public class PlayerController : MonoBehaviour
         playerCamera.transform.localRotation = Quaternion.Euler(verticalRotation, 0f, 0f);
         transform.Rotate(Vector3.up * mouseX);
 
-        // Pohyb WASD
         float x = 0f, z = 0f;
         if (Keyboard.current.dKey.isPressed) x = 1f;
         if (Keyboard.current.aKey.isPressed) x = -1f;
@@ -54,11 +56,9 @@ public class PlayerController : MonoBehaviour
         if (move.sqrMagnitude > 1f) move.Normalize();
         controller.Move(move * speed * Time.deltaTime);
 
-        // Skok (medzerník)
         if (grounded && Keyboard.current.spaceKey.wasPressedThisFrame)
             velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
 
-        // Gravitácia
         velocity.y += gravity * Time.deltaTime;
         controller.Move(velocity * Time.deltaTime);
     }

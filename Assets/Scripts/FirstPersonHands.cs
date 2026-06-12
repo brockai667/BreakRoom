@@ -1,14 +1,18 @@
 using UnityEngine;
 
-/// 3D ruka v prvej osobe, ktorá drží vybavenú zbraň a hrá animáciu úderu.
-/// Vytvára sa za behu pod kamerou hráča (netreba upravovať scény).
+/// 3D ruka v prvej osobe, ktora drzi vybavenu zbran a hra animaciu uderu.
+/// Swing je podla typu zbrane (kladivo zvrchu, palka bokom, sekera diagonalne,
+/// past/rukavice rovny jab). Vytvara sa za behu pod kamerou hraca.
 public class FirstPersonHands : MonoBehaviour
 {
-    Transform pivot;        // animovaný koreň ruky
-    GameObject weaponGO;    // držaná zbraň
+    enum Style { Jab, Horizontal, Overhead, Diagonal, None }
 
-    bool swinging; float swingT; const float DUR = 0.25f;
-    bool flame;             // plameňomet - držanie
+    Transform pivot;
+    GameObject weaponGO;
+
+    bool swinging; float swingT; float dur = 0.25f;
+    Style style = Style.Jab;
+    bool flame;
 
     static readonly Vector3 RestPos   = new Vector3(0.4f, -0.4f, 0.82f);
     static readonly Vector3 RestEuler = new Vector3(6f, -18f, 6f);
@@ -32,9 +36,7 @@ public class FirstPersonHands : MonoBehaviour
         pivot.localPosition = RestPos;
         pivot.localEulerAngles = RestEuler;
 
-        // predlaktie
         AddBox("Forearm", new Vector3(0.02f, -0.12f, -0.26f), new Vector3(0.085f, 0.085f, 0.4f));
-        // ruka (päsť)
         AddBox("Hand",    new Vector3(0f, -0.03f, 0.02f),  new Vector3(0.11f, 0.12f, 0.13f));
 
         if (PlayerInventory.Instance != null) SetWeapon(PlayerInventory.Instance.GetEquipped());
@@ -53,7 +55,18 @@ public class FirstPersonHands : MonoBehaviour
     {
         if (weaponGO != null) Destroy(weaponGO);
         flame = w != null && w.id == "flamethrower";
-        if (w == null || w.id == "fists") return;   // päsť = samotná ruka, bez modelu
+
+        // Styl svihu + dlzka podla rychlosti
+        string id = w != null ? w.id : "fists";
+        style = id == "hammer" || id == "sledge" ? Style.Overhead
+              : id == "bat"                       ? Style.Horizontal
+              : id == "axe"                       ? Style.Diagonal
+              : id == "flamethrower"              ? Style.None
+              :                                     Style.Jab;
+        float sp = w != null ? w.swingSpeed : 1f;
+        dur = Mathf.Clamp(0.30f / Mathf.Max(0.4f, sp), 0.14f, 0.5f);
+
+        if (w == null || w.id == "fists") return;   // past = samotna ruka, bez modelu
         weaponGO = WeaponPreview.BuildModel(w);
         weaponGO.transform.SetParent(pivot, false);
         weaponGO.transform.localPosition = new Vector3(0f, 0.03f, 0.14f);
@@ -72,16 +85,36 @@ public class FirstPersonHands : MonoBehaviour
 
         if (swinging)
         {
-            swingT += Time.deltaTime / DUR;
+            swingT += Time.deltaTime / Mathf.Max(0.05f, dur);
             float t = Mathf.Clamp01(swingT);
-            float s = Mathf.Sin(t * Mathf.PI);  // 0->1->0
-            pivot.localPosition    = RestPos   + new Vector3(-0.06f * s, -0.20f * s, 0.16f * s);
-            pivot.localEulerAngles = RestEuler + new Vector3(60f * s, 0f, -22f * s);
+            float s = Mathf.Sin(t * Mathf.PI);   // 0->1->0
+
+            Vector3 dp, de;
+            switch (style)
+            {
+                case Style.Overhead:    // kladivo/sledge: zvrchu nadol
+                    dp = new Vector3(0f, -0.04f * s, 0.10f * s);
+                    de = new Vector3(98f * s, 0f, 0f);
+                    break;
+                case Style.Horizontal:  // palka: svih bokom
+                    dp = new Vector3(-0.20f * s, -0.02f * s, 0.06f * s);
+                    de = new Vector3(8f * s, -75f * s, -12f * s);
+                    break;
+                case Style.Diagonal:    // sekera: diagonalny sek
+                    dp = new Vector3(-0.10f * s, -0.05f * s, 0.10f * s);
+                    de = new Vector3(72f * s, -28f * s, -38f * s);
+                    break;
+                default:                // jab: rovny uder dopredu
+                    dp = new Vector3(0f, -0.02f * s, 0.24f * s);
+                    de = new Vector3(20f * s, 0f, 0f);
+                    break;
+            }
+            pivot.localPosition    = RestPos   + dp;
+            pivot.localEulerAngles = RestEuler + de;
             if (t >= 1f) { swinging = false; pivot.localPosition = RestPos; pivot.localEulerAngles = RestEuler; }
         }
         else
         {
-            // jemné dýchanie / pri plameňomete mierne chvenie
             float bobAmp = flame && UnityEngine.InputSystem.Mouse.current != null
                            && UnityEngine.InputSystem.Mouse.current.leftButton.isPressed ? 0.012f : 0.004f;
             float bob = Mathf.Sin(Time.time * (flame ? 22f : 2f)) * bobAmp;
