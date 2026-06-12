@@ -10,20 +10,27 @@ public class GameManager : MonoBehaviour
     [Header("State")]
     public float elapsedTime    = 0f;
     public int   destroyedCount = 0;
-    public int   roundMoney     = 0;   // peniaze nazbierané v tomto kole (pridajú sa v hube)
+    public int   roundMoney     = 0;   // peniaze nazbierane v tomto kole (pridaju sa v hube)
     public bool  roundActive    = true;
 
-    // --- Sledovanie "vyčistenia miestnosti" (auto-koniec) ---
-    int   liveBreakables = 0;   // koľko rozbitných vecí (vrátane kúskov) je práve v scéne
-    bool  anyRegistered  = false;
-    bool  warmupDone     = false;   // počkaj kým sa všetky veci zaregistrujú
-    float clearDelay     = -1f;     // po vyčistení krátka oslava, potom vyhodnotenie
+    // --- Sledovanie "vycistenia miestnosti" (auto-koniec) ---
+    int   origTotal      = 0;   // pocet povodnych (scenovych) objektov v miestnosti
+    int   origRemaining  = 0;   // kolko z povodnych este ostava
+    bool  warmupDone     = false;
+    float clearDelay     = -1f;
+
+    // --- Combo ---
+    [Header("Combo")]
+    public  int   comboCount  = 0;
+    float   comboTimer = 0f;
+    const   float COMBO_WINDOW = 2.2f;
+    int     lastMilestoneAnnounced = 0;
 
     [Header("Round timer")]
-    public float    roundDuration = 300f;   // dĺžka kola v sekundách (5:00)
+    public float    roundDuration = 300f;
     public TMP_Text timerText;
 
-    [Header("End Round UI (legacy - nepoužité v novom hub flow)")]
+    [Header("End Round UI (legacy - nepouzite v novom hub flow)")]
     public GameObject endPanel;
     public Text timeText;
     public Text destroyedText;
@@ -38,17 +45,19 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
+        Time.timeScale = 1f;
         if (endPanel != null) endPanel.SetActive(false);
         roundActive    = true;
         elapsedTime    = 0f;
         destroyedCount = 0;
         roundMoney     = 0;
+        comboCount     = 0;
 
         if (PlayerInventory.Instance != null)
         {
-            var wh = FindObjectOfType<WeaponHit>();
+            var wh = FindFirstObjectByType<WeaponHit>();
             if (wh != null) wh.ApplyWeapon(PlayerInventory.Instance.GetEquipped());
-            var hd = FindObjectOfType<HandDisplay>();
+            var hd = FindFirstObjectByType<HandDisplay>();
             if (hd != null) hd.SetWeapon(PlayerInventory.Instance.GetEquipped());
         }
     }
@@ -57,13 +66,19 @@ public class GameManager : MonoBehaviour
     {
         if (!roundActive) return;
 
-        // Ak je hra pauzovaná, nerátaj čas (TAB aj ESC pauzuje cez PauseMenu)
-        var pm = FindObjectOfType<PauseMenu>();
+        var pm = FindFirstObjectByType<PauseMenu>();
         if (pm != null && pm.IsPaused) return;
 
         elapsedTime += Time.deltaTime;
 
-        // Odpočítavací časovač
+        // Combo doznieva v realnom case
+        if (comboCount > 0)
+        {
+            comboTimer -= Time.unscaledDeltaTime;
+            if (comboTimer <= 0f) { comboCount = 0; lastMilestoneAnnounced = 0; }
+        }
+
+        // Odpocitavaci casovac
         float left = Mathf.Max(0f, roundDuration - elapsedTime);
         if (timerText != null)
         {
@@ -72,28 +87,76 @@ public class GameManager : MonoBehaviour
             timerText.text = $"{m:00}:{s:00}";
             timerText.color = left <= 30f ? new Color(1f, 0.3f, 0.2f) : Color.white;
         }
-        if (left <= 0f) { EndAndGoHub(false); return; }   // čas vypršal -> vyhodnotenie
+        if (left <= 0f) { EndAndGoHub(false); return; }
 
-        // --- Auto-koniec: keď je celá miestnosť zničená ---
-        if (!warmupDone && elapsedTime > 1.5f) warmupDone = true;  // počkaj na registráciu
-        if (warmupDone && anyRegistered)
+        // --- Auto-koniec: ked su znicene vsetky POVODNE objekty miestnosti ---
+        if (!warmupDone && elapsedTime > 1.5f) warmupDone = true;
+        if (warmupDone && origTotal > 0)
         {
             if (clearDelay < 0f)
             {
-                if (liveBreakables <= 0)
+                if (origRemaining <= 0)
                 {
-                    clearDelay = 1.0f;                     // krátka oslava
-                    if (Announcer.Instance != null) Announcer.Show("VŠETKO ZNIČENÉ!", true);
+                    clearDelay = 1.2f;
+                    Time.timeScale = 0.4f;                 // slow-motion oslava
+                    if (Announcer.Instance != null) Announcer.Show("VSETKO ZNICENE!", true);
                 }
             }
             else
             {
-                if (liveBreakables > 0) clearDelay = -1f;  // objavili sa nové kúsky -> zruš
-                else
-                {
-                    clearDelay -= Time.deltaTime;
-                    if (clearDelay <= 0f) { EndAndGoHub(true); return; }
-                }
+                clearDelay -= Time.unscaledDeltaTime;
+                if (clearDelay <= 0f) { Time.timeScale = 1f; EndAndGoHub(true); return; }
+            }
+        }
+    }
+
+    // ---------- COMBO / ODMENY ----------
+    public float ComboMultiplier()
+    {
+        int c = comboCount;
+        return c < 3  ? 1f
+             : c < 6  ? 1.25f
+             : c < 10 ? 1.5f
+             : c < 16 ? 2f
+             : c < 25 ? 2.5f
+                      : 3f;
+    }
+
+    public float DestructionPct()
+        => origTotal > 0 ? Mathf.Clamp01(1f - (float)origRemaining / origTotal) : 0f;
+
+    /// Hlavne pripisanie odmeny za rozbitie. Vracia skutocne pripisane $.
+    public int AwardBreak(int baseReward, int baseXp, bool golden, Vector3 pos)
+    {
+        if (!roundActive) return 0;
+
+        comboCount++;
+        comboTimer = COMBO_WINDOW;
+
+        float mult = ComboMultiplier();
+        int pay = Mathf.Max(1, Mathf.RoundToInt(baseReward * mult));
+        if (golden) pay *= 3;
+
+        roundMoney += pay;
+        destroyedCount++;
+
+        if (XPManager.Instance != null) XPManager.Instance.AddXP(baseXp);
+
+        AnnounceComboMilestone();
+        return pay;
+    }
+
+    void AnnounceComboMilestone()
+    {
+        int[] miles = { 30, 20, 10, 5 };
+        foreach (int m in miles)
+        {
+            if (comboCount >= m && lastMilestoneAnnounced < m)
+            {
+                lastMilestoneAnnounced = m;
+                if (Announcer.Instance != null)
+                    Announcer.Show("COMBO x" + comboCount + "!", true);
+                break;
             }
         }
     }
@@ -101,27 +164,25 @@ public class GameManager : MonoBehaviour
     public void RegisterDestroy() => destroyedCount++;
     public void AddRoundMoney(int amount) => roundMoney += amount;
 
-    // Rozbitné veci sa hlásia sem, aby sme vedeli, kedy je miestnosť čistá
-    public void RegisterBreakable()   { liveBreakables++; anyRegistered = true; }
-    public void UnregisterBreakable() { liveBreakables--; }
-
-    /// Bonus na konci kola = odmena za množstvo rozbitia (combo).
-    /// Hlavné peniaze sú v roundMoney (súčet odmien za jednotlivé veci),
-    /// takže platí pravidlo "viac rozbiješ = viac zarobíš". Bonus je len
-    /// malá nadstavba za usilovnosť, nie hlavný zdroj peňazí.
-    public int CalculateBonus()
+    public void RegisterBreakable(bool isChunk = false)
     {
-        return destroyedCount >= 120 ? 250
-             : destroyedCount >=  80 ? 150
-             : destroyedCount >=  45 ?  80
-             : destroyedCount >=  20 ?  30 : 0;
+        if (!isChunk) { origTotal++; origRemaining++; }
+    }
+    public void UnregisterBreakable(bool isChunk = false)
+    {
+        if (!isChunk) origRemaining--;
     }
 
-    /// Tlačidlo QUIT v pauze: ukonči kolo a ukáž vyhodnotenie v hube.
+    public int CalculateBonus()
+    {
+        return destroyedCount >= 120 ? 80
+             : destroyedCount >=  80 ? 50
+             : destroyedCount >=  45 ? 25
+             : destroyedCount >=  20 ? 10 : 0;
+    }
+
     public void QuitToHub() => EndAndGoHub(false);
 
-    /// Ukonči kolo a choď na vyhodnotenie do hubu. Peniaze sa NEpridajú tu -
-    /// hub ich animovane pripočíta. cleared = hráč zničil celú miestnosť.
     void EndAndGoHub(bool cleared)
     {
         Time.timeScale = 1f;
@@ -132,7 +193,7 @@ public class GameManager : MonoBehaviour
         {
             roundActive = false;
             int bonus = CalculateBonus();
-            if (cleared) bonus += 150;                  // bonus za vyčistenie miestnosti
+            if (cleared) bonus += 50;
             int earned = roundMoney + bonus;
             string grade = ComputeGrade(cleared);
             GameSession.SetResult(earned, destroyedCount, elapsedTime, grade, cleared);
@@ -141,7 +202,6 @@ public class GameManager : MonoBehaviour
         SceneManager.LoadScene("Hub");
     }
 
-    // Hodnotenie kola: S / A / B / C / D
     string ComputeGrade(bool cleared)
     {
         if (cleared)
@@ -150,7 +210,6 @@ public class GameManager : MonoBehaviour
         return d >= 150 ? "S" : d >= 90 ? "A" : d >= 50 ? "B" : d >= 20 ? "C" : "D";
     }
 
-    // Legacy: ak by niečo ešte volalo EndRound, presmeruj na nový flow
     public void EndRound() => QuitToHub();
 
     public void GoToMenu()  { Time.timeScale = 1f; SceneManager.LoadScene("MainMenu"); }

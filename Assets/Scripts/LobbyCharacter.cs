@@ -20,7 +20,7 @@ public class LobbyCharacter : MonoBehaviour
     // Zaisti, že v scéne sú postavičky (zavolá HubManager.Start)
     public static void EnsureInScene()
     {
-        if (FindObjectOfType<LobbyCharacter>() != null) return;
+        if (FindFirstObjectByType<LobbyCharacter>() != null) return;
         // Hlavný robotník vľavo, otočený k hráčovi
         Build(new Vector3(-2.4f, 0f, 1.0f), 188f, 1.0f);
         // Druhý, menší vzadu vpravo - "partia"

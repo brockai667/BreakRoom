@@ -77,8 +77,8 @@ public class SfxManager : MonoBehaviour
     // Zaisti, že v scéne je AudioListener na kamere (inak nepočuť nič / zle 3D)
     void EnsureListener()
     {
-        if (FindObjectOfType<AudioListener>() != null) return;
-        var cam = Camera.main; if (cam == null) cam = FindObjectOfType<Camera>();
+        if (FindFirstObjectByType<AudioListener>() != null) return;
+        var cam = Camera.main; if (cam == null) cam = FindFirstObjectByType<Camera>();
         if (cam != null && cam.GetComponent<AudioListener>() == null)
             cam.gameObject.AddComponent<AudioListener>();
     }
@@ -86,7 +86,7 @@ public class SfxManager : MonoBehaviour
     // Pridaj klik-zvuk na všetky tlačidlá v aktuálnej scéne
     void HookButtons()
     {
-        foreach (var b in FindObjectsOfType<Button>(true))
+        foreach (var b in FindObjectsByType<Button>(FindObjectsInactive.Include, FindObjectsSortMode.None))
             b.onClick.AddListener(UIClick);
     }
 

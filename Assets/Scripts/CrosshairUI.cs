@@ -6,14 +6,14 @@ public class CrosshairUI : MonoBehaviour
 
     void Start()
     {
-        pause = FindObjectOfType<PauseMenu>();
+        pause = FindFirstObjectByType<PauseMenu>();
     }
 
     void OnGUI()
     {
         // Skry crosshair počas pauzy alebo po skončení kola
         if (GameManager.Instance != null && !GameManager.Instance.roundActive) return;
-        if (pause == null) pause = FindObjectOfType<PauseMenu>();
+        if (pause == null) pause = FindFirstObjectByType<PauseMenu>();
         if (pause != null && pause.IsPaused) return;
 
         float cx = Screen.width / 2;

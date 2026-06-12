@@ -1,7 +1,7 @@
 using UnityEngine;
 
-/// Vizuálne efekty pre špeciálne objekty: výbuch a elektrické iskry.
-/// Všetko sa tvorí z primitívov/častíc za behu, žiadne assety netreba.
+/// Vizualne efekty pre specialne objekty: vybuch, iskry a prach.
+/// Vsetko sa tvori z primitivov/castic za behu, ziadne assety netreba.
 public static class Fx
 {
     static Material EmissiveMat(Color c)
@@ -14,28 +14,25 @@ public static class Fx
         return m;
     }
 
-    /// Výbuch: záblesk svetla + rozpínajúca sa žiariaca guľa + oblak častíc.
+    /// Vybuch: zablesk svetla + rozpinajuca sa ziariaca gula + oblak castic.
     public static void Explosion(Vector3 center)
     {
-        // svetlo
         var lgo = new GameObject("ExplosionLight");
         lgo.transform.position = center;
         var l = lgo.AddComponent<Light>();
         l.type = LightType.Point; l.color = new Color(1f, 0.6f, 0.2f);
         l.range = 9f; l.intensity = 8f;
 
-        // žiariaca guľa
         var s = GameObject.CreatePrimitive(PrimitiveType.Sphere);
         var col = s.GetComponent<Collider>(); if (col != null) Object.Destroy(col);
         s.transform.position = center; s.transform.localScale = Vector3.one * 0.4f;
         s.GetComponent<Renderer>().material = EmissiveMat(new Color(1f, 0.55f, 0.12f));
         s.AddComponent<FxAnim>().Init(FxAnim.Kind.Explosion, l);
 
-        // častice
         Burst(center, 60, new Color(1f, 0.5f, 0.1f), 6f, 0.55f, 0.16f);
     }
 
-    /// Elektrické iskry pri rozbití elektroniky.
+    /// Elektricke iskry pri rozbiti elektroniky.
     public static void Sparks(Vector3 center, Color tint)
     {
         Burst(center, 26, new Color(0.6f, 0.85f, 1f), 5f, 0.30f, 0.05f);
@@ -45,6 +42,13 @@ public static class Fx
         l.type = LightType.Point; l.color = new Color(0.6f, 0.85f, 1f);
         l.range = 4f; l.intensity = 4f;
         Object.Destroy(lgo, 0.18f);
+    }
+
+    /// Prachovy oblak pri rozbiti (mierna siva/hneda hmla).
+    public static void Dust(Vector3 center, Color tint)
+    {
+        Color c = Color.Lerp(tint, new Color(0.62f, 0.57f, 0.5f), 0.6f);
+        Burst(center, 16, c, 2.0f, 0.7f, 0.22f);
     }
 
     static void Burst(Vector3 pos, int count, Color color, float speed, float life, float size)
@@ -77,15 +81,15 @@ public static class Fx
     }
 }
 
-/// Animuje žiariacu guľu výbuchu (rozpne sa a zhasne) a zhasne svetlo.
+/// Animuje ziariacu gulu vybuchu (rozpne sa a zhasne) a zhasne svetlo.
 public class FxAnim : MonoBehaviour
 {
     public enum Kind { Explosion }
-    Kind kind; Light light; float t; Renderer rend; Vector3 start;
+    Kind kind; Light glowLight; float t; Renderer rend; Vector3 start;
 
     public void Init(Kind k, Light l)
     {
-        kind = k; light = l; rend = GetComponent<Renderer>();
+        kind = k; glowLight = l; rend = GetComponent<Renderer>();
         start = transform.localScale;
     }
 
@@ -94,7 +98,7 @@ public class FxAnim : MonoBehaviour
         t += Time.deltaTime;
         float k = t / 0.4f;
         transform.localScale = start + Vector3.one * Mathf.SmoothStep(0f, 4.5f, k);
-        if (light != null) light.intensity = Mathf.Lerp(8f, 0f, k);
+        if (glowLight != null) glowLight.intensity = Mathf.Lerp(8f, 0f, k);
         if (rend != null)
         {
             var c = rend.material.color; c.a = Mathf.Clamp01(1f - k);
@@ -102,7 +106,7 @@ public class FxAnim : MonoBehaviour
         }
         if (k >= 1f)
         {
-            if (light != null) Destroy(light.gameObject);
+            if (glowLight != null) Destroy(glowLight.gameObject);
             Destroy(gameObject);
         }
     }

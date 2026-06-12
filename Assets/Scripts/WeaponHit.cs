@@ -24,8 +24,8 @@ public class WeaponHit : MonoBehaviour
     void Start()
     {
         layerMask = ~LayerMask.GetMask("Player");
-        handDisplay = FindObjectOfType<HandDisplay>();
-        pauseMenu   = FindObjectOfType<PauseMenu>();
+        handDisplay = FindFirstObjectByType<HandDisplay>();
+        pauseMenu   = FindFirstObjectByType<PauseMenu>();
         if (playerCamera != null) fpHands = FirstPersonHands.Create(playerCamera);
         // skry 2D ruku v rohu - nahradená 3D rukou v prvej osobe
         var hud = GameObject.Find("HandDisplayRoot"); if (hud != null) hud.SetActive(false);
@@ -48,7 +48,7 @@ public class WeaponHit : MonoBehaviour
     void Update()
     {
         if (GameManager.Instance != null && !GameManager.Instance.roundActive) { StopSpray(); return; }
-        if (pauseMenu == null) pauseMenu = FindObjectOfType<PauseMenu>();
+        if (pauseMenu == null) pauseMenu = FindFirstObjectByType<PauseMenu>();
         if (pauseMenu != null && pauseMenu.IsPaused) { StopSpray(); return; }
         if (Mouse.current == null) return;
 

@@ -28,7 +28,7 @@ public class SpecialObjects : MonoBehaviour
     {
         if (scene == "Hub" || scene == "MainMenu" || scene == "Shop") return;
 
-        var all = FindObjectsOfType<Breakable>();
+        var all = FindObjectsByType<Breakable>(FindObjectsSortMode.None);
         int goldenLeft = 6;                 // max zlatých vecí na mapu
         var plain = new List<Breakable>();
 

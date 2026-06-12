@@ -18,7 +18,7 @@ public class PlayerController : MonoBehaviour
     {
         controller   = GetComponent<CharacterController>();
         playerCamera = GetComponentInChildren<Camera>();
-        pauseMenu    = FindObjectOfType<PauseMenu>();
+        pauseMenu    = FindFirstObjectByType<PauseMenu>();
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }

@@ -33,7 +33,7 @@ public class CollectionManager : MonoBehaviour
     void Build()
     {
         // EventSystem (len ak v scéne ešte nie je)
-        if (FindObjectOfType<EventSystem>() == null)
+        if (FindFirstObjectByType<EventSystem>() == null)
         {
             var es = new GameObject("EventSystem");
             es.AddComponent<EventSystem>();

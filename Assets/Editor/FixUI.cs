@@ -25,7 +25,7 @@ public class FixUI
         var play = GameObject.Find("PlayButton");
         var shop = GameObject.Find("ShopButton");
         var coll = GameObject.Find("CollectionButton");
-        var mm   = Object.FindObjectOfType<MainMenu>();
+        var mm   = Object.FindFirstObjectByType<MainMenu>();
 
         if (play != null)
         {
@@ -62,7 +62,7 @@ public class FixUI
         var bangers = LoadBangers();
 
         // PauseMenu controller
-        var pm = Object.FindObjectOfType<PauseMenu>();
+        var pm = Object.FindFirstObjectByType<PauseMenu>();
         if (pm == null)
             pm = new GameObject("PauseMenuController").AddComponent<PauseMenu>();
 
@@ -118,7 +118,7 @@ public class FixUI
     {
         var scene = EditorSceneManager.OpenScene("Assets/Scenes/Office.unity");
         var bangers = LoadBangers();
-        var gm = Object.FindObjectOfType<GameManager>();
+        var gm = Object.FindFirstObjectByType<GameManager>();
         if (gm == null) { Debug.LogError("GameManager nenájdený v Office scéne."); return; }
 
         var old = GameObject.Find("TimerCanvas");
@@ -176,7 +176,7 @@ public class FixUI
     // ===================== HELPERY =====================
     static void EnsureEventSystem()
     {
-        var es = Object.FindObjectOfType<UnityEngine.EventSystems.EventSystem>();
+        var es = Object.FindFirstObjectByType<UnityEngine.EventSystems.EventSystem>();
         if (es == null)
         {
             var go = new GameObject("EventSystem");

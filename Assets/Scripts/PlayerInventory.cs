@@ -62,9 +62,9 @@ public class PlayerInventory : MonoBehaviour
         Save();
         OnChanged?.Invoke();
         // Notify weapon hit in current scene
-        var wh = FindObjectOfType<WeaponHit>();
+        var wh = FindFirstObjectByType<WeaponHit>();
         if (wh != null) wh.ApplyWeapon(WeaponData.Get(id));
-        var hd = FindObjectOfType<HandDisplay>();
+        var hd = FindFirstObjectByType<HandDisplay>();
         if (hd != null) hd.SetWeapon(WeaponData.Get(id));
     }
 

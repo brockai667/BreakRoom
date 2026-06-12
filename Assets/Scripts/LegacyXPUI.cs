@@ -15,7 +15,7 @@ public class LegacyXPUI : MonoBehaviour
     void Awake()
     {
         xpm = GetComponent<XPManager>();
-        if (xpm == null) xpm = FindObjectOfType<XPManager>();
+        if (xpm == null) xpm = FindFirstObjectByType<XPManager>();
     }
 
     void Update()
