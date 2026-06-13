@@ -25,7 +25,7 @@ public class PauseMenu : MonoBehaviour
         Cursor.visible = false;
     }
 
-    // Premenuj tlačidlo QUIT/MENU v pauze na jasné "UKONČIŤ — VYHODNOTENIE"
+    // Premenuj tlačidlo QUIT/MENU v pauze na jasné "QUIT - RESULTS"
     void RelabelQuitButton()
     {
         if (pausePanel == null) return;
@@ -34,7 +34,7 @@ public class PauseMenu : MonoBehaviour
             string low = txt.text.ToLowerInvariant();
             if (low.Contains("quit") || low.Contains("menu") || low.Contains("hub") ||
                 low.Contains("ukonč") || low.Contains("koniec") || low.Contains("odíst") || low.Contains("odísť"))
-                txt.text = "UKONČIŤ — VYHODNOTENIE";
+                txt.text = "QUIT - RESULTS";
         }
     }
 

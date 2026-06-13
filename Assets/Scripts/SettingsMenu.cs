@@ -3,15 +3,15 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 
-/// Nastavenia: citlivost mysi, hlasitost, FOV, kvalita grafiky.
-/// Self-bootstrapping. V MainMenu a Hube prida tlacidlo NASTAVENIA,
-/// ktore otvori panel. Hodnoty sa ukladaju do PlayerPrefs a aplikuju.
+/// Settings: mouse sensitivity, volume, FOV, graphics quality.
+/// Self-bootstrapping. Adds a SETTINGS button in MainMenu and Hub that
+/// opens a centered panel. Values are saved to PlayerPrefs and applied.
 public class SettingsMenu : MonoBehaviour
 {
-    static readonly string[] SHOW_GEAR = { "MainMenu", "Hub" };
+    static readonly string[] SHOW_BTN = { "MainMenu", "Hub" };
     static SettingsMenu inst;
 
-    GameObject canvasGO, panel;
+    GameObject canvasGO, overlay, box;
     float sens, vol, fov;
     int   qual;
     Text  sensT, volT, fovT, qualT;
@@ -29,7 +29,6 @@ public class SettingsMenu : MonoBehaviour
         inst.OnScene(SceneManager.GetActiveScene().name);
     }
 
-    /// Aplikuj globalne nastavenia (hlasitost, kvalita) - vola sa pri kazdej scene.
     public static void ApplyGlobal()
     {
         AudioListener.volume = PlayerPrefs.GetFloat("Volume", 0.8f);
@@ -39,8 +38,8 @@ public class SettingsMenu : MonoBehaviour
 
     void OnScene(string scene)
     {
-        if (canvasGO != null) { Destroy(canvasGO); canvasGO = null; panel = null; }
-        if (System.Array.IndexOf(SHOW_GEAR, scene) < 0) return;
+        if (canvasGO != null) { Destroy(canvasGO); canvasGO = null; overlay = null; box = null; }
+        if (System.Array.IndexOf(SHOW_BTN, scene) < 0) return;
         Build();
     }
 
@@ -54,17 +53,17 @@ public class SettingsMenu : MonoBehaviour
 
         canvasGO = new GameObject("SettingsCanvas");
         var cv = canvasGO.AddComponent<Canvas>();
-        cv.renderMode = RenderMode.ScreenSpaceOverlay; cv.sortingOrder = 150;
+        cv.renderMode = RenderMode.ScreenSpaceOverlay; cv.sortingOrder = 160;
         var sc = canvasGO.AddComponent<CanvasScaler>();
         sc.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize; sc.referenceResolution = new Vector2(1920, 1080);
         canvasGO.AddComponent<GraphicRaycaster>();
 
-        // Tlacidlo NASTAVENIA vpravo hore
-        MakeButton(canvasGO.transform, "NASTAVENIA", new Vector2(1, 0), new Vector2(-20, 20),
-                              new Vector2(200, 54), new Color(0.2f, 0.2f, 0.24f, 0.92f), 20, OpenPanel);
+        // Open button: top-right, just under the money line
+        MakeButton(canvasGO.transform, "SETTINGS", new Vector2(1, 1), new Vector2(-24, -96),
+                   new Vector2(190, 52), new Color(0.22f, 0.24f, 0.3f, 0.95f), 22, OpenPanel);
 
         BuildPanel();
-        panel.SetActive(false);
+        overlay.SetActive(false);
     }
 
     void BuildPanel()
@@ -74,41 +73,50 @@ public class SettingsMenu : MonoBehaviour
         fov  = PlayerPrefs.GetFloat("FOV", 70f);
         qual = PlayerPrefs.GetInt("Quality", QualitySettings.GetQualityLevel());
 
-        panel = new GameObject("SettingsPanel");
-        panel.transform.SetParent(canvasGO.transform, false);
-        var bg = panel.AddComponent<Image>(); bg.color = new Color(0.05f, 0.05f, 0.07f, 0.95f);
-        var prt = panel.GetComponent<RectTransform>();
-        prt.anchorMin = Vector2.zero; prt.anchorMax = Vector2.one; prt.offsetMin = Vector2.zero; prt.offsetMax = Vector2.zero;
+        // Fullscreen dim overlay (click outside box = close)
+        overlay = new GameObject("SettingsOverlay");
+        overlay.transform.SetParent(canvasGO.transform, false);
+        var dim = overlay.AddComponent<Image>(); dim.color = new Color(0f, 0f, 0f, 0.65f);
+        var ort = overlay.GetComponent<RectTransform>();
+        ort.anchorMin = Vector2.zero; ort.anchorMax = Vector2.one; ort.offsetMin = Vector2.zero; ort.offsetMax = Vector2.zero;
+        var dimBtn = overlay.AddComponent<Button>(); dimBtn.targetGraphic = dim;
+        dimBtn.onClick.AddListener(ClosePanel);
 
-        Label(panel.transform, "NASTAVENIA", 46, new Color(1f, 0.9f, 0.45f),
-              new Vector2(0.5f, 1f), new Vector2(0, -50), new Vector2(800, 70), TextAnchor.MiddleCenter);
+        // Centered box
+        box = new GameObject("Box"); box.transform.SetParent(overlay.transform, false);
+        var bImg = box.AddComponent<Image>(); bImg.color = new Color(0.10f, 0.10f, 0.13f, 1f);
+        var brt = box.GetComponent<RectTransform>();
+        brt.anchorMin = brt.anchorMax = new Vector2(0.5f, 0.5f); brt.pivot = new Vector2(0.5f, 0.5f);
+        brt.anchoredPosition = Vector2.zero; brt.sizeDelta = new Vector2(820, 660);
 
-        float y = -180f;
-        sensT = Row("Citlivost mysi", y, () => Adjust(ref sens, -0.25f, 0.5f, 4f, "Sensitivity"),
-                                          () => Adjust(ref sens, 0.25f, 0.5f, 4f, "Sensitivity")); y -= 95f;
-        volT  = Row("Hlasitost", y, () => Adjust(ref vol, -0.1f, 0f, 1f, "Volume"),
-                                     () => Adjust(ref vol, 0.1f, 0f, 1f, "Volume")); y -= 95f;
-        fovT  = Row("Zorne pole (FOV)", y, () => Adjust(ref fov, -5f, 60f, 100f, "FOV"),
-                                           () => Adjust(ref fov, 5f, 60f, 100f, "FOV")); y -= 95f;
-        qualT = Row("Kvalita grafiky", y, () => CycleQuality(-1), () => CycleQuality(1)); y -= 120f;
+        Label(box.transform, "SETTINGS", 50, new Color(1f, 0.9f, 0.45f),
+              new Vector2(0.5f, 0.5f), new Vector2(0, 260), new Vector2(800, 70), TextAnchor.MiddleCenter);
 
-        MakeButton(panel.transform, "ZAVRIET", new Vector2(0.5f, 0.5f), new Vector2(0, y),
-                   new Vector2(300, 64), new Color(0.45f, 0.14f, 0.05f), 24, ClosePanel);
+        sensT = Row("Mouse Sensitivity", 150, () => Adjust(ref sens, -0.25f, 0.5f, 4f, "Sensitivity"),
+                                              () => Adjust(ref sens, 0.25f, 0.5f, 4f, "Sensitivity"));
+        volT  = Row("Volume", 60, () => Adjust(ref vol, -0.1f, 0f, 1f, "Volume"),
+                                  () => Adjust(ref vol, 0.1f, 0f, 1f, "Volume"));
+        fovT  = Row("Field of View", -30, () => Adjust(ref fov, -5f, 60f, 100f, "FOV"),
+                                          () => Adjust(ref fov, 5f, 60f, 100f, "FOV"));
+        qualT = Row("Graphics Quality", -120, () => CycleQuality(-1), () => CycleQuality(1));
+
+        MakeButton(box.transform, "CLOSE", new Vector2(0.5f, 0.5f), new Vector2(0, -250),
+                   new Vector2(320, 66), new Color(0.5f, 0.16f, 0.06f), 26, ClosePanel);
 
         RefreshValues();
     }
 
-    // Riadok: label vlavo, [-] hodnota [+] vpravo
+    // Row inside the box (label left, [-] value [+] right), y relative to box center
     Text Row(string label, float y, UnityEngine.Events.UnityAction minus, UnityEngine.Events.UnityAction plus)
     {
-        Label(panel.transform, label, 26, Color.white, new Vector2(0.5f, 0.5f),
-              new Vector2(-280, y), new Vector2(420, 50), TextAnchor.MiddleLeft);
-        MakeButton(panel.transform, "-", new Vector2(0.5f, 0.5f), new Vector2(60, y),
-                   new Vector2(56, 50), new Color(0.25f, 0.28f, 0.32f), 28, minus);
-        var val = Label(panel.transform, "", 24, new Color(0.85f, 0.9f, 1f), new Vector2(0.5f, 0.5f),
-                        new Vector2(210, y), new Vector2(180, 50), TextAnchor.MiddleCenter);
-        MakeButton(panel.transform, "+", new Vector2(0.5f, 0.5f), new Vector2(360, y),
-                   new Vector2(56, 50), new Color(0.25f, 0.28f, 0.32f), 28, plus);
+        Label(box.transform, label, 28, Color.white, new Vector2(0.5f, 0.5f),
+              new Vector2(-220, y), new Vector2(420, 50), TextAnchor.MiddleLeft);
+        MakeButton(box.transform, "-", new Vector2(0.5f, 0.5f), new Vector2(120, y),
+                   new Vector2(58, 52), new Color(0.25f, 0.28f, 0.34f), 30, minus);
+        var val = Label(box.transform, "", 26, new Color(0.85f, 0.9f, 1f), new Vector2(0.5f, 0.5f),
+                        new Vector2(265, y), new Vector2(170, 50), TextAnchor.MiddleCenter);
+        MakeButton(box.transform, "+", new Vector2(0.5f, 0.5f), new Vector2(330, y),
+                   new Vector2(58, 52), new Color(0.25f, 0.28f, 0.34f), 30, plus);
         return val;
     }
 
@@ -138,10 +146,10 @@ public class SettingsMenu : MonoBehaviour
         if (qualT != null) qualT.text = QualitySettings.names[Mathf.Clamp(qual, 0, QualitySettings.names.Length - 1)];
     }
 
-    void OpenPanel()  { if (panel != null) panel.SetActive(true); }
-    void ClosePanel() { if (panel != null) panel.SetActive(false); }
+    void OpenPanel()  { if (overlay != null) overlay.SetActive(true); }
+    void ClosePanel() { if (overlay != null) overlay.SetActive(false); }
 
-    // ---------- HELPERY ----------
+    // ---------- HELPERS ----------
     Button MakeButton(Transform parent, string text, Vector2 anchor, Vector2 pos, Vector2 size, Color col, int fs, UnityEngine.Events.UnityAction onClick)
     {
         var go = new GameObject("Btn"); go.transform.SetParent(parent, false);

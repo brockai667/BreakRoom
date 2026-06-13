@@ -894,7 +894,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "VYBRA\u0164 MAPU"
+  m_Text: "SELECT MAP"
 --- !u!222 &342894753
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -2442,7 +2442,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "Rozbit\xE9: 0   \u010Cas: 00:00"
+  m_Text: "Smashed: 0   Time: 00:00"
 --- !u!1 &823569175
 GameObject:
   m_ObjectHideFlags: 0
@@ -2513,7 +2513,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "PRIPRAV SA NA NI\u010CENIE"
+  m_Text: "GET READY TO SMASH"
 --- !u!222 &823569178
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -3444,7 +3444,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "LOADOUT \u2014 vyber si zbra\u0148"
+  m_Text: "LOADOUT - pick your weapon"
 --- !u!222 &1128736347
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -4441,7 +4441,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "SHOP \u2014 k\xFAp si zbrane"
+  m_Text: "SHOP - buy weapons"
 --- !u!222 &1524686184
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -5047,7 +5047,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "Vybran\xE1 mapa: Office"
+  m_Text: "Selected map: Office"
 --- !u!1 &1906636662
 GameObject:
   m_ObjectHideFlags: 0
@@ -5118,7 +5118,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "KOLO UKON\u010CEN\xC9"
+  m_Text: "ROUND COMPLETE"
 --- !u!222 &1906636665
 CanvasRenderer:
   m_ObjectHideFlags: 0

@@ -106,9 +106,9 @@ public class HubManager : MonoBehaviour
     // Mapy v poradí + level potrebný na odomknutie (Obývačka = prvý level)
     static readonly (string scene, string label, int unlock)[] MAPS =
     {
-        ("Obyvacka", "Obývačka",   1),
-        ("Office",   "Kancelária", 3),
-        ("Factory",  "Továreň",    5),
+        ("Obyvacka", "Living Room",   1),
+        ("Office",   "Office", 3),
+        ("Factory",  "Factory",    5),
     };
     int mapIndex = 0;
  
@@ -141,8 +141,8 @@ public class HubManager : MonoBehaviour
         bool ok = IsUnlocked(m.unlock);
         mapLabel.color = ok ? Color.white : new Color(1f, 0.45f, 0.3f);
         mapLabel.text = ok
-            ? $"Mapa: {m.label}    •    Level {lvl}"
-            : $"🔒 {m.label} — odomkne sa na leveli {m.unlock}  (máš level {lvl})";
+            ? $"Map: {m.label}    •    Level {lvl}"
+            : $"LOCKED: {m.label} - unlocks at level {m.unlock}  (you are level {lvl})";
     }
  
     public void StartGame()
@@ -181,9 +181,9 @@ public class HubManager : MonoBehaviour
             bool owned    = inv != null && inv.Owns(w.id);
             bool equipped = inv != null && inv.EquippedId == w.id;
  
-            string label = equipped ? "✓ " + w.displayName
+            string label = equipped ? "[E] " + w.displayName
                          : owned    ? w.displayName
-                                    : "🔒 " + w.displayName + "  (v shope)";
+                                    : "[LOCKED] " + w.displayName + "  (in shop)";
             Color col = equipped ? new Color(0.10f, 0.45f, 0.12f)
                       : owned    ? new Color(0.15f, 0.20f, 0.35f)
                                  : new Color(0.22f, 0.12f, 0.10f);
@@ -218,8 +218,8 @@ public class HubManager : MonoBehaviour
         {
             int m = (int)time / 60;
             int s = (int)time % 60;
-            resultsText.text = (cleared ? "PERFECT — celá miestnosť zničená!\n" : "")
-                             + $"Rozbité: {destroyed}    Čas: {m:00}:{s:00}    •    Hodnotenie: {grade}";
+            resultsText.text = (cleared ? "PERFECT - whole room smashed!\n" : "")
+                             + $"Smashed: {destroyed}    Time: {m:00}:{s:00}    •    Grade: {grade}";
         }
         if (earnedFlyText != null) earnedFlyText.text = "";
  

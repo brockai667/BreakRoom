@@ -18,37 +18,37 @@ public class WeaponData
     public static WeaponData[] All = new WeaponData[]
     {
         new WeaponData {
-            id="fists", displayName="Holé ruky", description="Zadarmo.\nKrátky dosah, slabý úder.",
+            id="fists", displayName="Bare Hands", description="Free.\nShort reach, weak hit.",
             price=0, damage=1, splashRadius=0f, hitDistance=3.0f, swingSpeed=1.2f,
             handColor=new Color(0.85f,0.65f,0.5f), handleColor=new Color(0.7f,0.5f,0.35f)
         },
         new WeaponData {
-            id="bat", displayName="Baseball palka", description="Klasická palka.\nPoctivý zásah, bez splash.",
+            id="bat", displayName="Baseball Bat", description="Classic bat.\nSolid hit, no splash.",
             price=150, damage=2, splashRadius=0f, hitDistance=3.8f, swingSpeed=1.0f,
             handColor=new Color(0.6f,0.35f,0.1f), handleColor=new Color(0.45f,0.25f,0.05f)
         },
         new WeaponData {
-            id="gloves", displayName="Boxovacie rukavice", description="Rýchle údery.\nKrátky dosah, bez splash.",
+            id="gloves", displayName="Boxing Gloves", description="Fast hits.\nShort reach, no splash.",
             price=280, damage=2, splashRadius=0f, hitDistance=2.8f, swingSpeed=1.8f,
             handColor=new Color(0.8f,0.1f,0.1f), handleColor=new Color(0.6f,0.05f,0.05f)
         },
         new WeaponData {
-            id="hammer", displayName="Kladivo", description="Ťažké, pomalšie.\nMalý splash.",
+            id="hammer", displayName="Hammer", description="Heavy, slower.\nSmall splash.",
             price=550, damage=3, splashRadius=0.3f, hitDistance=3.4f, swingSpeed=0.8f,
             handColor=new Color(0.4f,0.4f,0.45f), handleColor=new Color(0.55f,0.35f,0.1f)
         },
         new WeaponData {
-            id="axe", displayName="Sekera", description="Ostrá a ďaleká.\nMierny splash.",
+            id="axe", displayName="Axe", description="Sharp, long reach.\nModerate splash.",
             price=1100, damage=4, splashRadius=0.4f, hitDistance=3.8f, swingSpeed=0.95f,
             handColor=new Color(0.55f,0.55f,0.6f), handleColor=new Color(0.35f,0.2f,0.05f)
         },
         new WeaponData {
-            id="sledge", displayName="Búracie kladivo", description="Najsilnejší úder.\nStredný splash.",
+            id="sledge", displayName="Sledgehammer", description="Strongest hit.\nMedium splash.",
             price=2200, damage=5, splashRadius=0.7f, hitDistance=3.6f, swingSpeed=0.6f,
             handColor=new Color(0.2f,0.2f,0.22f), handleColor=new Color(0.3f,0.15f,0.05f)
         },
         new WeaponData {
-            id="flamethrower", displayName="Plameňomet", description="Nepretržité poškodenie.\nPlošný zásah.",
+            id="flamethrower", displayName="Flamethrower", description="Continuous damage.\nArea hit.",
             price=3500, damage=1, splashRadius=1.5f, hitDistance=4.5f, swingSpeed=1.0f,
             handColor=new Color(0.9f,0.35f,0.05f), handleColor=new Color(0.3f,0.3f,0.35f)
         },

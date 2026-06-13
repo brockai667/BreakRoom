@@ -43,19 +43,19 @@ public class Objectives : MonoBehaviour
         {
             case Kind.Golden:
                 target = 1; bonus = 60;
-                desc = "Nájdi a rozbi zlatý predmet";
+                desc = "Find and smash a golden item";
                 break;
             case Kind.UnderTime:
                 target = 1; bonus = 80; timeLimit = 75f;
-                desc = "Vyčisti miestnosť pod 1:15";
+                desc = "Clear the room under 1:15";
                 break;
             case Kind.Count:
                 target = 25; bonus = 40;
-                desc = "Rozbi aspoň 25 vecí";
+                desc = "Smash at least 25 things";
                 break;
             default: // Electronics - cieľ doplníme po vzorkovaní
                 kind = Kind.Electronics; target = 0; bonus = 70;
-                desc = "Rozbi všetku elektroniku";
+                desc = "Smash all electronics";
                 break;
         }
     }
@@ -83,8 +83,8 @@ public class Objectives : MonoBehaviour
                 int n = 0;
                 foreach (var b in FindObjectsByType<Breakable>(FindObjectsSortMode.None))
                     if (b != null && b.electronic && !b.isChunk) n++;
-                if (n <= 0) { kind = Kind.Count; target = 25; bonus = 40; desc = "Rozbi aspoň 25 vecí"; }
-                else { target = n; desc = "Rozbi všetku elektroniku"; }
+                if (n <= 0) { kind = Kind.Count; target = 25; bonus = 40; desc = "Smash at least 25 things"; }
+                else { target = n; desc = "Smash all electronics"; }
             }
             return;
         }
@@ -105,7 +105,7 @@ public class Objectives : MonoBehaviour
     {
         done = true;
         gm.AddRoundMoney(bonus);
-        if (Announcer.Instance != null) Announcer.Show("CIEĽ SPLNENÝ!  +$" + bonus, true);
+        if (Announcer.Instance != null) Announcer.Show("OBJECTIVE COMPLETE!  +$" + bonus, true);
         if (SfxManager.Instance != null) SfxManager.Coin();
     }
 
@@ -114,8 +114,8 @@ public class Objectives : MonoBehaviour
     {
         if (!active || string.IsNullOrEmpty(desc)) return "";
         if (done) return "✓ " + desc + "  +$" + bonus;
-        if (kind == Kind.Electronics && target > 0) return $"Cieľ: {desc} ({progress}/{target})";
-        if (kind == Kind.Count) return $"Cieľ: {desc} ({progress}/{target})";
-        return "Cieľ: " + desc;
+        if (kind == Kind.Electronics && target > 0) return $"Objective: {desc} ({progress}/{target})";
+        if (kind == Kind.Count) return $"Objective: {desc} ({progress}/{target})";
+        return "Objective: " + desc;
     }
 }

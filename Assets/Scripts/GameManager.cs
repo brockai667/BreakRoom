@@ -99,7 +99,7 @@ public class GameManager : MonoBehaviour
                 {
                     clearDelay = 1.2f;
                     Time.timeScale = 0.4f;                 // slow-motion oslava
-                    if (Announcer.Instance != null) Announcer.Show("VSETKO ZNICENE!", true);
+                    if (Announcer.Instance != null) Announcer.Show("ALL SMASHED!", true);
                 }
             }
             else

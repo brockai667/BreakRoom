@@ -94,7 +94,7 @@ public class ShopManager : MonoBehaviour
                  0.04f, 0.33f, 0.96f, 0.40f, TextAnchor.MiddleCenter);
 
         // Tlačidlo (kúpiť / equip / equipped)
-        string btnLabel = equipped ? "✓ EQUIPPED" : owned ? "EQUIP" : (w.price == 0 ? "ZADARMO" : "$" + w.price);
+        string btnLabel = equipped ? "✓ EQUIPPED" : owned ? "EQUIP" : (w.price == 0 ? "FREE" : "$" + w.price);
         Color  btnColor = equipped ? new Color(0.10f, 0.45f, 0.12f)
                         : owned    ? new Color(0.12f, 0.32f, 0.60f)
                                    : new Color(0.55f, 0.16f, 0.05f);

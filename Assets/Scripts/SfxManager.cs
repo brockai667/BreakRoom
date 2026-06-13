@@ -320,7 +320,7 @@ public class SfxManager : MonoBehaviour
         return MakeClip("swing", d);
     }
 
-    // Plameňomet: hučiaci low-pass šum s amplitúdovou moduláciou, plynulý loop
+    // Flamethrower: hučiaci low-pass šum s amplitúdovou moduláciou, plynulý loop
     AudioClip MakeFlameLoop(float dur)
     {
         int n = (int)(SR * dur);

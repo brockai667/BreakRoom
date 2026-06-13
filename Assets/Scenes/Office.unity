@@ -3429,7 +3429,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: KONIEC KOLA
+  m_Text: ROUND OVER
 --- !u!222 &40125551
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -36214,7 +36214,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "Hol\xE9 ruky"
+  m_Text: "Bare Hands"
 --- !u!222 &493257505
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -83473,7 +83473,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "Rozbit\xE9: 0"
+  m_Text: "Smashed: 0"
 --- !u!1 &1165562260
 GameObject:
   m_ObjectHideFlags: 0
@@ -122288,7 +122288,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "\u010Cas: 00:00.0"
+  m_Text: "Time: 00:00.0"
 --- !u!1 &1624604236
 GameObject:
   m_ObjectHideFlags: 0
@@ -150871,7 +150871,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "HRA\u0164 ZNOVA"
+  m_Text: "PLAY AGAIN"
 --- !u!222 &2034815518
 CanvasRenderer:
   m_ObjectHideFlags: 0

@@ -14,7 +14,7 @@ public class Announcer : MonoBehaviour
     float age;          // čas od zobrazenia (na "pop" animáciu)
     bool  showing;
 
-    static readonly string[] SMASH = { "SMASH!", "TRESK!", "BUM!", "RACHOT!", "NA ŠROT!" };
+    static readonly string[] SMASH = { "SMASH!", "BANG!", "CRASH!", "POW!", "WRECKED!" };
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     static void Bootstrap()

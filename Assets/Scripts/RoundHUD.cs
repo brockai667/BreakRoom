@@ -83,7 +83,7 @@ public class RoundHUD : MonoBehaviour
         if (!canvasGO.activeSelf) canvasGO.SetActive(true);
 
         moneyText.text = "$ " + gm.roundMoney;
-        pctText.text   = "Zničené: " + Mathf.RoundToInt(gm.DestructionPct() * 100f) + "%";
+        pctText.text   = "Smashed: " + Mathf.RoundToInt(gm.DestructionPct() * 100f) + "%";
 
         // Cieľ kola (ak existuje)
         if (objectiveText != null)

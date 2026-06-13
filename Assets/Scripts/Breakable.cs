@@ -102,7 +102,7 @@ public class Breakable : MonoBehaviour
         if (golden)
         {
             SfxManager.Coin();
-            if (Announcer.Instance != null) Announcer.Show("ZLATA VEC!  +$" + pay, true);
+            if (Announcer.Instance != null) Announcer.Show("GOLDEN ITEM!  +$" + pay, true);
         }
         else if (!isChunk && Random.value < 0.12f)
             Announcer.Smash();

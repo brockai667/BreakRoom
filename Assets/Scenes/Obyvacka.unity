@@ -506,7 +506,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "Hol\xE9 ruky"
+  m_Text: "Bare Hands"
 --- !u!222 &143044861
 CanvasRenderer:
   m_ObjectHideFlags: 0

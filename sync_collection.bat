@@ -8,7 +8,7 @@ if exist ".git\index.lock" del /f /q ".git\index.lock"
   echo --- add ---
   git add -A
   echo --- commit ---
-  git commit -m "Gameplay update 2: per-weapon realistic swing animations (overhead/horizontal/diagonal/jab) + impact-timed hits, hit-stop + camera shake on impact, weapon upgrades for money, settings menu (sensitivity/volume/FOV/quality)"
+  git commit -m "Fixes: translate whole game to English (UI, weapons, HUD, objectives, shop, settings + scene texts), rework Settings panel (visible CLOSE button, centered box, click-outside-to-close), move Settings button below money"
   echo --- pull ---
   git pull --no-edit
   echo --- push ---

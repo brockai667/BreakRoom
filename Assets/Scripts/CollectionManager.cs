@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 
-/// Obrazovka ZBIERKA (scéna "Collection"). Postaví sa celá z kódu, takže
+/// Obrazovka COLLECTION (scéna "Collection"). Postaví sa celá z kódu, takže
 /// netreba nič klikať v editore (rovnaký prístup ako SpecialObjects).
 /// Ukazuje progres hráča (level, peniaze, koľko zbraní je odomknutých) a
 /// mriežku všetkých zbraní s ich stavom (equipnuté / vlastnené / zamknuté).
@@ -59,7 +59,7 @@ public class CollectionManager : MonoBehaviour
         Stretch(bg.GetComponent<RectTransform>());
 
         // Nadpis
-        MakeText(canvasGO, "ZBIERKA", 64, FontStyle.Bold, new Color(1f, 0.9f, 0.45f),
+        MakeText(canvasGO, "COLLECTION", 64, FontStyle.Bold, new Color(1f, 0.9f, 0.45f),
                  new Vector2(0f, 0.88f), new Vector2(1f, 0.99f), TextAnchor.MiddleCenter);
 
         // Riadok so štatistikami
@@ -71,7 +71,7 @@ public class CollectionManager : MonoBehaviour
             if (PlayerInventory.Instance != null && PlayerInventory.Instance.Owns(w.id)) owned++;
         int total = WeaponData.All.Length;
 
-        string stats = $"Level {level}        $ {money}        Odomknuté zbrane: {owned}/{total}";
+        string stats = $"Level {level}        $ {money}        Weapons unlocked: {owned}/{total}";
         MakeText(canvasGO, stats, 26, FontStyle.Bold, new Color(0.8f, 0.85f, 1f),
                  new Vector2(0f, 0.80f), new Vector2(1f, 0.87f), TextAnchor.MiddleCenter);
 
@@ -109,7 +109,7 @@ public class CollectionManager : MonoBehaviour
         var back = backGO.AddComponent<Button>();
         back.targetGraphic = backImg;
         back.onClick.AddListener(() => SceneManager.LoadScene("MainMenu"));
-        MakeTextStretch(backGO, "SPÄŤ DO MENU", 24, FontStyle.Bold, Color.white);
+        MakeTextStretch(backGO, "BACK TO MENU", 24, FontStyle.Bold, Color.white);
     }
 
     // ---------- KARTA ZBRANE ----------
@@ -147,9 +147,9 @@ public class CollectionManager : MonoBehaviour
                      0.04f, 0.32f, 0.96f, 0.40f, TextAnchor.MiddleCenter);
 
         // Stav (equipnuté / vlastnené / cena)
-        string statusTxt = equipped ? "✓ NASADENÉ"
-                         : owned    ? "VLASTNÍŠ"
-                         : (w.price == 0 ? "ZADARMO" : "🔒 $" + w.price);
+        string statusTxt = equipped ? "[EQUIPPED]"
+                         : owned    ? "OWNED"
+                         : (w.price == 0 ? "FREE" : "$" + w.price);
         Color statusCol  = equipped ? new Color(0.35f, 0.9f, 0.4f)
                          : owned    ? new Color(0.55f, 0.7f, 1f)
                                     : new Color(1f, 0.55f, 0.3f);
