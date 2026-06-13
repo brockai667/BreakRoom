@@ -116,6 +116,9 @@ public class Breakable : MonoBehaviour
         // Prachovy oblak pri rozbiti (vizualne juice)
         if (!isChunk) Fx.Dust(transform.position, baseColor);
 
+        // Obcas vypadne power-up
+        if (!isChunk) PowerUps.MaybeDrop(transform.position);
+
         if (!explosive && subdivideStages > 0 && childPieces > 0)
             SpawnChunks(hitPoint, swingDir);
 

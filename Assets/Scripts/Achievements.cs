@@ -6,7 +6,7 @@ using UnityEngine;
 public class Achievements : MonoBehaviour
 {
     // id, nazov, typ ("smashed"/"combo"/"cleared"), prah, odmena $
-    static readonly (string id, string name, string type, int need, int reward)[] DEFS =
+    public static readonly (string id, string name, string type, int need, int reward)[] DEFS =
     {
         ("smash100",  "Demolisher",         "smashed",  100,  100),
         ("smash1000", "Wrecking Crew",      "smashed", 1000,  500),

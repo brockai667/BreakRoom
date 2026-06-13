@@ -197,7 +197,7 @@ public class WeaponHit : MonoBehaviour
     {
         if (b == null) return;
         int orig = b.damage;
-        b.damage = damage;
+        b.damage = Mathf.Max(1, Mathf.RoundToInt(damage * PowerUps.DamageMult()));
         b.Hit(point, dir);
         if (b != null) b.damage = orig;
     }

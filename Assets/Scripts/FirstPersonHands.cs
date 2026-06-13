@@ -59,8 +59,9 @@ public class FirstPersonHands : MonoBehaviour
         // Styl svihu + dlzka podla rychlosti
         string id = w != null ? w.id : "fists";
         style = id == "hammer" || id == "sledge" ? Style.Overhead
-              : id == "bat"                       ? Style.Horizontal
-              : id == "axe"                       ? Style.Diagonal
+              : id == "bat" || id == "katana"     ? Style.Horizontal
+              : id == "axe" || id == "crowbar"    ? Style.Diagonal
+              : id == "bowling"                   ? Style.Overhead
               : id == "flamethrower"              ? Style.None
               :                                     Style.Jab;
         float sp = w != null ? w.swingSpeed : 1f;

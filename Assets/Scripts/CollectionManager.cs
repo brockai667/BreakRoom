@@ -73,7 +73,26 @@ public class CollectionManager : MonoBehaviour
 
         string stats = $"Level {level}        $ {money}        Weapons unlocked: {owned}/{total}";
         MakeText(canvasGO, stats, 26, FontStyle.Bold, new Color(0.8f, 0.85f, 1f),
-                 new Vector2(0f, 0.80f), new Vector2(1f, 0.87f), TextAnchor.MiddleCenter);
+                 new Vector2(0f, 0.815f), new Vector2(1f, 0.875f), TextAnchor.MiddleCenter);
+
+        // Lifetime štatistiky
+        int smashed   = PlayerPrefs.GetInt("Stat_smashed", 0);
+        int bestCombo = PlayerPrefs.GetInt("Stat_bestCombo", 0);
+        int cleared   = PlayerPrefs.GetInt("Stat_cleared", 0);
+        MakeText(canvasGO, $"Smashed: {smashed}        Best combo: {bestCombo}        Rooms cleared: {cleared}",
+                 22, FontStyle.Bold, new Color(0.7f, 1f, 0.78f),
+                 new Vector2(0f, 0.76f), new Vector2(1f, 0.81f), TextAnchor.MiddleCenter);
+
+        // Achievementy (súhrn + odomknuté)
+        int achUnlocked = 0; string achNames = "";
+        foreach (var d in Achievements.DEFS)
+        {
+            if (PlayerPrefs.GetInt("Ach_" + d.id, 0) == 1) { achUnlocked++; achNames += d.name + "    "; }
+        }
+        string achLine = $"Achievements: {achUnlocked}/{Achievements.DEFS.Length}";
+        if (achUnlocked > 0) achLine += "      " + achNames;
+        MakeText(canvasGO, achLine, 18, FontStyle.Bold, new Color(1f, 0.86f, 0.4f),
+                 new Vector2(0.03f, 0.11f), new Vector2(0.97f, 0.16f), TextAnchor.MiddleCenter);
 
         // Mriežka kariet
         var gridGO = new GameObject("Grid");
@@ -84,10 +103,10 @@ public class CollectionManager : MonoBehaviour
         grt.pivot     = new Vector2(0.5f, 0.5f);
         grt.anchoredPosition = new Vector2(0, -30);
         var grid = gridGO.AddComponent<GridLayoutGroup>();
-        grid.cellSize = new Vector2(220, 250);
-        grid.spacing  = new Vector2(20, 20);
+        grid.cellSize = new Vector2(172, 196);
+        grid.spacing  = new Vector2(16, 16);
         grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
-        grid.constraintCount = 4;
+        grid.constraintCount = 6;
         grid.childAlignment = TextAnchor.MiddleCenter;
         var fit = gridGO.AddComponent<ContentSizeFitter>();
         fit.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
