@@ -249,6 +249,7 @@ public class Breakable : MonoBehaviour
     {
         var mat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
         if (mat.shader == null || mat.shader.name == "Hidden/InternalErrorShader") mat = new Material(Shader.Find("Standard"));
+        if (mat.HasProperty("_Smoothness")) mat.SetFloat("_Smoothness", 0.3f);
         return mat;
     }
 
