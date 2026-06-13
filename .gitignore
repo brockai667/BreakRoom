@@ -117,3 +117,9 @@ cleanup_kit.bat
 cleanup_kit.log
 git_fix.bat
 git_fix.log
+
+# Graphify code graph (lokalny, regenerovatelny)
+graphify-out/
+
+# Zalohy vytvorene pri setupe
+*.bak-*
