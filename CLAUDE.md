@@ -2,7 +2,7 @@
 
 ## Git workflow (DÔLEŽITÉ)
 - **PRED každou prácou: `git pull`** (stiahni najnovší stav, nech nepracujem na starom).
-- **PO každej práci: `git commit` + `git push`** na GitHub (`brockai667/BreakRoom`, vetva `main`).
+- **Po dokončení úlohy (commit):** ak som ťa v zadaní vopred poprosil commitnúť/pushnúť (napr. „…a nakoniec to pushni"), urob `git commit` + `git push` rovno, **bez ďalšieho pýtania**. Inak sa na konci **opýtaj** „Commitnúť tieto zmeny?" a commitni/pushni až po mojom súhlase. Necommituj rozrobený/rozbitý stav. (GitHub `brockai667/BreakRoom`, vetva `main`.)
 - Ak je `.git\index.lock`, najprv ho zmaž.
 - Pomocný skript na rýchly commit+push: `sync_collection.bat` (alebo `git_sync.bat`).
 

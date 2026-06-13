@@ -12,6 +12,7 @@ public class MusicManager : MonoBehaviour
     AudioSource src;
     AudioClip gameLoop, menuLoop;
     float targetVol = 0.18f;
+    float basePitch = 1f;   // tonina/tempo podla mapy
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     static void Bootstrap()
@@ -46,13 +47,27 @@ public class MusicManager : MonoBehaviour
         bool menu = scene == "Hub" || scene == "MainMenu" || scene == "Shop";
         var want = menu ? menuLoop : gameLoop;
         targetVol = menu ? 0.13f : 0.20f;
+        // Iná tónina/tempo podľa mapy
+        basePitch = menu                 ? 1.0f
+                  : scene == "Office"    ? 1.06f
+                  : scene == "Factory"   ? 0.93f
+                  : scene == "Kitchen"   ? 1.10f
+                  : scene == "Garage"    ? 0.90f
+                  :                        1.0f;
+        src.pitch = basePitch;
         if (src.clip != want) { src.clip = want; src.Play(); }
     }
 
     void Update()
     {
-        // jemný fade na cieľovú hlasitosť
-        src.volume = Mathf.MoveTowards(src.volume, targetVol, Time.unscaledDeltaTime * 0.5f);
+        // Intenzita podľa comba: hlasnejšie + mierne rýchlejšie
+        float intensity = 0f;
+        var gm = GameManager.Instance;
+        if (gm != null && gm.roundActive && gm.comboCount >= 3)
+            intensity = Mathf.Clamp01(gm.comboCount / 25f);
+
+        src.volume = Mathf.MoveTowards(src.volume, targetVol + intensity * 0.10f, Time.unscaledDeltaTime * 0.5f);
+        src.pitch  = Mathf.MoveTowards(src.pitch, basePitch + intensity * 0.08f, Time.unscaledDeltaTime * 0.6f);
     }
 
     // ---------- GENEROVANIE SLUČKY ----------

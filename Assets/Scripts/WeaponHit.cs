@@ -39,8 +39,8 @@ public class WeaponHit : MonoBehaviour
         int up = PlayerInventory.Instance != null ? PlayerInventory.Instance.UpgradeLevel(w.id) : 0;
         damage         = w.damage + up;                 // +1 damage za upgrade level
         splash         = w.splashRadius + up * 0.1f;    // +0.1 splash za level
-        hitDistance    = w.hitDistance;
-        swingSpeed     = w.swingSpeed;
+        hitDistance    = w.hitDistance + Perks.ReachBonus();
+        swingSpeed     = w.swingSpeed * Perks.SwingMult();
         isFlamethrower = w.id == "flamethrower";
         if (!isFlamethrower) StopSpray();
         if (fpHands != null) fpHands.SetWeapon(w);

@@ -1,1 +1,14 @@
-{}
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File \"C:/Users/damia/BreakRoom/.claude/hooks/check-mcp-server.ps1\""
+          }
+        ]
+      }
+    ]
+  }
+}

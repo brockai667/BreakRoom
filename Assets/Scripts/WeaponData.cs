@@ -52,6 +52,26 @@ public class WeaponData
             price=3500, damage=1, splashRadius=1.5f, hitDistance=4.5f, swingSpeed=1.0f,
             handColor=new Color(0.9f,0.35f,0.05f), handleColor=new Color(0.3f,0.3f,0.35f)
         },
+        new WeaponData {
+            id="crowbar", displayName="Crowbar", description="Quick and handy.\nNo splash.",
+            price=450, damage=3, splashRadius=0f, hitDistance=3.7f, swingSpeed=1.15f,
+            handColor=new Color(0.75f,0.25f,0.18f), handleColor=new Color(0.55f,0.18f,0.12f)
+        },
+        new WeaponData {
+            id="katana", displayName="Katana", description="Fast wide slashes.\nSmall splash.",
+            price=1800, damage=4, splashRadius=0.5f, hitDistance=4.2f, swingSpeed=1.5f,
+            handColor=new Color(0.85f,0.86f,0.9f), handleColor=new Color(0.15f,0.15f,0.18f)
+        },
+        new WeaponData {
+            id="chainsaw", displayName="Chainsaw", description="Rapid aggressive hits.\nSmall splash.",
+            price=3000, damage=4, splashRadius=0.4f, hitDistance=3.5f, swingSpeed=1.7f,
+            handColor=new Color(0.95f,0.5f,0.08f), handleColor=new Color(0.3f,0.3f,0.32f)
+        },
+        new WeaponData {
+            id="bowling", displayName="Bowling Ball", description="Heavy single smash.\nMedium splash.",
+            price=1600, damage=6, splashRadius=0.6f, hitDistance=3.3f, swingSpeed=0.7f,
+            handColor=new Color(0.12f,0.12f,0.3f), handleColor=new Color(0.08f,0.08f,0.2f)
+        },
     };
 
     public static WeaponData Get(string id)

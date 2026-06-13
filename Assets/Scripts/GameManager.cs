@@ -131,10 +131,10 @@ public class GameManager : MonoBehaviour
         if (!roundActive) return 0;
 
         comboCount++;
-        comboTimer = COMBO_WINDOW;
+        comboTimer = COMBO_WINDOW + Perks.ComboWindowBonus();
 
         float mult = ComboMultiplier();
-        int pay = Mathf.Max(1, Mathf.RoundToInt(baseReward * mult));
+        int pay = Mathf.Max(1, Mathf.RoundToInt(baseReward * mult * Perks.MoneyMult()));
         if (golden) pay *= 3;
 
         roundMoney += pay;
