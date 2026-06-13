@@ -63,11 +63,13 @@ public class ShopManager : MonoBehaviour
         var card = new GameObject("Card_" + w.id);
         card.transform.SetParent(cardContainer, false);
         var border = card.AddComponent<Image>();
+        border.sprite = UITheme.Rounded(16); border.type = Image.Type.Sliced;
         border.color = rarCol;
 
         // Telo karty (tmavé, mierne odsadené od rámika)
         var body = new GameObject("Body"); body.transform.SetParent(card.transform, false);
         var bodyImg = body.AddComponent<Image>(); bodyImg.color = new Color(0.10f, 0.07f, 0.05f, 0.99f);
+        bodyImg.sprite = UITheme.Rounded(13); bodyImg.type = Image.Type.Sliced;
         Stretch(body.GetComponent<RectTransform>(), 4, 4);
 
         // Hover efekt
@@ -101,8 +103,9 @@ public class ShopManager : MonoBehaviour
 
         var btnGO = new GameObject("BuyBtn"); btnGO.transform.SetParent(body.transform, false);
         var btnImg = btnGO.AddComponent<Image>(); btnImg.color = btnColor;
+        btnImg.sprite = UITheme.Rounded(10); btnImg.type = Image.Type.Sliced;
         PlaceFrac(btnGO.GetComponent<RectTransform>(), 0.10f, 0.07f, 0.90f, 0.20f);
-        var btn = btnGO.AddComponent<Button>(); btn.targetGraphic = btnImg;
+        var btn = btnGO.AddComponent<Button>(); btn.targetGraphic = btnImg; UITheme.Hover(btn, btnColor, btnColor);
         MakeTextRect(btnGO, btnLabel, 15, FontStyle.Bold, Color.white, TextAnchor.MiddleCenter);
         btn.onClick.AddListener(() => OnCardClick(pid));
         if (equipped) btn.interactable = false;
@@ -117,8 +120,9 @@ public class ShopManager : MonoBehaviour
             Color upColor = maxed ? new Color(0.20f, 0.20f, 0.22f) : new Color(0.35f, 0.55f, 0.12f);
             var upGO = new GameObject("UpgradeBtn"); upGO.transform.SetParent(body.transform, false);
             var upImg = upGO.AddComponent<Image>(); upImg.color = upColor;
+            upImg.sprite = UITheme.Rounded(10); upImg.type = Image.Type.Sliced;
             PlaceFrac(upGO.GetComponent<RectTransform>(), 0.10f, 0.205f, 0.90f, 0.30f);
-            var upBtn = upGO.AddComponent<Button>(); upBtn.targetGraphic = upImg;
+            var upBtn = upGO.AddComponent<Button>(); upBtn.targetGraphic = upImg; UITheme.Hover(upBtn, upColor, upColor);
             MakeTextRect(upGO, upLabel, 12, FontStyle.Bold, Color.white, TextAnchor.MiddleCenter);
             if (maxed) upBtn.interactable = false;
             else upBtn.onClick.AddListener(() => OnUpgradeClick(pid));
@@ -129,6 +133,7 @@ public class ShopManager : MonoBehaviour
         {
             var badge = new GameObject("Badge"); badge.transform.SetParent(body.transform, false);
             var bImg = badge.AddComponent<Image>(); bImg.color = new Color(0.12f, 0.32f, 0.60f, 0.95f);
+            bImg.sprite = UITheme.Rounded(8); bImg.type = Image.Type.Sliced;
             PlaceFrac(badge.GetComponent<RectTransform>(), 0.55f, 0.88f, 0.97f, 0.98f);
             MakeTextRect(badge, "OWNED", 11, FontStyle.Bold, Color.white, TextAnchor.MiddleCenter);
         }

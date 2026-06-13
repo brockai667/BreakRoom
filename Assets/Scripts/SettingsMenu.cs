@@ -4,8 +4,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 
 /// Settings: mouse sensitivity, volume, FOV, graphics quality.
-/// Self-bootstrapping. Adds a SETTINGS button in MainMenu and Hub that
-/// opens a centered panel. Values are saved to PlayerPrefs and applied.
+/// Modern look via UITheme (rounded panel, accent, hover, full dim overlay).
 public class SettingsMenu : MonoBehaviour
 {
     static readonly string[] SHOW_BTN = { "MainMenu", "Hub" };
@@ -58,9 +57,10 @@ public class SettingsMenu : MonoBehaviour
         sc.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize; sc.referenceResolution = new Vector2(1920, 1080);
         canvasGO.AddComponent<GraphicRaycaster>();
 
-        // Open button: top-right, just under the money line
-        MakeButton(canvasGO.transform, "SETTINGS", new Vector2(1, 1), new Vector2(-24, -96),
-                   new Vector2(190, 52), new Color(0.22f, 0.24f, 0.3f, 0.95f), 22, OpenPanel);
+        // Open button top-right, under the money line
+        var open = Btn(canvasGO.transform, "SETTINGS", new Vector2(1, 1), new Vector2(-24, -96),
+                       new Vector2(196, 56), UITheme.PanelLight, 22, OpenPanel, 14);
+        UITheme.Shadow(open.gameObject, new Vector2(0, -3));
 
         BuildPanel();
         overlay.SetActive(false);
@@ -76,47 +76,55 @@ public class SettingsMenu : MonoBehaviour
         // Fullscreen dim overlay (click outside box = close)
         overlay = new GameObject("SettingsOverlay");
         overlay.transform.SetParent(canvasGO.transform, false);
-        var dim = overlay.AddComponent<Image>(); dim.color = new Color(0f, 0f, 0f, 0.65f);
+        var dim = overlay.AddComponent<Image>(); dim.color = UITheme.Overlay;
         var ort = overlay.GetComponent<RectTransform>();
         ort.anchorMin = Vector2.zero; ort.anchorMax = Vector2.one; ort.offsetMin = Vector2.zero; ort.offsetMax = Vector2.zero;
         var dimBtn = overlay.AddComponent<Button>(); dimBtn.targetGraphic = dim;
+        dimBtn.transition = Selectable.Transition.None;
         dimBtn.onClick.AddListener(ClosePanel);
 
-        // Centered box
+        // Centered rounded box
         box = new GameObject("Box"); box.transform.SetParent(overlay.transform, false);
-        var bImg = box.AddComponent<Image>(); bImg.color = new Color(0.10f, 0.10f, 0.13f, 1f);
+        UITheme.PanelImage(box, UITheme.Panel, 24);
+        UITheme.Shadow(box, new Vector2(0, -8), 0.55f);
         var brt = box.GetComponent<RectTransform>();
         brt.anchorMin = brt.anchorMax = new Vector2(0.5f, 0.5f); brt.pivot = new Vector2(0.5f, 0.5f);
-        brt.anchoredPosition = Vector2.zero; brt.sizeDelta = new Vector2(820, 660);
+        brt.anchoredPosition = Vector2.zero; brt.sizeDelta = new Vector2(840, 680);
 
-        Label(box.transform, "SETTINGS", 50, new Color(1f, 0.9f, 0.45f),
-              new Vector2(0.5f, 0.5f), new Vector2(0, 260), new Vector2(800, 70), TextAnchor.MiddleCenter);
+        // Title + accent underline
+        Label(box.transform, "SETTINGS", 52, UITheme.Accent,
+              new Vector2(0.5f, 0.5f), new Vector2(0, 268), new Vector2(800, 70), TextAnchor.MiddleCenter);
+        var bar = new GameObject("Bar"); bar.transform.SetParent(box.transform, false);
+        UITheme.PanelImage(bar, UITheme.Accent, 4);
+        var barRt = bar.GetComponent<RectTransform>();
+        barRt.anchorMin = barRt.anchorMax = new Vector2(0.5f, 0.5f); barRt.pivot = new Vector2(0.5f, 0.5f);
+        barRt.anchoredPosition = new Vector2(0, 228); barRt.sizeDelta = new Vector2(220, 6);
 
         sensT = Row("Mouse Sensitivity", 150, () => Adjust(ref sens, -0.25f, 0.5f, 4f, "Sensitivity"),
                                               () => Adjust(ref sens, 0.25f, 0.5f, 4f, "Sensitivity"));
-        volT  = Row("Volume", 60, () => Adjust(ref vol, -0.1f, 0f, 1f, "Volume"),
+        volT  = Row("Volume", 58, () => Adjust(ref vol, -0.1f, 0f, 1f, "Volume"),
                                   () => Adjust(ref vol, 0.1f, 0f, 1f, "Volume"));
-        fovT  = Row("Field of View", -30, () => Adjust(ref fov, -5f, 60f, 100f, "FOV"),
+        fovT  = Row("Field of View", -34, () => Adjust(ref fov, -5f, 60f, 100f, "FOV"),
                                           () => Adjust(ref fov, 5f, 60f, 100f, "FOV"));
-        qualT = Row("Graphics Quality", -120, () => CycleQuality(-1), () => CycleQuality(1));
+        qualT = Row("Graphics Quality", -126, () => CycleQuality(-1), () => CycleQuality(1));
 
-        MakeButton(box.transform, "CLOSE", new Vector2(0.5f, 0.5f), new Vector2(0, -250),
-                   new Vector2(320, 66), new Color(0.5f, 0.16f, 0.06f), 26, ClosePanel);
+        var close = Btn(box.transform, "CLOSE", new Vector2(0.5f, 0.5f), new Vector2(0, -262),
+                        new Vector2(340, 68), UITheme.Danger, 26, ClosePanel, 16);
+        UITheme.Shadow(close.gameObject, new Vector2(0, -3));
 
         RefreshValues();
     }
 
-    // Row inside the box (label left, [-] value [+] right), y relative to box center
     Text Row(string label, float y, UnityEngine.Events.UnityAction minus, UnityEngine.Events.UnityAction plus)
     {
-        Label(box.transform, label, 28, Color.white, new Vector2(0.5f, 0.5f),
-              new Vector2(-220, y), new Vector2(420, 50), TextAnchor.MiddleLeft);
-        MakeButton(box.transform, "-", new Vector2(0.5f, 0.5f), new Vector2(120, y),
-                   new Vector2(58, 52), new Color(0.25f, 0.28f, 0.34f), 30, minus);
+        Label(box.transform, label, 28, UITheme.Text, new Vector2(0.5f, 0.5f),
+              new Vector2(-225, y), new Vector2(420, 50), TextAnchor.MiddleLeft);
+        Btn(box.transform, "-", new Vector2(0.5f, 0.5f), new Vector2(120, y),
+            new Vector2(58, 54), UITheme.BtnNormal, 32, minus, 12);
         var val = Label(box.transform, "", 26, new Color(0.85f, 0.9f, 1f), new Vector2(0.5f, 0.5f),
-                        new Vector2(265, y), new Vector2(170, 50), TextAnchor.MiddleCenter);
-        MakeButton(box.transform, "+", new Vector2(0.5f, 0.5f), new Vector2(330, y),
-                   new Vector2(58, 52), new Color(0.25f, 0.28f, 0.34f), 30, plus);
+                        new Vector2(262, y), new Vector2(170, 50), TextAnchor.MiddleCenter);
+        Btn(box.transform, "+", new Vector2(0.5f, 0.5f), new Vector2(328, y),
+            new Vector2(58, 54), UITheme.BtnNormal, 32, plus, 12);
         return val;
     }
 
@@ -150,13 +158,14 @@ public class SettingsMenu : MonoBehaviour
     void ClosePanel() { if (overlay != null) overlay.SetActive(false); }
 
     // ---------- HELPERS ----------
-    Button MakeButton(Transform parent, string text, Vector2 anchor, Vector2 pos, Vector2 size, Color col, int fs, UnityEngine.Events.UnityAction onClick)
+    Button Btn(Transform parent, string text, Vector2 anchor, Vector2 pos, Vector2 size, Color col, int fs, UnityEngine.Events.UnityAction onClick, int radius)
     {
         var go = new GameObject("Btn"); go.transform.SetParent(parent, false);
-        var img = go.AddComponent<Image>(); img.color = col;
+        var img = UITheme.PanelImage(go, col, radius);
         var rt = go.GetComponent<RectTransform>();
         rt.anchorMin = rt.anchorMax = anchor; rt.pivot = anchor; rt.anchoredPosition = pos; rt.sizeDelta = size;
         var btn = go.AddComponent<Button>(); btn.targetGraphic = img;
+        UITheme.Hover(btn, col, col);
         var t = new GameObject("T"); t.transform.SetParent(go.transform, false);
         var trt = t.AddComponent<RectTransform>(); trt.anchorMin = Vector2.zero; trt.anchorMax = Vector2.one; trt.offsetMin = Vector2.zero; trt.offsetMax = Vector2.zero;
         var txt = t.AddComponent<Text>(); txt.text = text; txt.font = F; txt.fontSize = fs; txt.fontStyle = FontStyle.Bold;

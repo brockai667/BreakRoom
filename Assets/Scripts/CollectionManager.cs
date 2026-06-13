@@ -99,6 +99,7 @@ public class CollectionManager : MonoBehaviour
         var backGO = new GameObject("BackButton");
         backGO.transform.SetParent(canvasGO.transform, false);
         var backImg = backGO.AddComponent<Image>();
+        backImg.sprite = UITheme.Rounded(14); backImg.type = Image.Type.Sliced;
         backImg.color = new Color(0.45f, 0.14f, 0.05f);
         var brt = backGO.GetComponent<RectTransform>();
         brt.anchorMin = new Vector2(0.5f, 0.06f);
@@ -107,7 +108,7 @@ public class CollectionManager : MonoBehaviour
         brt.anchoredPosition = Vector2.zero;
         brt.sizeDelta = new Vector2(260, 64);
         var back = backGO.AddComponent<Button>();
-        back.targetGraphic = backImg;
+        back.targetGraphic = backImg; UITheme.Hover(back, Color.white, Color.white);
         back.onClick.AddListener(() => SceneManager.LoadScene("MainMenu"));
         MakeTextStretch(backGO, "BACK TO MENU", 24, FontStyle.Bold, Color.white);
     }
@@ -124,12 +125,14 @@ public class CollectionManager : MonoBehaviour
         var card = new GameObject("Card_" + w.id);
         card.transform.SetParent(parent, false);
         var border = card.AddComponent<Image>();
+        border.sprite = UITheme.Rounded(16); border.type = Image.Type.Sliced;
         border.color = owned ? rarCol : new Color(0.3f, 0.3f, 0.32f);
 
         // Telo
         var body = new GameObject("Body");
         body.transform.SetParent(card.transform, false);
         var bodyImg = body.AddComponent<Image>();
+        bodyImg.sprite = UITheme.Rounded(13); bodyImg.type = Image.Type.Sliced;
         bodyImg.color = owned ? new Color(0.11f, 0.08f, 0.06f, 1f)
                               : new Color(0.06f, 0.05f, 0.05f, 1f);
         StretchPad(body.GetComponent<RectTransform>(), 4, 4);

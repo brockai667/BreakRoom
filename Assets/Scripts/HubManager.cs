@@ -296,13 +296,14 @@ public class HubManager : MonoBehaviour
         var go = new GameObject("Row");
         go.transform.SetParent(parent, false);
         var img = go.AddComponent<Image>(); img.color = bg;
+        img.sprite = UITheme.Rounded(12); img.type = Image.Type.Sliced;
         var rt = go.GetComponent<RectTransform>(); rt.sizeDelta = new Vector2(520, 56);
-        var btn = go.AddComponent<Button>(); btn.targetGraphic = img;
+        var btn = go.AddComponent<Button>(); btn.targetGraphic = img; UITheme.Hover(btn, bg, bg);
         var le = go.AddComponent<LayoutElement>(); le.minHeight = 56; le.preferredHeight = 56;
  
         // ikona (farebný štvorec)
         var icon = new GameObject("Icon"); icon.transform.SetParent(go.transform, false);
-        var iimg = icon.AddComponent<Image>(); iimg.color = iconCol;
+        var iimg = icon.AddComponent<Image>(); iimg.color = iconCol; iimg.sprite = UITheme.Rounded(7); iimg.type = Image.Type.Sliced;
         var irt = icon.GetComponent<RectTransform>();
         irt.anchorMin = new Vector2(0, 0.5f); irt.anchorMax = new Vector2(0, 0.5f);
         irt.pivot = new Vector2(0, 0.5f);

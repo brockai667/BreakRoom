@@ -44,6 +44,14 @@ public class RoundHUD : MonoBehaviour
         scaler.matchWidthOrHeight = 0.5f;
         // bez GraphicRaycaster -> neblokuje hru
 
+        // Zaobleny podklad pod info (modernejsi HUD)
+        var info = new GameObject("InfoPanel"); info.transform.SetParent(canvasGO.transform, false);
+        var iimg = info.AddComponent<Image>(); iimg.sprite = UITheme.Rounded(14); iimg.type = Image.Type.Sliced;
+        iimg.color = new Color(0.04f, 0.05f, 0.08f, 0.55f); iimg.raycastTarget = false;
+        var irt = info.GetComponent<RectTransform>();
+        irt.anchorMin = irt.anchorMax = new Vector2(0f, 1f); irt.pivot = new Vector2(0f, 1f);
+        irt.anchoredPosition = new Vector2(16, -14); irt.sizeDelta = new Vector2(566, 156);
+
         moneyText     = Make("Money",  44, FontStyle.Bold, new Color(1f, 0.86f, 0.3f),
                              new Vector2(0f, 1f), new Vector2(30, -26), new Vector2(560, 60), TextAnchor.UpperLeft);
         pctText       = Make("Pct",    26, FontStyle.Bold, new Color(0.8f, 0.85f, 1f),
