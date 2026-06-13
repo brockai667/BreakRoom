@@ -106,9 +106,11 @@ public class HubManager : MonoBehaviour
     // Mapy v poradí + level potrebný na odomknutie (Obývačka = prvý level)
     static readonly (string scene, string label, int unlock)[] MAPS =
     {
-        ("Obyvacka", "Living Room",   1),
-        ("Office",   "Office", 3),
-        ("Factory",  "Factory",    5),
+        ("Obyvacka", "Living Room", 1),
+        ("Office",   "Office",      3),
+        ("Factory",  "Factory",     5),
+        ("Garage",   "Garage",      7),
+        ("Kitchen",  "Kitchen",     9),
     };
     int mapIndex = 0;
  

@@ -88,7 +88,9 @@ public class PowerUps : MonoBehaviour
         Time.timeScale = 0.45f;
         float t = 0f;
         while (t < 4f) { t += Time.unscaledDeltaTime; yield return null; }
-        if (Time.timeScale < 1f) Time.timeScale = 1f;
+        // neobnovuj ak je hra pauznuta (nech to neodpauzne)
+        var pm = FindFirstObjectByType<PauseMenu>();
+        if ((pm == null || !pm.IsPaused) && Time.timeScale < 1f) Time.timeScale = 1f;
     }
 
     void Quake(Vector3 at)

@@ -48,8 +48,8 @@ public class WeaponData
             handColor=new Color(0.2f,0.2f,0.22f), handleColor=new Color(0.3f,0.15f,0.05f)
         },
         new WeaponData {
-            id="flamethrower", displayName="Flamethrower", description="Continuous damage.\nArea hit.",
-            price=3500, damage=1, splashRadius=1.5f, hitDistance=4.5f, swingSpeed=1.0f,
+            id="flamethrower", displayName="Flamethrower", description="Continuous damage.\nLate-game unlock.",
+            price=4500, damage=1, splashRadius=1.1f, hitDistance=4.2f, swingSpeed=1.0f,
             handColor=new Color(0.9f,0.35f,0.05f), handleColor=new Color(0.3f,0.3f,0.35f)
         },
         new WeaponData {
@@ -78,5 +78,23 @@ public class WeaponData
     {
         foreach (var w in All) if (w.id == id) return w;
         return All[0];
+    }
+
+    // Progresia: na kupu zbrane v shope treba aspon tento level.
+    public static int UnlockLevel(string id)
+    {
+        switch (id)
+        {
+            case "crowbar":      return 2;
+            case "gloves":       return 3;
+            case "hammer":       return 4;
+            case "axe":          return 6;
+            case "bowling":      return 7;
+            case "katana":       return 9;
+            case "sledge":       return 11;
+            case "chainsaw":     return 13;
+            case "flamethrower": return 15;   // moc OP -> az neskoro
+            default:             return 1;    // fists, bat
+        }
     }
 }

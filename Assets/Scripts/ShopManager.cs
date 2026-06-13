@@ -95,10 +95,19 @@ public class ShopManager : MonoBehaviour
         MakeText(body, $"DMG {w.damage}    {splashTxt}", 12, FontStyle.Normal, new Color(0.75f, 0.85f, 1f),
                  0.04f, 0.33f, 0.96f, 0.40f, TextAnchor.MiddleCenter);
 
-        // Tlačidlo (kúpiť / equip / equipped)
-        string btnLabel = equipped ? "✓ EQUIPPED" : owned ? "EQUIP" : (w.price == 0 ? "FREE" : "$" + w.price);
+        // Tlačidlo (kúpiť / equip / equipped / zamknuté levelom / PREMIUM)
+        int    needLvl = WeaponData.UnlockLevel(w.id);
+        bool   premium = w.id == "flamethrower";          // prémiový = za reálne peniaze (IAP)
+        bool   locked  = !owned && !premium && XPManager.SavedLevel < needLvl;
+        string btnLabel = equipped ? "✓ EQUIPPED"
+                        : owned    ? "EQUIP"
+                        : premium  ? "PREMIUM  €2.99"
+                        : locked   ? ("LOCKED  Lvl " + needLvl)
+                        : (w.price == 0 ? "FREE" : "$" + w.price);
         Color  btnColor = equipped ? new Color(0.10f, 0.45f, 0.12f)
                         : owned    ? new Color(0.12f, 0.32f, 0.60f)
+                        : premium  ? new Color(0.85f, 0.65f, 0.10f)
+                        : locked   ? new Color(0.18f, 0.18f, 0.20f)
                                    : new Color(0.55f, 0.16f, 0.05f);
 
         var btnGO = new GameObject("BuyBtn"); btnGO.transform.SetParent(body.transform, false);
@@ -108,7 +117,7 @@ public class ShopManager : MonoBehaviour
         var btn = btnGO.AddComponent<Button>(); btn.targetGraphic = btnImg; UITheme.Hover(btn, btnColor, btnColor);
         MakeTextRect(btnGO, btnLabel, 15, FontStyle.Bold, Color.white, TextAnchor.MiddleCenter);
         btn.onClick.AddListener(() => OnCardClick(pid));
-        if (equipped) btn.interactable = false;
+        if (equipped || locked) btn.interactable = false;
 
         // UPGRADE tlacidlo (len vlastnene zbrane, do max levelu)
         if (owned)
@@ -182,7 +191,14 @@ public class ShopManager : MonoBehaviour
     {
         var inv = PlayerInventory.Instance;
         if (inv.Owns(id)) inv.Equip(id);
-        else inv.TryBuy(id);
+        else if (id == "flamethrower")
+        {
+            // PREMIUM (reálne peniaze) — tu by sa volalo Unity IAP. Po úspešnej
+            // platbe sa zbraň udelí. Zatiaľ placeholder: udelí ju priamo.
+            inv.GiveWeapon(id); inv.Equip(id);
+            if (SfxManager.Instance != null) SfxManager.Coin();
+        }
+        else if (XPManager.SavedLevel >= WeaponData.UnlockLevel(id)) inv.TryBuy(id);
         Preview(id);
         RefreshCards();
     }
