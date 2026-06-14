@@ -44,6 +44,33 @@ public static class Fx
         Object.Destroy(lgo, 0.18f);
     }
 
+    /// Trieštenie skla: ostrý svetlomodrý záblesk + rozletujúce sa črepiny.
+    public static void Glass(Vector3 center)
+    {
+        Burst(center, 30, new Color(0.8f, 0.92f, 1f), 6.5f, 0.4f, 0.06f);
+
+        var lgo = new GameObject("GlassLight");
+        lgo.transform.position = center;
+        var l = lgo.AddComponent<Light>();
+        l.type = LightType.Point; l.color = new Color(0.8f, 0.92f, 1f); l.range = 3f; l.intensity = 2.5f;
+        Object.Destroy(lgo, 0.12f);
+
+        var shardMat = EmissiveMat(new Color(0.78f, 0.9f, 1f));
+        for (int i = 0; i < 7; i++)
+        {
+            var sh = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            var c = sh.GetComponent<Collider>(); if (c != null) Object.Destroy(c);
+            sh.transform.position = center + Random.insideUnitSphere * 0.15f;
+            sh.transform.localScale = new Vector3(Random.Range(0.03f, 0.07f), Random.Range(0.06f, 0.14f), 0.012f);
+            sh.transform.rotation = Random.rotation;
+            sh.GetComponent<Renderer>().sharedMaterial = shardMat;
+            var rb = sh.AddComponent<Rigidbody>(); rb.mass = 0.05f;
+            rb.AddForce((Random.insideUnitSphere + Vector3.up).normalized * Random.Range(2f, 4f), ForceMode.Impulse);
+            rb.AddTorque(Random.insideUnitSphere * 5f);
+            Object.Destroy(sh, 2.5f);
+        }
+    }
+
     /// Prachovy oblak pri rozbiti (mierna siva/hneda hmla).
     public static void Dust(Vector3 center, Color tint)
     {

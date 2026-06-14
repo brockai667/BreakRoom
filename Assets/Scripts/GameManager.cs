@@ -100,6 +100,8 @@ public class GameManager : MonoBehaviour
                     clearDelay = 1.2f;
                     Time.timeScale = 0.4f;                 // slow-motion oslava
                     if (Announcer.Instance != null) Announcer.Show("ALL SMASHED!", true);
+                    if (SfxManager.Instance != null) SfxManager.Sting();
+                    CameraShaker.Shake(0.35f, 0.5f);
                 }
             }
             else

@@ -38,6 +38,26 @@ public class RoomTheme : MonoBehaviour
         new Color(0.58f, 0.78f, 0.68f),  // mentolová
         new Color(0.60f, 0.62f, 0.66f),  // chróm
     };
+    static readonly Color[] OfficeItems =
+    {
+        new Color(0.16f, 0.17f, 0.20f),  // monitor / čierna technika
+        new Color(0.50f, 0.52f, 0.56f),  // sivá skriňa
+        new Color(0.50f, 0.38f, 0.24f),  // drevený stôl
+        new Color(0.30f, 0.42f, 0.62f),  // modrá stolička
+        new Color(0.88f, 0.88f, 0.85f),  // biely papier
+        new Color(0.78f, 0.74f, 0.64f),  // béžová
+        new Color(0.35f, 0.55f, 0.45f),  // zelená doska
+    };
+    static readonly Color[] FactoryItems =
+    {
+        new Color(0.45f, 0.47f, 0.50f),  // oceľ
+        new Color(0.52f, 0.26f, 0.15f),  // hrdza
+        new Color(0.80f, 0.70f, 0.12f),  // výstražná žltá
+        new Color(0.25f, 0.26f, 0.28f),  // tmavý kov
+        new Color(0.50f, 0.36f, 0.20f),  // drevená debna
+        new Color(0.30f, 0.45f, 0.32f),  // olejová zelená
+        new Color(0.62f, 0.30f, 0.10f),  // medená
+    };
 
     void Apply(string scene)
     {
@@ -56,6 +76,20 @@ public class RoomTheme : MonoBehaviour
             floor = new Color(0.78f, 0.80f, 0.82f);
             ceil  = new Color(0.93f, 0.93f, 0.90f);
             items = KitchenItems;
+        }
+        else if (scene == "Office")
+        {
+            wall  = new Color(0.74f, 0.76f, 0.80f);   // svetlá kancelária
+            floor = new Color(0.40f, 0.42f, 0.46f);   // koberec
+            ceil  = new Color(0.92f, 0.93f, 0.94f);   // stropné panely
+            items = OfficeItems;
+        }
+        else if (scene == "Factory")
+        {
+            wall  = new Color(0.45f, 0.46f, 0.48f);   // betón
+            floor = new Color(0.30f, 0.30f, 0.32f);   // tmavá podlaha
+            ceil  = new Color(0.36f, 0.37f, 0.39f);   // kovový strop
+            items = FactoryItems;
         }
         else return;
 

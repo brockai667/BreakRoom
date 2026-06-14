@@ -143,7 +143,7 @@ public class Breakable : MonoBehaviour
         // Hlasenie cielom kola (zlaty predmet / elektronika)
         Objectives.NotifyBreak(golden, electronic);
 
-        if (electronic) { Fx.Sparks(transform.position, baseColor); SfxManager.Zap(transform.position); }
+        if (electronic) { Fx.Sparks(transform.position, baseColor); Fx.Glass(transform.position); SfxManager.Zap(transform.position); SfxManager.Glass(transform.position); }
         if (explosive)  Explode(transform.position);
 
         // Prachovy oblak pri rozbiti (vizualne juice)

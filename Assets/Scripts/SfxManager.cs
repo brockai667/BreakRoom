@@ -106,6 +106,13 @@ public class SfxManager : MonoBehaviour
         Instance.PlayAt(Instance.hitClip, pos, Random.Range(0.9f, 1.15f), 0.55f);
     }
 
+    // Rozbitie skla: vyšší pitch "sklenenej" varianty breaku.
+    public static void Glass(Vector3 pos)
+    {
+        if (Instance == null || Instance.breakClips == null || Instance.breakClips.Length < 2) return;
+        Instance.PlayAt(Instance.breakClips[1], pos, Random.Range(1.3f, 1.7f), 0.7f);
+    }
+
     public static void Swing()
     {
         if (Instance == null || Instance.swingClips == null) return;
