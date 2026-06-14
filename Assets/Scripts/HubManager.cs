@@ -111,6 +111,7 @@ public class HubManager : MonoBehaviour
         ("Factory",  "Factory",     5),
         ("Garage",   "Garage",      7),
         ("Kitchen",  "Kitchen",     9),
+        ("Bedroom",  "Bedroom",     11),
     };
     int mapIndex = 0;
  

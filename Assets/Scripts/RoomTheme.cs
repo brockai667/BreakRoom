@@ -91,6 +91,13 @@ public class RoomTheme : MonoBehaviour
             ceil  = new Color(0.36f, 0.37f, 0.39f);   // kovový strop
             items = FactoryItems;
         }
+        else if (scene == "Bedroom")
+        {
+            wall  = new Color(0.62f, 0.56f, 0.66f);   // teplá levanduľová
+            floor = new Color(0.46f, 0.34f, 0.24f);   // drevená podlaha
+            ceil  = new Color(0.90f, 0.88f, 0.90f);   // svetlý strop
+            items = null;                              // vlastné materiály z buildera necháme
+        }
         else return;
 
         StartCoroutine(Tint(wall, floor, ceil, items));
@@ -117,11 +124,14 @@ public class RoomTheme : MonoBehaviour
         }
 
         // 2) rozbitne predmety prefarbi temovou paletou (deterministicky podla mena)
-        foreach (var b in FindObjectsByType<Breakable>(FindObjectsSortMode.None))
+        if (items != null)
         {
-            if (b == null || b.isChunk) continue;
-            int idx = Mathf.Abs(b.gameObject.name.GetHashCode()) % items.Length;
-            b.Retint(items[idx]);
+            foreach (var b in FindObjectsByType<Breakable>(FindObjectsSortMode.None))
+            {
+                if (b == null || b.isChunk) continue;
+                int idx = Mathf.Abs(b.gameObject.name.GetHashCode()) % items.Length;
+                b.Retint(items[idx]);
+            }
         }
     }
 }
