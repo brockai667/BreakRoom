@@ -13,6 +13,7 @@ public class WeaponHit : MonoBehaviour
     private bool  isFlamethrower = false;
     private bool  isChainsaw = false;
     private bool  isGrenade = false;
+    private bool  isBowling = false;
     private int   layerMask;
     private HandDisplay handDisplay;
     private FirstPersonHands fpHands;
@@ -46,6 +47,7 @@ public class WeaponHit : MonoBehaviour
         isFlamethrower = w.id == "flamethrower";
         isChainsaw     = w.id == "chainsaw";
         isGrenade      = w.id == "grenade";
+        isBowling      = w.id == "bowling";
         if (!isFlamethrower && !isChainsaw) StopSpray();
         if (fpHands != null) fpHands.SetWeapon(w);
     }
@@ -59,6 +61,7 @@ public class WeaponHit : MonoBehaviour
 
         if (isFlamethrower || isChainsaw) { HandleContinuous(); return; }
         if (isGrenade) { HandleGrenade(); return; }
+        if (isBowling) { HandleBowling(); return; }
 
         if (cooldown > 0f) { cooldown -= Time.deltaTime; return; }
         if (Mouse.current.leftButton.wasPressedThisFrame) Swing();
@@ -111,6 +114,22 @@ public class WeaponHit : MonoBehaviour
             {
                 Vector3 pos = playerCamera.transform.position + playerCamera.transform.forward * 0.8f;
                 Grenade.Throw(pos, playerCamera.transform.forward);
+            }
+        }
+    }
+
+    // ---------- BOWLING (hodiť + kotúľať) ----------
+    void HandleBowling()
+    {
+        if (cooldown > 0f) { cooldown -= Time.deltaTime; return; }
+        if (Mouse.current.leftButton.wasPressedThisFrame)
+        {
+            if (fpHands != null) fpHands.PlaySwing();
+            cooldown = 1f / Mathf.Max(0.1f, swingSpeed);
+            if (playerCamera != null)
+            {
+                Vector3 pos = playerCamera.transform.position + playerCamera.transform.forward * 0.9f + Vector3.down * 0.4f;
+                BowlingBall.Throw(pos, playerCamera.transform.forward, Mathf.Max(4, damage + 2));
             }
         }
     }
@@ -236,7 +255,7 @@ public class WeaponHit : MonoBehaviour
     {
         if (b == null) return;
         int orig = b.damage;
-        b.damage = Mathf.Max(1, Mathf.RoundToInt(damage * PowerUps.DamageMult()));
+        b.damage = Mathf.Max(1, Mathf.RoundToInt(damage * PowerUps.DamageMult() * RampageManager.DamageMult()));
         b.Hit(point, dir);
         if (b != null) b.damage = orig;
     }

@@ -32,15 +32,10 @@ public class PowerUps : MonoBehaviour
     /// Aktualny damage multiplikator (Rage).
     public static float DamageMult() => (inst != null && inst.rageTimer > 0f) ? 2f : 1f;
 
-    /// Z rozbitia obcas vypadne power-up (menej casto + s capom na pocet).
+    /// Power-upy sú vypnuté (na žiadosť používateľa). RAMPAGE ich nahrádza.
     public static void MaybeDrop(Vector3 pos)
     {
-        if (inst == null) return;
-        if (GameManager.Instance == null || !GameManager.Instance.roundActive) return;
-        if (ActiveCount >= MAX_ACTIVE) return;
-        if (Random.value > 0.028f) return;
-        Kind k = (Kind)Random.Range(0, 4);
-        inst.Spawn(k, pos + Vector3.up * 0.7f);
+        return;
     }
 
     void Spawn(Kind k, Vector3 pos)
