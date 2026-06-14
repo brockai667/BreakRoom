@@ -63,36 +63,49 @@ public class AchievementsMenu : MonoBehaviour
         dimBtn.transition = Selectable.Transition.None; dimBtn.onClick.AddListener(ClosePanel);
 
         box = new GameObject("Box"); box.transform.SetParent(overlay.transform, false);
-        UITheme.PanelImage(box, UITheme.Panel, 24);
-        UITheme.Shadow(box, new Vector2(0, -8), 0.55f);
+        UITheme.PanelImage(box, UITheme.Panel, 26);
+        UITheme.Shadow(box, new Vector2(0, -10), 0.6f);
         var brt = box.GetComponent<RectTransform>();
         brt.anchorMin = brt.anchorMax = new Vector2(0.5f, 0.5f); brt.pivot = new Vector2(0.5f, 0.5f);
-        brt.anchoredPosition = Vector2.zero; brt.sizeDelta = new Vector2(960, 760);
+        brt.anchoredPosition = Vector2.zero; brt.sizeDelta = new Vector2(1000, 800);
 
-        Label(box.transform, "ACHIEVEMENTS", 48, UITheme.Accent, new Vector2(0.5f, 0.5f),
-              new Vector2(0, 318), new Vector2(900, 64), TextAnchor.MiddleCenter);
+        Label(box.transform, "ACHIEVEMENTS", 50, UITheme.Accent, new Vector2(0.5f, 0.5f),
+              new Vector2(0, 330), new Vector2(900, 66), TextAnchor.MiddleCenter);
+        // akcentova linka pod titulom (konzistentne so Settings)
+        var bar = new GameObject("Bar"); bar.transform.SetParent(box.transform, false);
+        UITheme.PanelImage(bar, UITheme.Accent, 4);
+        var barRt = bar.GetComponent<RectTransform>();
+        barRt.anchorMin = barRt.anchorMax = new Vector2(0.5f, 0.5f); barRt.pivot = new Vector2(0.5f, 0.5f);
+        barRt.anchoredPosition = new Vector2(0, 290); barRt.sizeDelta = new Vector2(260, 6);
 
         int smashed   = PlayerPrefs.GetInt("Stat_smashed", 0);
         int bestCombo = PlayerPrefs.GetInt("Stat_bestCombo", 0);
         int cleared   = PlayerPrefs.GetInt("Stat_cleared", 0);
 
-        float y = 240f;
+        float y = 226f;
         foreach (var d in Achievements.DEFS)
         {
             bool got = PlayerPrefs.GetInt("Ach_" + d.id, 0) == 1;
             int have = d.type == "smashed" ? smashed : d.type == "combo" ? bestCombo : cleared;
 
-            Label(box.transform, (got ? "[X] " : "[ ] ") + d.name, 26, got ? UITheme.Good : UITheme.SubText,
-                  new Vector2(0.5f, 0.5f), new Vector2(-410, y), new Vector2(560, 44), TextAnchor.MiddleLeft);
+            // jemne pozadie riadku (drzi obsah v ramci panela, citatelne)
+            var rowBg = new GameObject("RowBg"); rowBg.transform.SetParent(box.transform, false);
+            UITheme.PanelImage(rowBg, got ? new Color(0.16f, 0.24f, 0.18f, 0.95f) : UITheme.PanelLight, 12);
+            var rbg = rowBg.GetComponent<RectTransform>();
+            rbg.anchorMin = rbg.anchorMax = new Vector2(0.5f, 0.5f); rbg.pivot = new Vector2(0.5f, 0.5f);
+            rbg.anchoredPosition = new Vector2(0, y); rbg.sizeDelta = new Vector2(884, 50);
+
+            Label(box.transform, (got ? "[X]  " : "[ ]  ") + d.name, 27, got ? UITheme.Good : UITheme.Text,
+                  new Vector2(0.5f, 0.5f), new Vector2(-160, y), new Vector2(540, 46), TextAnchor.MiddleLeft);
             string status = got ? ("UNLOCKED   +$" + d.reward) : (Mathf.Min(have, d.need) + " / " + d.need);
-            Label(box.transform, status, 24, got ? UITheme.Good : new Color(0.85f, 0.9f, 1f),
-                  new Vector2(0.5f, 0.5f), new Vector2(180, y), new Vector2(300, 44), TextAnchor.MiddleRight);
-            y -= 60f;
+            Label(box.transform, status, 25, got ? UITheme.Good : new Color(0.85f, 0.9f, 1f),
+                  new Vector2(0.5f, 0.5f), new Vector2(290, y), new Vector2(300, 46), TextAnchor.MiddleRight);
+            y -= 58f;
         }
 
-        var close = Btn(box.transform, "CLOSE", new Vector2(0.5f, 0.5f), new Vector2(0, -322),
-                        new Vector2(320, 64), UITheme.Danger, 26, ClosePanel, 16);
-        UITheme.Shadow(close.gameObject, new Vector2(0, -3));
+        var close = Btn(box.transform, "CLOSE", new Vector2(0.5f, 0.5f), new Vector2(0, -332),
+                        new Vector2(340, 66), UITheme.Danger, 26, ClosePanel, 16);
+        UITheme.Shadow(close.gameObject, new Vector2(0, -4));
     }
 
     void OpenPanel()  { if (overlay != null) overlay.SetActive(true); }

@@ -90,7 +90,7 @@ public class SettingsMenu : MonoBehaviour
         UITheme.Shadow(box, new Vector2(0, -8), 0.55f);
         var brt = box.GetComponent<RectTransform>();
         brt.anchorMin = brt.anchorMax = new Vector2(0.5f, 0.5f); brt.pivot = new Vector2(0.5f, 0.5f);
-        brt.anchoredPosition = Vector2.zero; brt.sizeDelta = new Vector2(840, 790);
+        brt.anchoredPosition = Vector2.zero; brt.sizeDelta = new Vector2(900, 800);
 
         // Title + accent underline
         Label(box.transform, "SETTINGS", 52, UITheme.Accent,
@@ -120,8 +120,15 @@ public class SettingsMenu : MonoBehaviour
 
     Text Row(string label, float y, UnityEngine.Events.UnityAction minus, UnityEngine.Events.UnityAction plus)
     {
+        // jemne pozadie riadku
+        var rowBg = new GameObject("RowBg"); rowBg.transform.SetParent(box.transform, false);
+        UITheme.PanelImage(rowBg, UITheme.PanelLight, 12);
+        var rbg = rowBg.GetComponent<RectTransform>();
+        rbg.anchorMin = rbg.anchorMax = new Vector2(0.5f, 0.5f); rbg.pivot = new Vector2(0.5f, 0.5f);
+        rbg.anchoredPosition = new Vector2(0, y); rbg.sizeDelta = new Vector2(792, 64);
+
         Label(box.transform, label, 28, UITheme.Text, new Vector2(0.5f, 0.5f),
-              new Vector2(-225, y), new Vector2(420, 50), TextAnchor.MiddleLeft);
+              new Vector2(-208, y), new Vector2(400, 50), TextAnchor.MiddleLeft);
         Btn(box.transform, "-", new Vector2(0.5f, 0.5f), new Vector2(120, y),
             new Vector2(58, 54), UITheme.BtnNormal, 32, minus, 12);
         var val = Label(box.transform, "", 26, new Color(0.85f, 0.9f, 1f), new Vector2(0.5f, 0.5f),

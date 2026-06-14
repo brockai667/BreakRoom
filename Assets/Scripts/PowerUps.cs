@@ -1,12 +1,17 @@
 using System.Collections;
 using UnityEngine;
 
-/// Power-upy padajuce z rozbitych veci. Pickup sa zoberie priblizenim hraca.
+/// Power-upy padajuce z rozbitych veci. Kazdy druh ma vlastny tvar a farbu,
+/// aby bolo na prvy pohlad jasne, ze ide o bonus (nie o nahodnu kocku).
 /// Rage = x2 damage, Frenzy = slow-mo, Cash = bonus penazi, Quake = plosny smash.
 public class PowerUps : MonoBehaviour
 {
     public enum Kind { Rage, Frenzy, Cash, Quake }
     static PowerUps inst;
+
+    // Kolko pickupov je prave v scene (cap, nech sa nehromadia).
+    public static int ActiveCount = 0;
+    const int MAX_ACTIVE = 4;
 
     float rageTimer;
 
@@ -27,31 +32,68 @@ public class PowerUps : MonoBehaviour
     /// Aktualny damage multiplikator (Rage).
     public static float DamageMult() => (inst != null && inst.rageTimer > 0f) ? 2f : 1f;
 
-    /// Z rozbitia obcas vypadne power-up.
+    /// Z rozbitia obcas vypadne power-up (menej casto + s capom na pocet).
     public static void MaybeDrop(Vector3 pos)
     {
         if (inst == null) return;
         if (GameManager.Instance == null || !GameManager.Instance.roundActive) return;
-        if (Random.value > 0.045f) return;
+        if (ActiveCount >= MAX_ACTIVE) return;
+        if (Random.value > 0.028f) return;
         Kind k = (Kind)Random.Range(0, 4);
-        inst.Spawn(k, pos + Vector3.up * 0.6f);
+        inst.Spawn(k, pos + Vector3.up * 0.7f);
     }
 
     void Spawn(Kind k, Vector3 pos)
     {
-        var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        go.name = "PowerUp";
-        var col = go.GetComponent<Collider>(); if (col != null) Destroy(col);
+        // Root = neviditelny drziak (rotuje a vznasa sa). Tvar je dieta.
+        var go = new GameObject("PowerUp");
         go.transform.position = pos;
-        go.transform.localScale = Vector3.one * 0.42f;
-        go.GetComponent<Renderer>().material = EmissiveMat(Tint(k));
-        var p = go.AddComponent<PowerUpPickup>();
-        p.kind = k;
 
+        var body = BuildShape(k);
+        body.transform.SetParent(go.transform, false);
+        body.transform.localPosition = Vector3.zero;
+
+        // Svetelny prstenec pod predmetom (halo), aby ziaril aj na zemi.
         var lgo = new GameObject("PU_Light");
         lgo.transform.SetParent(go.transform, false);
         var l = lgo.AddComponent<Light>();
-        l.type = LightType.Point; l.color = Tint(k); l.range = 3.5f; l.intensity = 2.2f;
+        l.type = LightType.Point; l.color = Tint(k); l.range = 3.8f; l.intensity = 2.6f;
+
+        var p = go.AddComponent<PowerUpPickup>();
+        p.kind = k;
+        p.body = body.transform;
+    }
+
+    /// Postavi tvar specificky pre druh power-upu (citatelnost).
+    static GameObject BuildShape(Kind k)
+    {
+        var mat = EmissiveMat(Tint(k));
+        GameObject g;
+        switch (k)
+        {
+            case Kind.Rage:   // cervena gula = sila
+                g = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                g.transform.localScale = Vector3.one * 0.5f;
+                break;
+            case Kind.Frenzy: // modra kapsula = "lektvar" spomalenia
+                g = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+                g.transform.localScale = new Vector3(0.34f, 0.34f, 0.34f);
+                break;
+            case Kind.Cash:   // zlata minca = peniaze
+                g = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+                g.transform.localScale = new Vector3(0.52f, 0.07f, 0.52f);
+                g.transform.localEulerAngles = new Vector3(90f, 0f, 0f);
+                break;
+            default:          // Quake: fialova kocka-diamant = otras
+                g = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                g.transform.localScale = Vector3.one * 0.46f;
+                g.transform.localEulerAngles = new Vector3(45f, 0f, 45f);
+                break;
+        }
+        g.name = "PU_Body";
+        var col = g.GetComponent<Collider>(); if (col != null) Destroy(col);
+        g.GetComponent<Renderer>().material = mat;
+        return g;
     }
 
     public static void Collect(Kind k, Vector3 at)
@@ -133,28 +175,59 @@ public class PowerUps : MonoBehaviour
     }
 }
 
-/// Spravanie pickupu: vznasa sa, otaca, a pri priblizeni hraca aktivuje efekt.
+/// Spravanie pickupu: vznasa sa, otaca, pri priblizeni hraca sa rozleti k nemu
+/// (magnet) a aktivuje efekt. Kratsia zivotnost, nech zostava prehladne.
 public class PowerUpPickup : MonoBehaviour
 {
     public PowerUps.Kind kind;
+    public Transform body;
     float baseY;
-    float life = 25f;
+    float life = 14f;
+    bool collected;
 
-    void Start() { baseY = transform.position.y; }
+    void Start()
+    {
+        baseY = transform.position.y;
+        PowerUps.ActiveCount++;
+    }
+
+    void OnDestroy()
+    {
+        PowerUps.ActiveCount--;
+    }
 
     void Update()
     {
-        transform.Rotate(0f, 90f * Time.unscaledDeltaTime, 0f, Space.World);
-        var p = transform.position;
-        p.y = baseY + Mathf.Sin(Time.unscaledTime * 2.5f) * 0.12f;
-        transform.position = p;
+        // Telo sa stale otaca (citatelne ako bonus).
+        if (body != null)
+            body.Rotate(0f, 110f * Time.unscaledDeltaTime, 0f, Space.World);
 
         var cam = Camera.main;
-        if (cam != null && Vector3.Distance(cam.transform.position, transform.position) < 1.7f)
+        if (cam != null)
         {
-            PowerUps.Collect(kind, transform.position);
-            Destroy(gameObject);
-            return;
+            float d = Vector3.Distance(cam.transform.position, transform.position);
+
+            // Magnet: ked je hrac blizko, predmet sa k nemu rozletí.
+            if (d < 6f)
+            {
+                Vector3 target = cam.transform.position - Vector3.up * 0.3f;
+                transform.position = Vector3.MoveTowards(transform.position, target,
+                                       (8f - d) * 1.6f * Time.unscaledDeltaTime);
+            }
+            else
+            {
+                var p = transform.position;
+                p.y = baseY + Mathf.Sin(Time.unscaledTime * 2.5f) * 0.14f;
+                transform.position = p;
+            }
+
+            if (!collected && d < 1.7f)
+            {
+                collected = true;
+                PowerUps.Collect(kind, transform.position);
+                Destroy(gameObject);
+                return;
+            }
         }
 
         life -= Time.unscaledDeltaTime;

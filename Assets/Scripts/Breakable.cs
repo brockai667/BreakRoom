@@ -70,6 +70,20 @@ public class Breakable : MonoBehaviour
         xpValue = Mathf.Max(5, Mathf.RoundToInt(6f + maxDim * 10f));
     }
 
+    /// Prefarbí predmet (a tým aj jeho úlomky) – používa RoomTheme pre témy máp.
+    public void Retint(Color c)
+    {
+        if (!configured) Configure();
+        var rend = GetComponent<Renderer>() ?? GetComponentInChildren<Renderer>();
+        if (rend != null)
+        {
+            var m = rend.material;
+            m.color = c;
+            if (m.HasProperty("_BaseColor")) m.SetColor("_BaseColor", c);
+        }
+        baseColor = c;
+    }
+
     public void Hit(Vector3 hitPoint, Vector3 swingDir)
     {
         if (broken) return;
