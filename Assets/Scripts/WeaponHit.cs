@@ -11,6 +11,8 @@ public class WeaponHit : MonoBehaviour
     private float splash     = 0f;
     private float swingSpeed = 1f;
     private bool  isFlamethrower = false;
+    private bool  isChainsaw = false;
+    private bool  isGrenade = false;
     private int   layerMask;
     private HandDisplay handDisplay;
     private FirstPersonHands fpHands;
@@ -42,7 +44,9 @@ public class WeaponHit : MonoBehaviour
         hitDistance    = w.hitDistance + Perks.ReachBonus();
         swingSpeed     = w.swingSpeed * Perks.SwingMult();
         isFlamethrower = w.id == "flamethrower";
-        if (!isFlamethrower) StopSpray();
+        isChainsaw     = w.id == "chainsaw";
+        isGrenade      = w.id == "grenade";
+        if (!isFlamethrower && !isChainsaw) StopSpray();
         if (fpHands != null) fpHands.SetWeapon(w);
     }
 
@@ -53,27 +57,62 @@ public class WeaponHit : MonoBehaviour
         if (pauseMenu != null && pauseMenu.IsPaused) { StopSpray(); return; }
         if (Mouse.current == null) return;
 
-        if (isFlamethrower) { HandleFlamethrower(); return; }
+        if (isFlamethrower || isChainsaw) { HandleContinuous(); return; }
+        if (isGrenade) { HandleGrenade(); return; }
 
         if (cooldown > 0f) { cooldown -= Time.deltaTime; return; }
         if (Mouse.current.leftButton.wasPressedThisFrame) Swing();
     }
 
-    // ---------- PLAMENOMET ----------
-    void HandleFlamethrower()
+    // ---------- CONTINUOUS (plamenomet / chainsaw) ----------
+    void HandleContinuous()
     {
         if (Mouse.current.leftButton.isPressed)
         {
-            if (!spraying) { spraying = true; if (flameFX != null) flameFX.Play(); SfxManager.FlameOn(); }
+            if (!spraying)
+            {
+                spraying = true;
+                if (isFlamethrower) { if (flameFX != null) flameFX.Play(); SfxManager.FlameOn(); }
+                else SfxManager.Swing();   // chainsaw zapnutie
+            }
             fireTick -= Time.deltaTime;
-            if (fireTick <= 0f) { fireTick = 0.08f; SprayDamage(); }
+            if (fireTick <= 0f)
+            {
+                fireTick = isFlamethrower ? 0.08f : 0.11f;
+                if (!isFlamethrower && playerCamera != null)
+                    SfxManager.Hit(playerCamera.transform.position + playerCamera.transform.forward * 1.2f);
+                SprayDamage();
+            }
         }
         else StopSpray();
     }
 
     void StopSpray()
     {
-        if (spraying) { spraying = false; if (flameFX != null) flameFX.Stop(); SfxManager.FlameOff(); }
+        if (!spraying) return;
+        spraying = false;
+        if (isFlamethrower)
+        {
+            if (flameFX != null) flameFX.Stop();
+            SfxManager.FlameOff();
+        }
+    }
+
+    // ---------- GRANAT ----------
+    void HandleGrenade()
+    {
+        if (cooldown > 0f) { cooldown -= Time.deltaTime; return; }
+        if (Mouse.current.leftButton.wasPressedThisFrame)
+        {
+            if (fpHands != null) fpHands.PlaySwing();
+            SfxManager.Swing();
+            cooldown = 1f / Mathf.Max(0.1f, swingSpeed);
+            if (playerCamera != null)
+            {
+                Vector3 pos = playerCamera.transform.position + playerCamera.transform.forward * 0.8f;
+                Grenade.Throw(pos, playerCamera.transform.forward);
+            }
+        }
     }
 
     void SprayDamage()

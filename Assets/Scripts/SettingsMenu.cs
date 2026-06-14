@@ -11,9 +11,9 @@ public class SettingsMenu : MonoBehaviour
     static SettingsMenu inst;
 
     GameObject canvasGO, overlay, box;
-    float sens, vol, fov;
+    float sens, sfx, music, fov;
     int   qual;
-    Text  sensT, volT, fovT, qualT;
+    Text  sensT, sfxT, musT, fovT, qualT;
 
     static Font F => Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
 
@@ -30,7 +30,7 @@ public class SettingsMenu : MonoBehaviour
 
     public static void ApplyGlobal()
     {
-        AudioListener.volume = PlayerPrefs.GetFloat("Volume", 0.8f);
+        AudioListener.volume = PlayerPrefs.GetFloat("SfxVolume", 0.8f);
         int q = PlayerPrefs.GetInt("Quality", -1);
         if (q >= 0 && q < QualitySettings.names.Length) QualitySettings.SetQualityLevel(q, true);
     }
@@ -68,8 +68,9 @@ public class SettingsMenu : MonoBehaviour
 
     void BuildPanel()
     {
-        sens = PlayerPrefs.GetFloat("Sensitivity", 2f);
-        vol  = PlayerPrefs.GetFloat("Volume", 0.8f);
+        sens  = PlayerPrefs.GetFloat("Sensitivity", 2f);
+        sfx   = PlayerPrefs.GetFloat("SfxVolume", 0.8f);
+        music = PlayerPrefs.GetFloat("MusicVolume", 0.8f);
         fov  = PlayerPrefs.GetFloat("FOV", 70f);
         qual = PlayerPrefs.GetInt("Quality", QualitySettings.GetQualityLevel());
 
@@ -89,26 +90,28 @@ public class SettingsMenu : MonoBehaviour
         UITheme.Shadow(box, new Vector2(0, -8), 0.55f);
         var brt = box.GetComponent<RectTransform>();
         brt.anchorMin = brt.anchorMax = new Vector2(0.5f, 0.5f); brt.pivot = new Vector2(0.5f, 0.5f);
-        brt.anchoredPosition = Vector2.zero; brt.sizeDelta = new Vector2(840, 680);
+        brt.anchoredPosition = Vector2.zero; brt.sizeDelta = new Vector2(840, 790);
 
         // Title + accent underline
         Label(box.transform, "SETTINGS", 52, UITheme.Accent,
-              new Vector2(0.5f, 0.5f), new Vector2(0, 268), new Vector2(800, 70), TextAnchor.MiddleCenter);
+              new Vector2(0.5f, 0.5f), new Vector2(0, 322), new Vector2(800, 70), TextAnchor.MiddleCenter);
         var bar = new GameObject("Bar"); bar.transform.SetParent(box.transform, false);
         UITheme.PanelImage(bar, UITheme.Accent, 4);
         var barRt = bar.GetComponent<RectTransform>();
         barRt.anchorMin = barRt.anchorMax = new Vector2(0.5f, 0.5f); barRt.pivot = new Vector2(0.5f, 0.5f);
-        barRt.anchoredPosition = new Vector2(0, 228); barRt.sizeDelta = new Vector2(220, 6);
+        barRt.anchoredPosition = new Vector2(0, 282); barRt.sizeDelta = new Vector2(220, 6);
 
-        sensT = Row("Mouse Sensitivity", 150, () => Adjust(ref sens, -0.25f, 0.5f, 4f, "Sensitivity"),
+        sensT = Row("Mouse Sensitivity", 192, () => Adjust(ref sens, -0.25f, 0.5f, 4f, "Sensitivity"),
                                               () => Adjust(ref sens, 0.25f, 0.5f, 4f, "Sensitivity"));
-        volT  = Row("Volume", 58, () => Adjust(ref vol, -0.1f, 0f, 1f, "Volume"),
-                                  () => Adjust(ref vol, 0.1f, 0f, 1f, "Volume"));
-        fovT  = Row("Field of View", -34, () => Adjust(ref fov, -5f, 60f, 100f, "FOV"),
+        sfxT  = Row("SFX Volume", 112, () => Adjust(ref sfx, -0.1f, 0f, 1f, "SfxVolume"),
+                                       () => Adjust(ref sfx, 0.1f, 0f, 1f, "SfxVolume"));
+        musT  = Row("Music Volume", 32, () => Adjust(ref music, -0.1f, 0f, 1f, "MusicVolume"),
+                                        () => Adjust(ref music, 0.1f, 0f, 1f, "MusicVolume"));
+        fovT  = Row("Field of View", -48, () => Adjust(ref fov, -5f, 60f, 100f, "FOV"),
                                           () => Adjust(ref fov, 5f, 60f, 100f, "FOV"));
-        qualT = Row("Graphics Quality", -126, () => CycleQuality(-1), () => CycleQuality(1));
+        qualT = Row("Graphics Quality", -128, () => CycleQuality(-1), () => CycleQuality(1));
 
-        var close = Btn(box.transform, "CLOSE", new Vector2(0.5f, 0.5f), new Vector2(0, -262),
+        var close = Btn(box.transform, "CLOSE", new Vector2(0.5f, 0.5f), new Vector2(0, -312),
                         new Vector2(340, 68), UITheme.Danger, 26, ClosePanel, 16);
         UITheme.Shadow(close.gameObject, new Vector2(0, -3));
 
@@ -132,7 +135,7 @@ public class SettingsMenu : MonoBehaviour
     {
         v = Mathf.Clamp(Mathf.Round((v + delta) * 100f) / 100f, min, max);
         PlayerPrefs.SetFloat(key, v); PlayerPrefs.Save();
-        if (key == "Volume") AudioListener.volume = v;
+        if (key == "SfxVolume") AudioListener.volume = v;
         if (key == "FOV") { var c = Camera.main; if (c != null) c.fieldOfView = v; }
         RefreshValues();
     }
@@ -149,7 +152,8 @@ public class SettingsMenu : MonoBehaviour
     void RefreshValues()
     {
         if (sensT != null) sensT.text = sens.ToString("0.00");
-        if (volT  != null) volT.text  = Mathf.RoundToInt(vol * 100f) + "%";
+        if (sfxT  != null) sfxT.text  = Mathf.RoundToInt(sfx * 100f) + "%";
+        if (musT  != null) musT.text  = Mathf.RoundToInt(music * 100f) + "%";
         if (fovT  != null) fovT.text  = Mathf.RoundToInt(fov).ToString();
         if (qualT != null) qualT.text = QualitySettings.names[Mathf.Clamp(qual, 0, QualitySettings.names.Length - 1)];
     }

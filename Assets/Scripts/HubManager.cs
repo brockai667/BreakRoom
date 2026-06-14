@@ -221,7 +221,9 @@ public class HubManager : MonoBehaviour
             int m = (int)time / 60;
             int s = (int)time % 60;
             resultsText.text = (cleared ? "PERFECT - whole room smashed!\n" : "")
-                             + $"Smashed: {destroyed}    Time: {m:00}:{s:00}    •    Grade: {grade}";
+                             + $"Smashed: {destroyed}    Time: {m:00}:{s:00}    •    Grade: {grade}\n"
+                             + $"Smash earnings: ${GameSession.PendingBase}    End bonus: ${GameSession.PendingBonus}    Total: ${earned}"
+                             + (GameSession.PendingNewBest ? "\nNEW BEST!" : "");
         }
         if (earnedFlyText != null) earnedFlyText.text = "";
  

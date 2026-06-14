@@ -54,7 +54,7 @@ public class FirstPersonHands : MonoBehaviour
     public void SetWeapon(WeaponData w)
     {
         if (weaponGO != null) Destroy(weaponGO);
-        flame = w != null && w.id == "flamethrower";
+        flame = w != null && (w.id == "flamethrower" || w.id == "chainsaw");
 
         // Styl svihu + dlzka podla rychlosti
         string id = w != null ? w.id : "fists";

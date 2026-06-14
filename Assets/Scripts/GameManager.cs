@@ -196,7 +196,7 @@ public class GameManager : MonoBehaviour
             if (cleared) bonus += 50;
             int earned = roundMoney + bonus;
             string grade = ComputeGrade(cleared);
-            GameSession.SetResult(earned, destroyedCount, elapsedTime, grade, cleared);
+            GameSession.SetResult(earned, destroyedCount, elapsedTime, grade, cleared, roundMoney, bonus);
         }
 
         SceneManager.LoadScene("Hub");

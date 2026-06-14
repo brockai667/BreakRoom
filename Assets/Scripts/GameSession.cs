@@ -18,15 +18,27 @@ public static class GameSession
     public static float  PendingTime      = 0f;
     public static string PendingGrade     = "C";    // S/A/B/C/D
     public static bool   PendingCleared   = false;  // zničil hráč celú miestnosť?
+    public static int    PendingBase      = 0;      // peniaze z rozbíjania (vrátane combo/cieľov)
+    public static int    PendingBonus     = 0;      // koncový bonus (množstvo + clear)
+    public static bool   PendingNewBest   = false;  // nový rekord na mape?
 
     public static void SetResult(int earned, int destroyed, float time,
-                                 string grade = "C", bool cleared = false)
+                                 string grade = "C", bool cleared = false,
+                                 int baseMoney = 0, int bonus = 0)
     {
         PendingEarned    = earned;
         PendingDestroyed = destroyed;
         PendingTime      = time;
         PendingGrade     = grade;
         PendingCleared   = cleared;
+        PendingBase      = baseMoney;
+        PendingBonus     = bonus;
+
+        // Nový rekord (najvyšší zárobok na danej mape)
+        string key = "Best_" + SelectedMap;
+        PendingNewBest = earned > PlayerPrefs.GetInt(key, 0);
+        if (PendingNewBest) { PlayerPrefs.SetInt(key, earned); PlayerPrefs.Save(); }
+
         HasPendingResult = true;
     }
 
@@ -38,5 +50,8 @@ public static class GameSession
         PendingTime      = 0f;
         PendingGrade     = "C";
         PendingCleared   = false;
+        PendingBase      = 0;
+        PendingBonus     = 0;
+        PendingNewBest   = false;
     }
 }

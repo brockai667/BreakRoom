@@ -66,7 +66,8 @@ public class MusicManager : MonoBehaviour
         if (gm != null && gm.roundActive && gm.comboCount >= 3)
             intensity = Mathf.Clamp01(gm.comboCount / 25f);
 
-        src.volume = Mathf.MoveTowards(src.volume, targetVol + intensity * 0.10f, Time.unscaledDeltaTime * 0.5f);
+        float musicVol = PlayerPrefs.GetFloat("MusicVolume", 0.8f);
+        src.volume = Mathf.MoveTowards(src.volume, (targetVol + intensity * 0.10f) * musicVol, Time.unscaledDeltaTime * 0.5f);
         src.pitch  = Mathf.MoveTowards(src.pitch, basePitch + intensity * 0.08f, Time.unscaledDeltaTime * 0.6f);
     }
 
