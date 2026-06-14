@@ -60,6 +60,27 @@ public class SpecialObjects : MonoBehaviour
                 goldenLeft--;
             }
         }
+
+        // JACKPOT: jedna veľká "mini-boss" vec za kolo (veľa HP, veľká odmena)
+        Breakable boss = null; float bossSize = 0f;
+        foreach (var b in plain)
+        {
+            if (b == null) continue;
+            var c = b.GetComponent<Collider>();
+            float s = c != null ? c.bounds.size.magnitude : b.transform.lossyScale.magnitude;
+            if (s > bossSize) { bossSize = s; boss = b; }
+        }
+        if (boss != null)
+        {
+            boss.jackpot = true;
+            boss.golden  = true;
+            Tint(boss, new Color(1f, 0.85f, 0.2f));
+            var lgo = new GameObject("JackpotGlow");
+            lgo.transform.SetParent(boss.transform, false);
+            lgo.transform.localPosition = Vector3.zero;
+            var l = lgo.AddComponent<Light>();
+            l.type = LightType.Point; l.color = new Color(1f, 0.8f, 0.2f); l.range = 4.5f; l.intensity = 2.2f;
+        }
     }
 
     static bool Matches(string name, string[] keys)

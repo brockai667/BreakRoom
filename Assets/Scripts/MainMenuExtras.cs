@@ -58,14 +58,17 @@ public class MainMenuExtras : MonoBehaviour
         int smashed   = PlayerPrefs.GetInt("Stat_smashed", 0);
         int bestCombo = PlayerPrefs.GetInt("Stat_bestCombo", 0);
         int cleared   = PlayerPrefs.GetInt("Stat_cleared", 0);
+        int bestRound = Mathf.Max(PlayerPrefs.GetInt("Best_Obyvacka", 0),
+                        Mathf.Max(PlayerPrefs.GetInt("Best_Garage", 0),
+                                  PlayerPrefs.GetInt("Best_Kitchen", 0)));
         var statsGO = new GameObject("Stats"); statsGO.transform.SetParent(canvasGO.transform, false);
         var srt = statsGO.AddComponent<RectTransform>();
         srt.anchorMin = srt.anchorMax = new Vector2(0f, 0f); srt.pivot = new Vector2(0f, 0f);
-        srt.anchoredPosition = new Vector2(28, 24); srt.sizeDelta = new Vector2(640, 130);
+        srt.anchoredPosition = new Vector2(28, 24); srt.sizeDelta = new Vector2(640, 160);
         var t = statsGO.AddComponent<Text>(); t.font = F; t.fontSize = 22; t.fontStyle = FontStyle.Bold;
         t.color = new Color(0.85f, 0.88f, 0.95f); t.alignment = TextAnchor.LowerLeft;
         t.horizontalOverflow = HorizontalWrapMode.Overflow; t.verticalOverflow = VerticalWrapMode.Overflow;
-        t.text = $"Level {level}\nSmashed: {smashed}\nBest combo: {bestCombo}\nRooms cleared: {cleared}";
+        t.text = $"Level {level}\nSmashed: {smashed}\nBest combo: {bestCombo}\nRooms cleared: {cleared}\nBest round: ${bestRound}";
         var sh = statsGO.AddComponent<Shadow>(); sh.effectColor = new Color(0, 0, 0, 0.7f); sh.effectDistance = new Vector2(2, -2);
     }
 

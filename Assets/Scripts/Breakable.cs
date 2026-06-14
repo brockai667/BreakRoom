@@ -22,6 +22,7 @@ public class Breakable : MonoBehaviour
     [System.NonSerialized] public bool golden;
     [System.NonSerialized] public bool explosive;
     [System.NonSerialized] public bool electronic;
+    [System.NonSerialized] public bool jackpot;     // mini-boss: vela HP, velka odmena
 
     bool   broken;
     bool   configured;
@@ -68,6 +69,16 @@ public class Breakable : MonoBehaviour
         // Odmena (znizena kvoli balansu) a XP podla velkosti.
         reward  = Mathf.Max(1, Mathf.RoundToInt(1f + maxDim * 2f));
         xpValue = Mathf.Max(5, Mathf.RoundToInt(6f + maxDim * 10f));
+
+        // JACKPOT (mini-boss): vydrzi vela uderov a plati ovela viac.
+        if (jackpot)
+        {
+            hp      = Mathf.Max(8, hp * 6);
+            reward  = Mathf.Max(40, reward * 8);
+            xpValue = xpValue * 3;
+            subdivideStages = Mathf.Max(subdivideStages, 1);
+            childPieces     = Mathf.Max(childPieces, 4);
+        }
     }
 
     /// Prefarbí predmet (a tým aj jeho úlomky) – používa RoomTheme pre témy máp.
@@ -91,7 +102,7 @@ public class Breakable : MonoBehaviour
         hp -= damage;
         StartCoroutine(ShakeOnHit());
         if (hp <= 0) Break(hitPoint, swingDir);
-        else SfxManager.Hit(hitPoint);
+        else { SfxManager.Hit(hitPoint); if (!isChunk) CrosshairUI.Ping(false); }
     }
 
     public void Hit() { Hit(transform.position, Vector3.forward); }
@@ -113,7 +124,15 @@ public class Breakable : MonoBehaviour
         }
 
         SfxManager.Break(hitPoint);
-        if (golden)
+        if (!isChunk) CrosshairUI.Ping(true);
+        if (jackpot)
+        {
+            SfxManager.Coin(); SfxManager.Sting();
+            Fx.Sparks(transform.position, new Color(1f, 0.85f, 0.2f));
+            CameraShaker.Shake(0.3f, 0.4f);
+            if (Announcer.Instance != null) Announcer.Show("JACKPOT!  +$" + pay, true);
+        }
+        else if (golden)
         {
             SfxManager.Coin();
             if (Announcer.Instance != null) Announcer.Show("GOLDEN ITEM!  +$" + pay, true);
