@@ -1,6 +1,6 @@
 // Assets/Editor/CreateBedroomScene.cs
 // Break Room -> Build Bedroom Scene
-// Skutočná spálňa z REÁLNYCH Kenney Furniture modelov (nie kópia, nie kocky).
+// Spálňa z REÁLNYCH Kenney Furniture modelov, mierka kalibrovaná ako Obývačka (S=0.4).
 
 #if UNITY_EDITOR
 using System.Linq;
@@ -12,7 +12,7 @@ public class CreateBedroomScene
 {
     const string SRC = "Assets/Scenes/Obyvacka.unity";
     const string DST = "Assets/Scenes/Bedroom.unity";
-    const string FUR = "Assets/KenneyFurniture/Models/FBX format/";
+    const float  S   = 0.4f;   // rovnaká mierka ako Obývačka
 
     [MenuItem("Break Room/Build Bedroom Scene")]
     static void Build()
@@ -23,83 +23,84 @@ public class CreateBedroomScene
         foreach (var b in Object.FindObjectsByType<Breakable>(FindObjectsInactive.Include, FindObjectsSortMode.None))
             if (b != null) Object.DestroyImmediate(b.gameObject);
 
-        // ── SPÁLŇA z reálneho Kenney nábytku ──
-        // posteľ + nočné stolíky + lampa
-        Spawn("bedDouble",            new Vector3( 0.0f, 0f, 2.9f),  180f, 1.8f, 9);
-        Spawn("cabinetBedDrawerTable",new Vector3(-1.7f, 0f, 3.7f),  180f, 1.8f, 3);
-        Spawn("cabinetBedDrawerTable",new Vector3( 1.7f, 0f, 3.7f),  180f, 1.8f, 3);
-        Spawn("lampSquareTable",      new Vector3(-1.7f, 0.55f, 3.7f),0f,  1.6f, 2);
-        // komoda + TV
-        var dr = Spawn("cabinetBedDrawer", new Vector3( 3.4f, 0f, 2.6f), -90f, 1.9f, 5);
-        Spawn("computerScreen",       new Vector3( 3.3f, 0.95f, 2.6f), -90f, 1.7f, 3);
-        // šatník / polica
-        Spawn("bookcaseClosedDoors",  new Vector3(-3.6f, 0f, 1.4f),  90f,  1.9f, 7);
-        Spawn("bookcaseOpen",         new Vector3(-3.7f, 0f, 3.4f),  90f,  1.8f, 6);
-        Spawn("books",                new Vector3(-3.5f, 1.1f, 3.4f),90f,  1.6f, 1);
-        // pracovný kút
-        Spawn("desk",                 new Vector3( 3.3f, 0f, -1.2f), -90f, 1.8f, 5);
-        Spawn("chairDesk",            new Vector3( 2.6f, 0f, -1.0f), 90f,  1.7f, 3);
-        Spawn("laptop",               new Vector3( 3.3f, 0.85f, -1.2f),-90f,1.6f, 2);
-        // koberec + rastliny + doplnky
-        Spawn("rugRectangle",         new Vector3( 0.0f, 0.02f, 0.6f),0f,  2.2f, 2);
-        Spawn("pottedPlant",          new Vector3(-3.4f, 0f, -1.2f),  0f,  1.8f, 2);
-        Spawn("plantSmall2",          new Vector3( 1.7f, 0.55f, 3.7f),0f,  1.6f, 1);
-        Spawn("coatRackStanding",     new Vector3(-3.6f, 0f, -2.4f),  0f,  1.8f, 2);
-        Spawn("cardboardBoxClosed",   new Vector3( 1.6f, 0f, -1.8f),  20f, 1.6f, 2);
-        Spawn("cardboardBoxOpen",     new Vector3( 0.7f, 0f, -2.3f), -25f, 1.6f, 2);
+        // ── SPÁLŇA (layout odvodený od funkčnej Obývačky) ──
+        Place("rugRectangle",        new Vector3( 0f, 0.02f, 3.0f), Vector3.zero,        2, S * 1.7f);
+        // posteľ pri zadnej stene + nočné stolíky + lampa
+        Place("bedDouble",           new Vector3( 0f, 0f, 4.3f),    new Vector3(0,180,0), 9, S);
+        Place("cabinetBedDrawerTable",new Vector3(-1.7f, 0f, 5.1f), new Vector3(0,180,0), 3, S);
+        Place("cabinetBedDrawerTable",new Vector3( 1.7f, 0f, 5.1f), new Vector3(0,180,0), 3, S);
+        Place("lampSquareTable",     new Vector3(-1.7f, 0.45f, 5.1f),Vector3.zero,        2, S);
+        // komoda + TV (ľavá stena)
+        Place("cabinetBedDrawer",    new Vector3(-5.4f, 0f, 2.2f),  new Vector3(0,90,0),  5, S);
+        Place("computerScreen",      new Vector3(-5.2f, 0.5f, 2.2f),new Vector3(0,90,0),  3, S);
+        // šatník (ľavá stena vpredu)
+        Place("bookcaseClosedDoors", new Vector3(-5.4f, 0f, -1.5f), new Vector3(0,90,0),  7, S);
+        // polica + knihy (pravá-zadná)
+        Place("bookcaseOpen",        new Vector3( 5.4f, 0f, 3.5f),  new Vector3(0,-90,0), 6, S);
+        Place("books",               new Vector3( 5.1f, 0.5f, 3.5f),new Vector3(0,-90,0), 1, S);
+        // pracovný kút (ľavá-predná)
+        Place("desk",                new Vector3(-5.0f, 0f, -4.4f), new Vector3(0,90,0),  5, S);
+        Place("chairDesk",           new Vector3(-4.0f, 0f, -4.4f), new Vector3(0,-90,0), 4, S);
+        Place("laptop",              new Vector3(-5.0f, 0.6f, -4.4f),new Vector3(0,90,0),  2, S);
+        // doplnky
+        Place("pottedPlant",         new Vector3(-5.3f, 0f, 5.2f),  Vector3.zero,         3, S);
+        Place("plantSmall2",         new Vector3( 5.3f, 0f, -1.0f), Vector3.zero,         2, S);
+        Place("coatRackStanding",    new Vector3( 4.6f, 0f, -5.0f), Vector3.zero,         3, S);
+        Place("cardboardBoxClosed",  new Vector3( 3.4f, 0f, -3.4f), new Vector3(0,20,0),  2, S);
+        Place("cardboardBoxOpen",    new Vector3( 4.3f, 0f, -2.6f), new Vector3(0,-25,0), 2, S);
 
         EditorSceneManager.MarkSceneDirty(scene);
         EditorSceneManager.SaveScene(scene);
 
         var list = EditorBuildSettings.scenes.ToList();
         if (!list.Any(s => s.path == DST))
-        {
-            list.Add(new EditorBuildSettingsScene(DST, true));
-            EditorBuildSettings.scenes = list.ToArray();
-        }
+        { list.Add(new EditorBuildSettingsScene(DST, true)); EditorBuildSettings.scenes = list.ToArray(); }
         AssetDatabase.SaveAssets(); AssetDatabase.Refresh();
-        Debug.Log("✅ Bedroom scena z Kenney Furniture modelov hotova.");
+        Debug.Log("✅ Bedroom (reálny nábytok, správna mierka) hotový.");
     }
 
-    static GameObject Spawn(string fbx, Vector3 pos, float yRot, float scale, int hp)
+    // ── HELPERY (rovnaké ako Obývačka) ──
+    static GameObject LoadPrefab(string name)
     {
-        string path = FUR + fbx + ".fbx";
-        var model = AssetDatabase.LoadAssetAtPath<GameObject>(path);
-        if (model == null) { Debug.LogWarning("[Bedroom] chyba model: " + path); return null; }
+        foreach (var g in AssetDatabase.FindAssets(name))
+        {
+            var path = AssetDatabase.GUIDToAssetPath(g);
+            string ext = System.IO.Path.GetExtension(path).ToLower();
+            if (ext != ".prefab" && ext != ".fbx") continue;
+            if (System.IO.Path.GetFileNameWithoutExtension(path) != name) continue;
+            var go = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+            if (go != null) return go;
+        }
+        return null;
+    }
 
-        var go = (GameObject)PrefabUtility.InstantiatePrefab(model);
-        if (go == null) go = Object.Instantiate(model);
-        go.name = fbx;
+    static GameObject Place(string name, Vector3 pos, Vector3 euler, int hp, float scale)
+    {
+        var prefab = LoadPrefab(name);
+        if (prefab == null) { Debug.LogWarning("[Bedroom] model nenájdený: " + name); return null; }
+        var go = (GameObject)PrefabUtility.InstantiatePrefab(prefab);
         go.transform.position = pos;
-        go.transform.rotation = Quaternion.Euler(0f, yRot, 0f);
-        go.transform.localScale = Vector3.one * scale;
-
-        FitBox(go);
+        go.transform.eulerAngles = euler;
+        go.transform.localScale = go.transform.localScale * scale;   // NÁSOB natívnu mierku
+        EnsureCollider(go);
         var rb = go.AddComponent<Rigidbody>(); rb.isKinematic = true;
-        var br = go.AddComponent<Breakable>(); br.hp = hp; br.damage = 1;
+        var bk = go.AddComponent<Breakable>(); bk.hp = Mathf.Max(1, hp); bk.damage = 1; bk.xpValue = 12; bk.fragmentCount = 8;
         return go;
     }
 
-    static void FitBox(GameObject go)
+    static void EnsureCollider(GameObject go)
     {
-        var mfs = go.GetComponentsInChildren<MeshFilter>();
-        bool any = false; Bounds local = new Bounds();
-        foreach (var mf in mfs)
-        {
-            if (mf.sharedMesh == null) continue;
-            Matrix4x4 m = go.transform.worldToLocalMatrix * mf.transform.localToWorldMatrix;
-            Vector3 c = mf.sharedMesh.bounds.center, e = mf.sharedMesh.bounds.extents;
-            for (int sx = -1; sx <= 1; sx += 2)
-                for (int sy = -1; sy <= 1; sy += 2)
-                    for (int sz = -1; sz <= 1; sz += 2)
-                    {
-                        Vector3 p = m.MultiplyPoint3x4(c + new Vector3(e.x * sx, e.y * sy, e.z * sz));
-                        if (!any) { local = new Bounds(p, Vector3.zero); any = true; }
-                        else local.Encapsulate(p);
-                    }
-        }
+        if (go.GetComponentInChildren<Collider>() != null) return;
+        var rends = go.GetComponentsInChildren<Renderer>();
         var bc = go.AddComponent<BoxCollider>();
-        if (any) { bc.center = local.center; bc.size = local.size; }
+        if (rends.Length == 0) return;
+        Bounds b = rends[0].bounds;
+        foreach (var r in rends) b.Encapsulate(r.bounds);
+        Vector3 ls = go.transform.lossyScale;
+        bc.center = go.transform.InverseTransformPoint(b.center);
+        bc.size = new Vector3(b.size.x / Mathf.Max(0.001f, ls.x),
+                              b.size.y / Mathf.Max(0.001f, ls.y),
+                              b.size.z / Mathf.Max(0.001f, ls.z));
     }
 }
 #endif

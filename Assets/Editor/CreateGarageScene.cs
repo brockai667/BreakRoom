@@ -1,6 +1,6 @@
 // Assets/Editor/CreateGarageScene.cs
 // Break Room -> Build Garage Scene
-// Skutočná dielňa z REÁLNYCH Kenney Factory Kit modelov (nie kópia, nie kocky).
+// Dielňa z REÁLNYCH Kenney Factory Kit modelov, mierka násobí natívnu (ako Obývačka).
 
 #if UNITY_EDITOR
 using System.Linq;
@@ -12,7 +12,7 @@ public class CreateGarageScene
 {
     const string SRC = "Assets/Scenes/Obyvacka.unity";
     const string DST = "Assets/Scenes/Garage.unity";
-    const string FAC = "Assets/kenney_factory-kit_3.0/Models/FBX format/";
+    const float  S   = 1.25f;
 
     [MenuItem("Break Room/Build Garage Scene")]
     static void Build()
@@ -20,87 +20,78 @@ public class CreateGarageScene
         var scene = EditorSceneManager.OpenScene(SRC, OpenSceneMode.Single);
         EditorSceneManager.SaveScene(scene, DST);
 
-        // zmaž zdedený nábytok
         foreach (var b in Object.FindObjectsByType<Breakable>(FindObjectsInactive.Include, FindObjectsSortMode.None))
             if (b != null) Object.DestroyImmediate(b.gameObject);
 
-        // ── DIELŇA z factory-kit modelov ──
-        // veľké stroje / pracovné stoly
-        Spawn("machine",          new Vector3(-2.6f, 0f, 3.2f), 90f,  2.0f, 10);
-        Spawn("machine-bed",      new Vector3( 2.6f, 0f, 3.2f), -90f, 2.0f, 10);
-        Spawn("machine-fortified",new Vector3( 0.0f, 0f, 4.0f), 0f,   2.0f, 12);
-        // nádrže / sudy (hoppery)
-        Spawn("hopper-round",     new Vector3( 3.6f, 0f, 1.0f), 0f,   1.8f, 6);
-        Spawn("hopper-square",    new Vector3(-3.6f, 0f, 1.2f), 0f,   1.8f, 6);
-        Spawn("hopper-high-round",new Vector3( 3.8f, 0f, 3.6f), 0f,   1.6f, 6);
-        // dopravník cez stred
-        Spawn("conveyor-long",    new Vector3( 0.0f, 0f, 1.6f), 0f,   2.2f, 8);
-        // debny
-        Spawn("box-large",        new Vector3(-3.4f, 0f, -1.0f), 20f, 1.4f, 4);
-        Spawn("box-wide",         new Vector3( 1.6f, 0f, 0.2f), -15f, 1.3f, 3);
-        Spawn("box-long",         new Vector3(-1.6f, 0f, -1.6f), 35f, 1.3f, 3);
-        Spawn("box-small",        new Vector3( 0.6f, 0f, -2.2f), 10f, 1.3f, 2);
-        Spawn("box-small",        new Vector3( 2.6f, 0f, -1.2f), -25f,1.3f, 2);
-        // ozubené kolesá + páky + kužeľ
-        Spawn("cog-a",            new Vector3(-2.2f, 0.6f, 0.4f), 0f, 1.6f, 4);
-        Spawn("cog-c",            new Vector3( 3.1f, 0.6f, -1.4f), 0f,1.6f, 4);
-        Spawn("lever-single",     new Vector3(-3.2f, 0f, 2.6f), 0f,   1.6f, 2);
-        Spawn("cone",             new Vector3( 1.4f, 0f, -2.6f), 0f,  1.6f, 2);
+        // ── DIELŇA (factory-kit modely, rozmiestnené po 12x12 miestnosti) ──
+        Place("machine",           new Vector3(-3.0f, 0f, 4.6f), new Vector3(0,90,0), 10, S);
+        Place("machine-bed",       new Vector3( 3.0f, 0f, 4.6f), new Vector3(0,-90,0),10, S);
+        Place("machine-fortified", new Vector3( 0.0f, 0f, 5.3f), Vector3.zero,        12, S);
+        Place("hopper-round",      new Vector3(-5.2f, 0f, 2.4f), Vector3.zero,        6,  S);
+        Place("hopper-square",     new Vector3( 5.2f, 0f, 2.4f), Vector3.zero,        6,  S);
+        Place("hopper-high-round", new Vector3( 5.2f, 0f, 4.6f), Vector3.zero,        6,  S);
+        Place("conveyor-long",     new Vector3( 0.0f, 0f, 2.2f), Vector3.zero,        8,  S);
+        Place("box-large",         new Vector3(-4.6f, 0f, -1.0f),new Vector3(0,20,0), 4,  S);
+        Place("box-wide",          new Vector3( 2.0f, 0f, 0.4f), new Vector3(0,-15,0),3,  S);
+        Place("box-long",          new Vector3(-2.0f, 0f, -1.6f),new Vector3(0,35,0), 3,  S);
+        Place("box-small",         new Vector3( 1.0f, 0f, -2.6f),new Vector3(0,10,0), 2,  S);
+        Place("box-small",         new Vector3( 3.6f, 0f, -1.4f),new Vector3(0,-25,0),2,  S);
+        Place("cog-a",             new Vector3(-2.6f, 0f, 1.0f), Vector3.zero,        4,  S);
+        Place("cog-c",             new Vector3( 3.6f, 0f, -2.4f),Vector3.zero,        4,  S);
+        Place("lever-single",      new Vector3(-5.2f, 0f, 0.0f), Vector3.zero,        2,  S);
+        Place("cone",              new Vector3( 1.6f, 0f, -3.4f),Vector3.zero,        2,  S);
 
         EditorSceneManager.MarkSceneDirty(scene);
         EditorSceneManager.SaveScene(scene);
 
         var list = EditorBuildSettings.scenes.ToList();
         if (!list.Any(s => s.path == DST))
-        {
-            list.Add(new EditorBuildSettingsScene(DST, true));
-            EditorBuildSettings.scenes = list.ToArray();
-        }
+        { list.Add(new EditorBuildSettingsScene(DST, true)); EditorBuildSettings.scenes = list.ToArray(); }
         AssetDatabase.SaveAssets(); AssetDatabase.Refresh();
-        Debug.Log("✅ Garage scena z Kenney Factory Kit modelov hotova.");
+        Debug.Log("✅ Garage (factory-kit, správna mierka) hotový.");
     }
 
-    // ── HELPERY ──
-    static GameObject Spawn(string fbx, Vector3 pos, float yRot, float scale, int hp)
+    static GameObject LoadPrefab(string name)
     {
-        string path = FAC + fbx + ".fbx";
-        var model = AssetDatabase.LoadAssetAtPath<GameObject>(path);
-        if (model == null) { Debug.LogWarning("[Garage] chyba model: " + path); return null; }
+        foreach (var g in AssetDatabase.FindAssets(name))
+        {
+            var path = AssetDatabase.GUIDToAssetPath(g);
+            string ext = System.IO.Path.GetExtension(path).ToLower();
+            if (ext != ".prefab" && ext != ".fbx") continue;
+            if (System.IO.Path.GetFileNameWithoutExtension(path) != name) continue;
+            var go = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+            if (go != null) return go;
+        }
+        return null;
+    }
 
-        var go = (GameObject)PrefabUtility.InstantiatePrefab(model);
-        if (go == null) go = Object.Instantiate(model);
-        go.name = fbx;
+    static GameObject Place(string name, Vector3 pos, Vector3 euler, int hp, float scale)
+    {
+        var prefab = LoadPrefab(name);
+        if (prefab == null) { Debug.LogWarning("[Garage] model nenájdený: " + name); return null; }
+        var go = (GameObject)PrefabUtility.InstantiatePrefab(prefab);
         go.transform.position = pos;
-        go.transform.rotation = Quaternion.Euler(0f, yRot, 0f);
-        go.transform.localScale = Vector3.one * scale;
-
-        FitBox(go);
+        go.transform.eulerAngles = euler;
+        go.transform.localScale = go.transform.localScale * scale;
+        EnsureCollider(go);
         var rb = go.AddComponent<Rigidbody>(); rb.isKinematic = true;
-        var br = go.AddComponent<Breakable>(); br.hp = hp; br.damage = 1;
+        var bk = go.AddComponent<Breakable>(); bk.hp = Mathf.Max(1, hp); bk.damage = 1; bk.xpValue = 12; bk.fragmentCount = 8;
         return go;
     }
 
-    // BoxCollider fitnutý na kombinované local bounds všetkých meshov.
-    static void FitBox(GameObject go)
+    static void EnsureCollider(GameObject go)
     {
-        var mfs = go.GetComponentsInChildren<MeshFilter>();
-        bool any = false; Bounds local = new Bounds();
-        foreach (var mf in mfs)
-        {
-            if (mf.sharedMesh == null) continue;
-            Matrix4x4 m = go.transform.worldToLocalMatrix * mf.transform.localToWorldMatrix;
-            Vector3 c = mf.sharedMesh.bounds.center, e = mf.sharedMesh.bounds.extents;
-            for (int sx = -1; sx <= 1; sx += 2)
-                for (int sy = -1; sy <= 1; sy += 2)
-                    for (int sz = -1; sz <= 1; sz += 2)
-                    {
-                        Vector3 p = m.MultiplyPoint3x4(c + new Vector3(e.x * sx, e.y * sy, e.z * sz));
-                        if (!any) { local = new Bounds(p, Vector3.zero); any = true; }
-                        else local.Encapsulate(p);
-                    }
-        }
+        if (go.GetComponentInChildren<Collider>() != null) return;
+        var rends = go.GetComponentsInChildren<Renderer>();
         var bc = go.AddComponent<BoxCollider>();
-        if (any) { bc.center = local.center; bc.size = local.size; }
+        if (rends.Length == 0) return;
+        Bounds b = rends[0].bounds;
+        foreach (var r in rends) b.Encapsulate(r.bounds);
+        Vector3 ls = go.transform.lossyScale;
+        bc.center = go.transform.InverseTransformPoint(b.center);
+        bc.size = new Vector3(b.size.x / Mathf.Max(0.001f, ls.x),
+                              b.size.y / Mathf.Max(0.001f, ls.y),
+                              b.size.z / Mathf.Max(0.001f, ls.z));
     }
 }
 #endif
