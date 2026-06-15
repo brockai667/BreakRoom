@@ -5,7 +5,7 @@ if exist ".git\index.lock" del /f /q ".git\index.lock"
   echo ===== SYNC %date% %time% =====
   git status --short
   git add -A
-  git commit -m "Lobby fixes: weapon always shown on podium (no empty center), backdrop moved back (less overlap), dimmer pedestal ring, weapon shelf board, counter/crates/plants to fill space; smooth Filled RAGE bar + faster gain"
+  git commit -m "Real Kenney models for maps: Garage = factory-kit workshop (machines, hoppers, conveyor, cogs, crates), Bedroom = furniture-kit (bed, dressers, wardrobe, desk, plants, boxes) - genuinely distinct, not copies; FBX instantiate + fitted box colliders"
   git pull --no-edit
   git push
   echo ---- EXIT CODE: %errorlevel% ----
