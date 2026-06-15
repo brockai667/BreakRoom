@@ -12,6 +12,7 @@ public class PerksMenu : MonoBehaviour
     Text[] lvlT;
     Text[] costT;
     Button[] buyBtn;
+    RectTransform[] lvlFill;
 
     static Font F => Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
 
@@ -68,45 +69,68 @@ public class PerksMenu : MonoBehaviour
         dimBtn.onClick.AddListener(ClosePanel);
 
         box = new GameObject("Box"); box.transform.SetParent(overlay.transform, false);
-        UITheme.PanelImage(box, UITheme.Panel, 24);
-        UITheme.Shadow(box, new Vector2(0, -8), 0.55f);
+        UITheme.PanelImage(box, UITheme.Panel, 26);
+        UITheme.Shadow(box, new Vector2(0, -10), 0.6f);
         var brt = box.GetComponent<RectTransform>();
         brt.anchorMin = brt.anchorMax = new Vector2(0.5f, 0.5f); brt.pivot = new Vector2(0.5f, 0.5f);
-        brt.anchoredPosition = Vector2.zero; brt.sizeDelta = new Vector2(900, 640);
+        brt.anchoredPosition = Vector2.zero; brt.sizeDelta = new Vector2(940, 700);
 
         Label(box.transform, "PERKS", 50, UITheme.Accent, new Vector2(0.5f, 0.5f),
-              new Vector2(0, 258), new Vector2(800, 64), TextAnchor.MiddleCenter);
+              new Vector2(0, 282), new Vector2(800, 64), TextAnchor.MiddleCenter);
         var bar = new GameObject("Bar"); bar.transform.SetParent(box.transform, false);
         UITheme.PanelImage(bar, UITheme.Accent, 4);
         var barRt = bar.GetComponent<RectTransform>();
         barRt.anchorMin = barRt.anchorMax = new Vector2(0.5f, 0.5f); barRt.pivot = new Vector2(0.5f, 0.5f);
-        barRt.anchoredPosition = new Vector2(0, 220); barRt.sizeDelta = new Vector2(160, 6);
+        barRt.anchoredPosition = new Vector2(0, 244); barRt.sizeDelta = new Vector2(220, 6);
 
         moneyText = Label(box.transform, "", 26, new Color(1f, 0.86f, 0.3f), new Vector2(0.5f, 0.5f),
-                          new Vector2(0, 178), new Vector2(700, 40), TextAnchor.MiddleCenter);
+                          new Vector2(0, 202), new Vector2(700, 40), TextAnchor.MiddleCenter);
 
         int n = Perks.LIST.Length;
-        lvlT = new Text[n]; costT = new Text[n]; buyBtn = new Button[n];
-        float y = 95f;
+        lvlT = new Text[n]; costT = new Text[n]; buyBtn = new Button[n]; lvlFill = new RectTransform[n];
+        float y = 120f;
+        const float rowH = 92f;
         for (int i = 0; i < n; i++)
         {
             var p = Perks.LIST[i];
-            Label(box.transform, p.name, 28, UITheme.Text, new Vector2(0.5f, 0.5f),
-                  new Vector2(-330, y + 12), new Vector2(420, 40), TextAnchor.MiddleLeft);
-            Label(box.transform, p.desc, 18, UITheme.SubText, new Vector2(0.5f, 0.5f),
-                  new Vector2(-330, y - 18), new Vector2(460, 32), TextAnchor.MiddleLeft);
-            lvlT[i] = Label(box.transform, "", 24, new Color(0.85f, 0.9f, 1f), new Vector2(0.5f, 0.5f),
-                            new Vector2(150, y), new Vector2(150, 40), TextAnchor.MiddleCenter);
+
+            // pozadie riadku
+            var rowBg = new GameObject("RowBg"); rowBg.transform.SetParent(box.transform, false);
+            UITheme.PanelImage(rowBg, UITheme.PanelLight, 14);
+            var rbg = rowBg.GetComponent<RectTransform>();
+            rbg.anchorMin = rbg.anchorMax = new Vector2(0.5f, 0.5f); rbg.pivot = new Vector2(0.5f, 0.5f);
+            rbg.anchoredPosition = new Vector2(0, y); rbg.sizeDelta = new Vector2(852, rowH - 10);
+
+            // názov + popis (vľavo, v rámci boxu)
+            Label(box.transform, p.name, 27, UITheme.Text, new Vector2(0.5f, 0.5f),
+                  new Vector2(-235, y + 16), new Vector2(370, 34), TextAnchor.MiddleLeft);
+            Label(box.transform, p.desc, 17, UITheme.SubText, new Vector2(0.5f, 0.5f),
+                  new Vector2(-225, y - 16), new Vector2(400, 28), TextAnchor.MiddleLeft);
+
+            // úroveň: text + progress bar
+            lvlT[i] = Label(box.transform, "", 20, new Color(0.9f, 0.93f, 1f), new Vector2(0.5f, 0.5f),
+                            new Vector2(150, y + 15), new Vector2(200, 28), TextAnchor.MiddleCenter);
+            var barBg = new GameObject("LvlBarBg"); barBg.transform.SetParent(box.transform, false);
+            UITheme.PanelImage(barBg, new Color(0.07f, 0.08f, 0.10f, 1f), 6);
+            var bbg = barBg.GetComponent<RectTransform>();
+            bbg.anchorMin = bbg.anchorMax = new Vector2(0.5f, 0.5f); bbg.pivot = new Vector2(0.5f, 0.5f);
+            bbg.anchoredPosition = new Vector2(150, y - 14); bbg.sizeDelta = new Vector2(200, 12);
+            var fillGO = new GameObject("LvlFill"); fillGO.transform.SetParent(barBg.transform, false);
+            UITheme.PanelImage(fillGO, UITheme.Accent, 6);
+            lvlFill[i] = fillGO.GetComponent<RectTransform>();
+            lvlFill[i].anchorMin = lvlFill[i].anchorMax = new Vector2(0f, 0.5f); lvlFill[i].pivot = new Vector2(0f, 0.5f);
+            lvlFill[i].anchoredPosition = new Vector2(-100, 0); lvlFill[i].sizeDelta = new Vector2(0, 12);
+
             string pid = p.id;
-            buyBtn[i] = Btn(box.transform, "", new Vector2(0.5f, 0.5f), new Vector2(330, y),
-                            new Vector2(170, 56), UITheme.Good, 22, () => OnBuy(pid), 12);
+            buyBtn[i] = Btn(box.transform, "", new Vector2(0.5f, 0.5f), new Vector2(345, y),
+                            new Vector2(180, 60), UITheme.Good, 22, () => OnBuy(pid), 12);
             costT[i] = buyBtn[i].GetComponentInChildren<Text>();
-            y -= 88f;
+            y -= rowH;
         }
 
-        var close = Btn(box.transform, "CLOSE", new Vector2(0.5f, 0.5f), new Vector2(0, -262),
-                        new Vector2(320, 64), UITheme.Danger, 26, ClosePanel, 16);
-        UITheme.Shadow(close.gameObject, new Vector2(0, -3));
+        var close = Btn(box.transform, "CLOSE", new Vector2(0.5f, 0.5f), new Vector2(0, -292),
+                        new Vector2(340, 66), UITheme.Danger, 26, ClosePanel, 16);
+        UITheme.Shadow(close.gameObject, new Vector2(0, -4));
 
         Refresh();
     }
@@ -126,6 +150,7 @@ public class PerksMenu : MonoBehaviour
             var p = Perks.LIST[i];
             int lvl = Perks.Level(p.id);
             if (lvlT[i] != null) lvlT[i].text = "Lv " + lvl + " / " + Perks.MAX;
+            if (lvlFill[i] != null) lvlFill[i].sizeDelta = new Vector2(200f * Mathf.Clamp01((float)lvl / Mathf.Max(1, Perks.MAX)), 12f);
             bool maxed = !Perks.CanBuy(p.id);
             if (costT[i] != null) costT[i].text = maxed ? "MAX" : "$" + Perks.Cost(p.id);
             if (buyBtn[i] != null)
