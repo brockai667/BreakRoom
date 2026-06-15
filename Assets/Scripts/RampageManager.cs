@@ -15,7 +15,7 @@ public class RampageManager : MonoBehaviour
 
     const float MAX = 100f;
     const float DURATION = 8f;
-    const float GAIN_PER_BREAK = 3.2f;
+    const float GAIN_PER_BREAK = 4.0f;
     const float SHOCK_RADIUS = 2.4f;
 
     float rage;
@@ -23,6 +23,7 @@ public class RampageManager : MonoBehaviour
     float activeTimer;
     bool  inShock;
     float shakeTick;
+    float shownFrac;   // plynulo dobiehajúca výplň baru
 
     GameObject canvasGO;
     RectTransform fillRect;
@@ -153,13 +154,17 @@ public class RampageManager : MonoBehaviour
         brt.anchorMin = brt.anchorMax = new Vector2(0.5f, 0f); brt.pivot = new Vector2(0.5f, 0f);
         brt.anchoredPosition = new Vector2(0, 64); brt.sizeDelta = new Vector2(BAR_W + 8, 30);
 
-        // výplň
+        // výplň (Filled — plynulé plnenie bez artefaktov)
         var fill = new GameObject("RageFill"); fill.transform.SetParent(bg.transform, false);
         fillImg = UITheme.PanelImage(fill, new Color(1f, 0.5f, 0.12f), 8);
         fillImg.raycastTarget = false;
+        fillImg.type = Image.Type.Filled;
+        fillImg.fillMethod = Image.FillMethod.Horizontal;
+        fillImg.fillOrigin = (int)Image.OriginHorizontal.Left;
+        fillImg.fillAmount = 0f;
         fillRect = fill.GetComponent<RectTransform>();
-        fillRect.anchorMin = fillRect.anchorMax = new Vector2(0f, 0.5f); fillRect.pivot = new Vector2(0f, 0.5f);
-        fillRect.anchoredPosition = new Vector2(-BAR_W / 2f, 0f); fillRect.sizeDelta = new Vector2(0f, 22f);
+        fillRect.anchorMin = new Vector2(0f, 0.5f); fillRect.anchorMax = new Vector2(0f, 0.5f); fillRect.pivot = new Vector2(0f, 0.5f);
+        fillRect.anchoredPosition = new Vector2(-BAR_W / 2f, 0f); fillRect.sizeDelta = new Vector2(BAR_W, 22f);
 
         // popis nad barom
         var lg = new GameObject("RageLabel"); lg.transform.SetParent(canvasGO.transform, false);
@@ -182,7 +187,8 @@ public class RampageManager : MonoBehaviour
         if (!show) return;
 
         float frac = active ? Mathf.Clamp01(activeTimer / DURATION) : Mathf.Clamp01(rage / MAX);
-        if (fillRect != null) fillRect.sizeDelta = new Vector2(BAR_W * frac, 22f);
+        shownFrac = Mathf.MoveTowards(shownFrac, frac, Time.unscaledDeltaTime * (active ? 0.6f : 2.0f));
+        if (fillImg != null) fillImg.fillAmount = shownFrac;
 
         if (active)
         {

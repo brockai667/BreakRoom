@@ -54,8 +54,8 @@ public class HubShowroom : MonoBehaviour
         // ── STUPIENOK pod zbraňou ──
         Cyl("PodiumBase", baseC + Vector3.up * 0.09f, new Vector3(2.3f, 0.09f, 2.3f), Mat(new Color(0.10f, 0.11f, 0.14f)));
         Cyl("PodiumStep", baseC + Vector3.up * 0.20f, new Vector3(1.8f, 0.06f, 1.8f), Mat(new Color(0.16f, 0.17f, 0.21f)));
-        // akcentový prstenec (žiariaci)
-        Cyl("PodiumRing", baseC + Vector3.up * 0.265f, new Vector3(1.95f, 0.02f, 1.95f), Emissive(ACCENT));
+        // jemný akcentový prstenec (nie žiariaci tanier)
+        Cyl("PodiumRing", baseC + Vector3.up * 0.255f, new Vector3(1.86f, 0.015f, 1.86f), Emissive(new Color(0.7f, 0.32f, 0.08f)));
 
         // ── BODOVÝ REFLEKTOR zhora ──
         var spotGO = new GameObject("PodiumSpot"); spotGO.transform.SetParent(root.transform, false);
@@ -66,7 +66,7 @@ public class HubShowroom : MonoBehaviour
         spot.color = new Color(1f, 0.96f, 0.85f); spot.intensity = 6.5f;
 
         // ── STAGE BACKDROP za pódiom (orientovaný k hráčovi) ──
-        Vector3 backC = podium + fwd * 4.2f; backC.y = 0f;
+        Vector3 backC = podium + fwd * 5.6f; backC.y = 0f;
         Quaternion face = Quaternion.LookRotation(-fwd, Vector3.up);
         Box("Backdrop", backC + Vector3.up * 2.6f, new Vector3(9f, 5.2f, 0.25f), face, Mat(new Color(0.13f, 0.14f, 0.18f)));
         // akcentové pruhy
@@ -109,6 +109,7 @@ public class HubShowroom : MonoBehaviour
         // ── STENA SO ZBRAŇAMI (display rack na backdrope) ──
         var all = WeaponData.All;
         int shown = Mathf.Min(all.Length, 7);
+        Box("WeaponShelf", backC + Vector3.up * 2.12f - fwd * 0.26f, new Vector3(7.6f, 0.14f, 0.34f), face, Mat(new Color(0.09f, 0.10f, 0.13f)));
         for (int i = 0; i < shown; i++)
         {
             float k = shown > 1 ? (i / (float)(shown - 1) - 0.5f) : 0f;
@@ -131,6 +132,28 @@ public class HubShowroom : MonoBehaviour
             var l = tg.AddComponent<Light>(); l.type = LightType.Spot; l.spotAngle = 42f; l.range = 8f;
             l.color = new Color(0.85f, 0.9f, 1f); l.intensity = 2.6f;
         }
+
+        // ── DOPLNKOVÉ PROPY (zaplnenie priestoru) ──
+        Vector3 left = -right;
+        // recepčný pult vľavo
+        Box("Counter",    baseC + left * 4.0f + fwd * 0.4f + Vector3.up * 0.55f, new Vector3(2.4f, 1.1f, 0.8f), face, Mat(new Color(0.20f, 0.16f, 0.12f)));
+        Box("CounterTop", baseC + left * 4.0f + fwd * 0.4f + Vector3.up * 1.13f, new Vector3(2.6f, 0.08f, 1.0f), face, Mat(new Color(0.30f, 0.24f, 0.16f)));
+        // stoh debien vľavo-vzadu
+        for (int i = 0; i < 3; i++)
+            Box("Crate" + i, baseC + left * 3.6f + fwd * 3.2f + Vector3.up * (0.4f + i * 0.62f), new Vector3(0.7f, 0.6f, 0.7f), face, Mat(new Color(0.42f, 0.30f, 0.16f)));
+        // rastliny v rohoch
+        Plant(baseC + left * 4.4f - fwd * 1.2f);
+        Plant(baseC + right * 4.4f - fwd * 1.2f);
+    }
+
+    void Plant(Vector3 at)
+    {
+        Cyl("PlantPot", at + Vector3.up * 0.3f, new Vector3(0.45f, 0.3f, 0.45f), Mat(new Color(0.35f, 0.22f, 0.14f)));
+        var g = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        var c = g.GetComponent<Collider>(); if (c != null) Destroy(c);
+        g.name = "PlantTop"; g.transform.SetParent(root.transform, false);
+        g.transform.position = at + Vector3.up * 1.0f; g.transform.localScale = new Vector3(0.8f, 1.1f, 0.8f);
+        g.GetComponent<Renderer>().sharedMaterial = Mat(new Color(0.20f, 0.45f, 0.22f));
     }
 
     void Rope(Vector3 a, Vector3 b)

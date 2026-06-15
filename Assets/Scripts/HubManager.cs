@@ -83,13 +83,12 @@ public class HubManager : MonoBehaviour
         SetTabColor(loadoutTab, tab == "Loadout");
         SetTabColor(shopTab,    tab == "Shop");
  
-        // 3D náhľad zbrane na pódiu — viditeľný na Shop/Loadout, skrytý na Play
+        // 3D náhľad zbrane na pódiu — vždy viditeľný (nech pódium nie je prázdne)
         if (WeaponPreview.Instance != null)
         {
-            bool show = tab != "Play";
-            if (show && PlayerInventory.Instance != null)
+            if (PlayerInventory.Instance != null)
                 WeaponPreview.Instance.Show(PlayerInventory.Instance.GetEquipped());
-            WeaponPreview.Instance.SetVisible(show);
+            WeaponPreview.Instance.SetVisible(true);
         }
  
         if (tab == "Loadout") BuildLoadout();
