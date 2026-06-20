@@ -77,15 +77,15 @@ public class HubShowroom : MonoBehaviour
         Box("PillarL", backC + right *  4.3f + Vector3.up * 2.6f, new Vector3(0.4f, 5.2f, 0.4f), face, Mat(new Color(0.09f, 0.10f, 0.13f)));
         Box("PillarR", backC + right * -4.3f + Vector3.up * 2.6f, new Vector3(0.4f, 5.2f, 0.4f), face, Mat(new Color(0.09f, 0.10f, 0.13f)));
 
-        // ── TEPLÉ AMBIENT SVETLÁ ──
-        Point("WarmL", podium + right *  3.5f + Vector3.up * 2.4f, new Color(1f, 0.7f, 0.4f), 2.2f, 8f);
-        Point("WarmR", podium + right * -3.5f + Vector3.up * 2.4f, new Color(1f, 0.7f, 0.4f), 2.2f, 8f);
-        Point("BackGlow", backC + Vector3.up * 2.5f - fwd * 0.6f, ACCENT, 1.6f, 7f);
+        // ── AMBIENT SVETLÁ (neutrálnejšie, nech scéna nie je hnedá/mútna) ──
+        Point("WarmL", podium + right *  3.5f + Vector3.up * 2.4f, new Color(1f, 0.92f, 0.82f), 1.7f, 8f);
+        Point("WarmR", podium + right * -3.5f + Vector3.up * 2.4f, new Color(0.9f, 0.93f, 1f), 1.4f, 8f);
+        Point("BackGlow", backC + Vector3.up * 2.5f - fwd * 0.6f, ACCENT, 1.1f, 6f);
 
         // ── STAGE PODLAHA (mat pod showroomom) ──
         Vector3 matC = (baseC + backC) * 0.5f; matC.y = 0.04f;
-        Box("StageMat",    matC,                       new Vector3(7.6f, 0.05f, 7.0f), Quaternion.identity, Mat(new Color(0.14f, 0.15f, 0.18f)));
-        Box("StageMatRim", matC + Vector3.up * 0.006f, new Vector3(7.0f, 0.06f, 6.4f), Quaternion.identity, Emissive(new Color(0.45f, 0.2f, 0.05f)));
+        Box("StageMat",    matC,                       new Vector3(7.6f, 0.05f, 7.0f), Quaternion.identity, Mat(new Color(0.16f, 0.17f, 0.20f)));
+        Box("StageMatRim", matC + Vector3.up * 0.006f, new Vector3(7.0f, 0.06f, 6.4f), Quaternion.identity, Emissive(new Color(0.30f, 0.14f, 0.04f)));
 
         // ── STĹPIKY + LANO okolo pódia ──
         float pr = 1.8f;
@@ -120,7 +120,7 @@ public class HubShowroom : MonoBehaviour
             wm.name = "WallWeapon_" + all[i].id;
             wm.transform.SetParent(root.transform, false);
             wm.transform.position = wpos;
-            wm.transform.localScale = Vector3.one * 0.52f;
+            wm.transform.localScale = Vector3.one * 0.82f;
             wm.transform.rotation = face;
         }
 
@@ -170,9 +170,9 @@ public class HubShowroom : MonoBehaviour
         Box("Poster3", new Vector3(-7.84f, 3.5f, 4.4f),  new Vector3(0.05f, 1.5f, 2.0f), id, Emissive(new Color(0.85f, 0.2f, 0.5f)));
 
         // ── nápojový automat (break room vibe) v ľavom rohu ──
-        Box("Vending",      new Vector3(-6.6f, 1.25f, 4.6f), new Vector3(1.5f, 2.5f, 0.95f), id, Mat(new Color(0.45f, 0.10f, 0.10f)));
-        Box("VendingGlass", new Vector3(-6.6f, 1.55f, 4.10f), new Vector3(1.05f, 1.5f, 0.05f), id, Emissive(new Color(0.3f, 0.65f, 1f)));
-        Box("VendingTop",   new Vector3(-6.6f, 2.56f, 4.55f), new Vector3(1.55f, 0.14f, 1.0f), id, Emissive(warm));
+        Box("Vending",      new Vector3(-6.6f, 1.25f, 4.6f), new Vector3(1.5f, 2.5f, 0.95f), id, Mat(new Color(0.42f, 0.12f, 0.12f)));
+        Box("VendingGlass", new Vector3(-6.6f, 1.55f, 4.10f), new Vector3(1.05f, 1.5f, 0.05f), id, Mat(new Color(0.5f, 0.58f, 0.68f)));
+        Box("VendingTop",   new Vector3(-6.6f, 2.56f, 4.55f), new Vector3(1.55f, 0.14f, 1.0f), id, Emissive(new Color(0.9f, 0.45f, 0.14f)));
 
         // ── kovové skrinky pri ľavej stene ──
         for (int i = 0; i < 3; i++)
@@ -195,24 +195,28 @@ public class HubShowroom : MonoBehaviour
     // Lepšie materiály stien/podlahy + teplejšie svetlo (nie fádna sivá).
     void PolishRoom()
     {
-        Recolor("Podlaha",     new Color(0.19f, 0.16f, 0.16f));
-        Recolor("Stena_Zadna", new Color(0.30f, 0.26f, 0.27f));
-        Recolor("Stena_Lava",  new Color(0.27f, 0.23f, 0.25f));
-        Recolor("Stena_Prava", new Color(0.27f, 0.23f, 0.25f));
+        // čistá chladná industriálna paleta (ako hangár v Main Menu) + oranžové akcenty
+        Recolor("Podlaha",     new Color(0.20f, 0.21f, 0.24f));
+        Recolor("Stena_Zadna", new Color(0.28f, 0.29f, 0.34f));
+        Recolor("Stena_Lava",  new Color(0.25f, 0.26f, 0.31f));
+        Recolor("Stena_Prava", new Color(0.25f, 0.26f, 0.31f));
+        Recolor("Stage",       new Color(0.17f, 0.18f, 0.22f));   // pôvodná krikľavo červená platforma → neutrál
+        Recolor("Stol",        new Color(0.30f, 0.24f, 0.18f));
+        Recolor("PodiumBase",  new Color(0.14f, 0.15f, 0.18f));
 
-        // teplejší kľúčový smerový svit
+        // jasnejší kľúčový svit (scéna bola mútna/tmavá)
         foreach (var l in Object.FindObjectsByType<Light>(FindObjectsSortMode.None))
             if (l != null && l.type == LightType.Directional)
             {
-                l.color = new Color(1f, 0.93f, 0.82f); l.intensity = 1.05f;
-                l.transform.rotation = Quaternion.Euler(48f, -28f, 0f);
+                l.color = new Color(1f, 0.96f, 0.9f); l.intensity = 1.35f;
+                l.transform.rotation = Quaternion.Euler(46f, -26f, 0f);
             }
 
-        RenderSettings.ambientLight = new Color(0.26f, 0.25f, 0.30f);
+        RenderSettings.ambientLight = new Color(0.36f, 0.37f, 0.42f);
 
         // jemné akcentové svetlá do priestoru izby
-        Point("RoomGlowL", new Vector3(-6f, 3.2f, 4f), new Color(1f, 0.6f, 0.3f), 1.5f, 13f);
-        Point("RoomGlowR", new Vector3( 6f, 3.2f, 4f), new Color(0.35f, 0.55f, 1f), 1.2f, 13f);
+        Point("RoomGlowL", new Vector3(-6f, 3.4f, 4f), new Color(1f, 0.6f, 0.3f), 1.6f, 14f);
+        Point("RoomGlowR", new Vector3( 6f, 3.4f, 4f), new Color(0.35f, 0.55f, 1f), 1.3f, 14f);
     }
 
     void Recolor(string name, Color c)
