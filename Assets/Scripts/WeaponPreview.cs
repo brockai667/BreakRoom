@@ -173,7 +173,8 @@ public class WeaponPreview : MonoBehaviour
     static GameObject Add(GameObject root, PrimitiveType t, Vector3 pos, Vector3 scale, Quaternion rot, Material m)
     {
         var g = GameObject.CreatePrimitive(t);
-        var col = g.GetComponent<Collider>(); if (col != null) Destroy(col);
+        var col = g.GetComponent<Collider>();
+        if (col != null) { if (Application.isPlaying) Destroy(col); else DestroyImmediate(col); }
         g.transform.SetParent(root.transform, false);
         g.transform.localPosition = pos;
         g.transform.localScale = scale;

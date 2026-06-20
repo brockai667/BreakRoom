@@ -42,16 +42,16 @@ public class MainMenuExtras : MonoBehaviour
         sc.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize; sc.referenceResolution = new Vector2(1920, 1080);
         canvasGO.AddComponent<GraphicRaycaster>();
 
-        // COLLECTION button (bottom-center)
+        // COLLECTION button (pravý stĺpec, medzi PLAY a QUIT)
         var go = new GameObject("CollectionBtn"); go.transform.SetParent(canvasGO.transform, false);
-        var img = UITheme.PanelImage(go, UITheme.PanelLight, 14);
+        var img = UITheme.PanelImage(go, UITheme.PanelLight, 16);
         var rt = go.GetComponent<RectTransform>();
-        rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0f); rt.pivot = new Vector2(0.5f, 0f);
-        rt.anchoredPosition = new Vector2(0, 90); rt.sizeDelta = new Vector2(300, 64);
+        rt.anchorMin = rt.anchorMax = rt.pivot = new Vector2(0.5f, 0.5f);
+        rt.anchoredPosition = new Vector2(540f, 10f); rt.sizeDelta = new Vector2(460f, 90f);
         var btn = go.AddComponent<Button>(); btn.targetGraphic = img; UITheme.Hover(btn, UITheme.PanelLight, UITheme.PanelLight);
         UITheme.Shadow(go, new Vector2(0, -3));
         btn.onClick.AddListener(() => SceneManager.LoadScene("Collection"));
-        Label(go.transform, "COLLECTION", 24, Color.white, Vector2.zero, Vector2.one, TextAnchor.MiddleCenter);
+        Label(go.transform, "COLLECTION", 30, Color.white, Vector2.zero, Vector2.one, TextAnchor.MiddleCenter);
 
         // Best stats (bottom-left)
         int level     = PlayerPrefs.GetInt("Level", 1);
