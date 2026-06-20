@@ -18,6 +18,13 @@ public class ShopManager : MonoBehaviour
         if (PlayerInventory.Instance == null)
             new GameObject("PlayerInventory").AddComponent<PlayerInventory>();
 
+        // väčšie karty, nech sa zmestí 3D ikona aj väčší text
+        if (cardContainer != null)
+        {
+            var grid = cardContainer.GetComponent<GridLayoutGroup>();
+            if (grid != null) { grid.cellSize = new Vector2(228, 322); grid.spacing = new Vector2(22, 22); }
+        }
+
         UpdateMoney();
         BuildCards();
         PlayerInventory.Instance.OnChanged += RefreshCards;
@@ -85,15 +92,15 @@ public class ShopManager : MonoBehaviour
         BuildIcon(body, w);
 
         // Názov
-        MakeText(body, w.displayName, 19, FontStyle.Bold, new Color(1f, 0.9f, 0.45f),
-                 0.04f, 0.47f, 0.96f, 0.57f, TextAnchor.MiddleCenter);
+        MakeText(body, w.displayName, 25, FontStyle.Bold, new Color(1f, 0.9f, 0.45f),
+                 0.04f, 0.455f, 0.96f, 0.56f, TextAnchor.MiddleCenter);
         // Rarita
-        MakeText(body, rarName, 12, FontStyle.Bold, rarCol,
-                 0.04f, 0.40f, 0.96f, 0.47f, TextAnchor.MiddleCenter);
+        MakeText(body, rarName, 15, FontStyle.Bold, rarCol,
+                 0.04f, 0.395f, 0.96f, 0.455f, TextAnchor.MiddleCenter);
         // DMG / splash
-        string splashTxt = w.splashRadius > 0 ? $"Splash {w.splashRadius:0.0}m" : "Bez splash";
-        MakeText(body, $"DMG {w.damage}    {splashTxt}", 12, FontStyle.Normal, new Color(0.75f, 0.85f, 1f),
-                 0.04f, 0.33f, 0.96f, 0.40f, TextAnchor.MiddleCenter);
+        string splashTxt = w.splashRadius > 0 ? $"Splash {w.splashRadius:0.0}m" : "No splash";
+        MakeText(body, $"DMG {w.damage}    {splashTxt}", 15, FontStyle.Bold, new Color(0.78f, 0.87f, 1f),
+                 0.04f, 0.315f, 0.96f, 0.39f, TextAnchor.MiddleCenter);
 
         // Tlačidlo (kúpiť / equip / equipped / zamknuté levelom / PREMIUM)
         int    needLvl = WeaponData.UnlockLevel(w.id);
@@ -115,7 +122,7 @@ public class ShopManager : MonoBehaviour
         btnImg.sprite = UITheme.Rounded(10); btnImg.type = Image.Type.Sliced;
         PlaceFrac(btnGO.GetComponent<RectTransform>(), 0.10f, 0.07f, 0.90f, 0.20f);
         var btn = btnGO.AddComponent<Button>(); btn.targetGraphic = btnImg; UITheme.Hover(btn, btnColor, btnColor);
-        MakeTextRect(btnGO, btnLabel, 15, FontStyle.Bold, Color.white, TextAnchor.MiddleCenter);
+        MakeTextRect(btnGO, btnLabel, 19, FontStyle.Bold, Color.white, TextAnchor.MiddleCenter);
         btn.onClick.AddListener(() => OnCardClick(pid));
         if (equipped || locked) btn.interactable = false;
 
@@ -132,7 +139,7 @@ public class ShopManager : MonoBehaviour
             upImg.sprite = UITheme.Rounded(10); upImg.type = Image.Type.Sliced;
             PlaceFrac(upGO.GetComponent<RectTransform>(), 0.10f, 0.205f, 0.90f, 0.30f);
             var upBtn = upGO.AddComponent<Button>(); upBtn.targetGraphic = upImg; UITheme.Hover(upBtn, upColor, upColor);
-            MakeTextRect(upGO, upLabel, 12, FontStyle.Bold, Color.white, TextAnchor.MiddleCenter);
+            MakeTextRect(upGO, upLabel, 15, FontStyle.Bold, Color.white, TextAnchor.MiddleCenter);
             if (maxed) upBtn.interactable = false;
             else upBtn.onClick.AddListener(() => OnUpgradeClick(pid));
         }
@@ -144,7 +151,7 @@ public class ShopManager : MonoBehaviour
             var bImg = badge.AddComponent<Image>(); bImg.color = new Color(0.12f, 0.32f, 0.60f, 0.95f);
             bImg.sprite = UITheme.Rounded(8); bImg.type = Image.Type.Sliced;
             PlaceFrac(badge.GetComponent<RectTransform>(), 0.55f, 0.88f, 0.97f, 0.98f);
-            MakeTextRect(badge, "OWNED", 11, FontStyle.Bold, Color.white, TextAnchor.MiddleCenter);
+            MakeTextRect(badge, "OWNED", 13, FontStyle.Bold, Color.white, TextAnchor.MiddleCenter);
         }
     }
 
@@ -152,19 +159,43 @@ public class ShopManager : MonoBehaviour
     {
         var area = new GameObject("IconArea", typeof(RectTransform));
         area.transform.SetParent(parent.transform, false);
-        PlaceFrac(area.GetComponent<RectTransform>(), 0.2f, 0.58f, 0.8f, 0.95f);
+        PlaceFrac(area.GetComponent<RectTransform>(), 0.08f, 0.55f, 0.92f, 0.99f);
 
+        // jemná žiara podľa rarity za zbraňou
+        Rarity(w, out _, out Color rc);
+        var glow = new GameObject("Glow"); glow.transform.SetParent(area.transform, false);
+        var gi = glow.AddComponent<Image>(); gi.sprite = UITheme.Rounded(44); gi.type = Image.Type.Sliced;
+        gi.color = new Color(rc.r, rc.g, rc.b, 0.16f);
+        var grt = glow.GetComponent<RectTransform>();
+        grt.anchorMin = new Vector2(0.14f, 0.08f); grt.anchorMax = new Vector2(0.86f, 0.92f);
+        grt.offsetMin = grt.offsetMax = Vector2.zero;
+
+        // 3D render modelu zbrane (pekná ikona). Pri zlyhaní → 2D silueta.
+        var sprite = WeaponIcon.Get(w);
+        if (sprite != null)
+        {
+            var img = new GameObject("Icon3D"); img.transform.SetParent(area.transform, false);
+            var im = img.AddComponent<Image>(); im.sprite = sprite; im.preserveAspect = true;
+            var rt = img.GetComponent<RectTransform>();
+            rt.anchorMin = Vector2.zero; rt.anchorMax = Vector2.one; rt.offsetMin = rt.offsetMax = Vector2.zero;
+        }
+        else BuildIcon2D(area, w);
+    }
+
+    // Záložná 2D silueta (ak by sa 3D render nepodaril)
+    void BuildIcon2D(GameObject area, WeaponData w)
+    {
         var handle = new GameObject("Handle"); handle.transform.SetParent(area.transform, false);
         var hi = handle.AddComponent<Image>(); hi.color = w.handleColor;
         var hr = handle.GetComponent<RectTransform>();
         hr.anchorMin = hr.anchorMax = new Vector2(0.5f, 0f); hr.pivot = new Vector2(0.5f, 0f);
-        hr.anchoredPosition = new Vector2(0, 4); hr.sizeDelta = new Vector2(14, 52);
+        hr.anchoredPosition = new Vector2(0, 6); hr.sizeDelta = new Vector2(16, 62);
 
         var head = new GameObject("Head"); head.transform.SetParent(area.transform, false);
         var hdi = head.AddComponent<Image>(); hdi.color = w.handColor;
         var hdr = head.GetComponent<RectTransform>();
         hdr.anchorMin = hdr.anchorMax = new Vector2(0.5f, 0f); hdr.pivot = new Vector2(0.5f, 0f);
-        hdr.anchoredPosition = new Vector2(0, 42); hdr.sizeDelta = HeadSize(w.id);
+        hdr.anchoredPosition = new Vector2(0, 50); hdr.sizeDelta = HeadSize(w.id);
     }
 
     static Vector2 HeadSize(string id)

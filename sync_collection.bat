@@ -5,7 +5,7 @@ if exist ".git\index.lock" del /f /q ".git\index.lock"
   echo ===== SYNC %date% %time% =====
   git status --short
   git add -A
-  git commit -m "Elevate scenes: new Kitchen builder (real Kenney kitchen models - counter run with stove/sink/fridge, upper cabinets, hood, island + bar stools, dining set); Factory atmosphere (emissive wall stripes + colored accent lights); Garage industrial accents; cozy Bedroom accent lighting (warm lamp + cool window). All verified in Play, 0 errors"
+  git commit -m "Remove RAMPAGE entirely (RampageManager + GameManager/WeaponHit refs, RAGE bar gone); Shop: real 3D weapon model icons rendered to sprites (WeaponIcon, brighter isolated lighting, 2D fallback) + bigger card text; Lobby: premium rounded buttons + orange accent, warmer room + more decor (vending machine, lockers, posters, wall trims, ceiling lights, plants); Main Menu finished: unified premium PLAY/COLLECTION/QUIT buttons with accent. Verified in Play, 0 errors"
   git pull --no-edit
   git push
   echo ---- EXIT CODE: %errorlevel% ----

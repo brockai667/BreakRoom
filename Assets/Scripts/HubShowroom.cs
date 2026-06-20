@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
 /// Profesionálnejšie lobby: okolo pódia so zbraňou postaví "showroom" —
@@ -144,6 +145,132 @@ public class HubShowroom : MonoBehaviour
         // rastliny v rohoch
         Plant(baseC + left * 4.4f - fwd * 1.2f);
         Plant(baseC + right * 4.4f - fwd * 1.2f);
+
+        // ── VYLEPŠENIE IZBY + PRÉMIOVÉ TLAČIDLÁ ──
+        PolishRoom();
+        AddRoomDecor();
+        StyleUI();
+    }
+
+    // Viac "vecí" do lobby: nástenné trimy, plagáty, automat, skrinky,
+    // stropné svetlá a rastliny — aby izba žila a nebola prázdna.
+    void AddRoomDecor()
+    {
+        Color warm = new Color(1f, 0.5f, 0.16f);
+        Color cool = new Color(0.25f, 0.6f, 1f);
+        var id = Quaternion.identity;
+
+        // ── nástenné akcentové trimy (po obvode) ──
+        Box("TrimBack", new Vector3(0f, 2.3f, 5.85f), new Vector3(15.6f, 0.12f, 0.06f), id, Emissive(warm));
+        Box("TrimLeft", new Vector3(-7.85f, 2.3f, 0f), new Vector3(0.06f, 0.12f, 15.6f), id, Emissive(warm));
+
+        // ── plagáty / podsvietené panely na ľavej stene ──
+        Box("Poster1", new Vector3(-7.84f, 3.5f, -1.4f), new Vector3(0.05f, 1.5f, 2.0f), id, Emissive(new Color(1f, 0.35f, 0.12f)));
+        Box("Poster2", new Vector3(-7.84f, 3.5f, 1.6f),  new Vector3(0.05f, 1.5f, 2.0f), id, Emissive(new Color(0.2f, 0.7f, 0.95f)));
+        Box("Poster3", new Vector3(-7.84f, 3.5f, 4.4f),  new Vector3(0.05f, 1.5f, 2.0f), id, Emissive(new Color(0.85f, 0.2f, 0.5f)));
+
+        // ── nápojový automat (break room vibe) v ľavom rohu ──
+        Box("Vending",      new Vector3(-6.6f, 1.25f, 4.6f), new Vector3(1.5f, 2.5f, 0.95f), id, Mat(new Color(0.45f, 0.10f, 0.10f)));
+        Box("VendingGlass", new Vector3(-6.6f, 1.55f, 4.10f), new Vector3(1.05f, 1.5f, 0.05f), id, Emissive(new Color(0.3f, 0.65f, 1f)));
+        Box("VendingTop",   new Vector3(-6.6f, 2.56f, 4.55f), new Vector3(1.55f, 0.14f, 1.0f), id, Emissive(warm));
+
+        // ── kovové skrinky pri ľavej stene ──
+        for (int i = 0; i < 3; i++)
+            Box("Locker" + i, new Vector3(-7.2f, 1.15f, 1.3f - i * 0.95f), new Vector3(0.85f, 2.3f, 0.7f), id,
+                Mat(new Color(0.26f, 0.34f, 0.42f)));
+
+        // ── stropné svetelné lišty + bodové svetlá ──
+        for (int i = -1; i <= 1; i++)
+        {
+            Box("Ceil" + i, new Vector3(i * 3.4f, 5.75f, 2.5f), new Vector3(2.6f, 0.1f, 0.4f), id, Emissive(new Color(1f, 0.95f, 0.85f)));
+            Point("CeilGlow" + i, new Vector3(i * 3.4f, 5.2f, 2.5f), new Color(1f, 0.93f, 0.8f), 1.1f, 7f);
+        }
+
+        // ── viac rastlín ──
+        Plant(new Vector3(-7f, 0f, -2.2f));
+        Plant(new Vector3(-4.4f, 0f, 5.2f));
+        Plant(new Vector3(7f, 0f, -2.4f));
+    }
+
+    // Lepšie materiály stien/podlahy + teplejšie svetlo (nie fádna sivá).
+    void PolishRoom()
+    {
+        Recolor("Podlaha",     new Color(0.19f, 0.16f, 0.16f));
+        Recolor("Stena_Zadna", new Color(0.30f, 0.26f, 0.27f));
+        Recolor("Stena_Lava",  new Color(0.27f, 0.23f, 0.25f));
+        Recolor("Stena_Prava", new Color(0.27f, 0.23f, 0.25f));
+
+        // teplejší kľúčový smerový svit
+        foreach (var l in Object.FindObjectsByType<Light>(FindObjectsSortMode.None))
+            if (l != null && l.type == LightType.Directional)
+            {
+                l.color = new Color(1f, 0.93f, 0.82f); l.intensity = 1.05f;
+                l.transform.rotation = Quaternion.Euler(48f, -28f, 0f);
+            }
+
+        RenderSettings.ambientLight = new Color(0.26f, 0.25f, 0.30f);
+
+        // jemné akcentové svetlá do priestoru izby
+        Point("RoomGlowL", new Vector3(-6f, 3.2f, 4f), new Color(1f, 0.6f, 0.3f), 1.5f, 13f);
+        Point("RoomGlowR", new Vector3( 6f, 3.2f, 4f), new Color(0.35f, 0.55f, 1f), 1.2f, 13f);
+    }
+
+    void Recolor(string name, Color c)
+    {
+        var go = GameObject.Find(name);
+        if (go == null) return;
+        var r = go.GetComponent<Renderer>();
+        if (r != null) r.sharedMaterial = Mat(c);
+    }
+
+    // Prémiové zaoblené tlačidlá (ako nové Main Menu) — runtime reštýl scénových tlačidiel.
+    void StyleUI()
+    {
+        // taby (farbu prepína HubManager, my dáme zaoblený tvar + text)
+        StyleBtn("PlayTab",    UITheme.Panel,    22, false);
+        StyleBtn("LoadoutTab", UITheme.Panel,    22, false);
+        StyleBtn("ShopTab",    UITheme.Panel,    22, false);
+        // ostatné tlačidlá s plnou farbou
+        StyleBtn("BackBtn",    UITheme.Panel,    20, true);
+        StyleBtn("MapBtn",     UITheme.PanelLight,24, true);
+        StyleBtn("StartBtn",   UITheme.Good,     34, true);
+
+        // horná lišta tmavšia + akcentový spodný prúžok
+        var top = GameObject.Find("TopBar");
+        if (top != null)
+        {
+            var img = top.GetComponent<Image>();
+            if (img != null) img.color = new Color(0.08f, 0.08f, 0.10f, 0.96f);
+            if (top.transform.Find("AccentLine") == null)
+            {
+                var line = new GameObject("AccentLine"); line.transform.SetParent(top.transform, false);
+                var li = line.AddComponent<Image>(); li.color = UITheme.Accent;
+                var lr = line.GetComponent<RectTransform>();
+                lr.anchorMin = new Vector2(0, 0); lr.anchorMax = new Vector2(1, 0); lr.pivot = new Vector2(0.5f, 0);
+                lr.sizeDelta = new Vector2(0, 3); lr.anchoredPosition = Vector2.zero;
+            }
+        }
+    }
+
+    void StyleBtn(string name, Color col, int fontSize, bool setColor)
+    {
+        var go = GameObject.Find(name);
+        if (go == null) return;
+        var img = go.GetComponent<Image>();
+        if (img != null)
+        {
+            img.sprite = UITheme.Rounded(14); img.type = Image.Type.Sliced;
+            if (setColor) img.color = col;
+        }
+        var btn = go.GetComponent<Button>();
+        if (btn != null && img != null) UITheme.Hover(btn, col, col);
+        UITheme.Shadow(go, new Vector2(0, -3), 0.4f);
+        var lbl = go.GetComponentInChildren<Text>();
+        if (lbl != null)
+        {
+            lbl.fontSize = fontSize; lbl.fontStyle = FontStyle.Bold;
+            lbl.color = name == "StartBtn" ? Color.white : new Color(1f, 0.9f, 0.6f);
+        }
     }
 
     void Plant(Vector3 at)

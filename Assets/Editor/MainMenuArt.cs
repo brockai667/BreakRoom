@@ -5,6 +5,7 @@
 
 #if UNITY_EDITOR
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 
@@ -132,6 +133,36 @@ public class MainMenuArt
         // staré nepoužívané buttony odprac z cesty (ak sú aktívne)
         MoveUI("ShopButton", new Vector2(3000f, 0f), Vector2.zero, false);
         MoveUI("CollectionButton", new Vector2(3000f, 0f), Vector2.zero, false);
+
+        // prémiový jednotný štýl (zaoblené + oranžový akcent)
+        StyleMenuBtn("PlayButton");
+        StyleMenuBtn("QuitButton");
+    }
+
+    // Zjednotí vzhľad menu tlačidla: zaoblené tmavé pozadie + oranžový spodný akcent + tieň.
+    static void StyleMenuBtn(string name)
+    {
+        var go = GameObject.Find(name);
+        if (go == null) return;
+        var img = go.GetComponent<Image>();
+        if (img != null)
+        {
+            img.sprite = UITheme.Rounded(18); img.type = Image.Type.Sliced;
+            img.color = new Color(0.13f, 0.14f, 0.18f, 0.97f);
+        }
+        var btn = go.GetComponent<Button>();
+        if (btn != null && img != null) UITheme.Hover(btn, img.color, img.color);
+
+        if (go.transform.Find("Accent") == null)
+        {
+            var acc = new GameObject("Accent"); acc.transform.SetParent(go.transform, false);
+            var ai = acc.AddComponent<Image>(); ai.sprite = UITheme.Rounded(4); ai.type = Image.Type.Sliced;
+            ai.color = UITheme.Accent; ai.raycastTarget = false;
+            var ar = acc.GetComponent<RectTransform>();
+            ar.anchorMin = new Vector2(0.08f, 0f); ar.anchorMax = new Vector2(0.92f, 0f); ar.pivot = new Vector2(0.5f, 0f);
+            ar.sizeDelta = new Vector2(0, 6); ar.anchoredPosition = new Vector2(0, 9);
+        }
+        UITheme.Shadow(go, new Vector2(0, -4), 0.5f);
     }
 
     static void MoveUI(string name, Vector2 pos, Vector2 size, bool setSize)

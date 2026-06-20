@@ -138,15 +138,11 @@ public class GameManager : MonoBehaviour
         float mult = ComboMultiplier();
         int pay = Mathf.Max(1, Mathf.RoundToInt(baseReward * mult * Perks.MoneyMult()));
         if (golden) pay *= 3;
-        pay = Mathf.Max(1, Mathf.RoundToInt(pay * RampageManager.MoneyMult()));
 
         roundMoney += pay;
         destroyedCount++;
 
         if (XPManager.Instance != null) XPManager.Instance.AddXP(baseXp);
-
-        // RAGE meter + rázová vlna počas RAMPAGE
-        if (RampageManager.Instance != null) RampageManager.Instance.RegisterBreak(pos);
 
         AnnounceComboMilestone();
         return pay;

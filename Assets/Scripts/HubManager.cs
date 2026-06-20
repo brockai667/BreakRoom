@@ -30,8 +30,8 @@ public class HubManager : MonoBehaviour
     public Text       resultsText;
     public Text       earnedFlyText;
  
-    static readonly Color TAB_ON  = new Color(0.55f, 0.15f, 0.05f, 1f);
-    static readonly Color TAB_OFF = new Color(0.18f, 0.10f, 0.05f, 1f);
+    static readonly Color TAB_ON  = new Color(0.85f, 0.40f, 0.10f, 1f);  // aktívny tab – oranžový akcent
+    static readonly Color TAB_OFF = new Color(0.14f, 0.15f, 0.19f, 1f);  // neaktívny tab – tmavý panel
 
     Text gradeLabel;   // veľké hodnotenie S/A/B/C nad výsledkami
  

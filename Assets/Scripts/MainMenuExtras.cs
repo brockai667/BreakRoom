@@ -42,16 +42,25 @@ public class MainMenuExtras : MonoBehaviour
         sc.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize; sc.referenceResolution = new Vector2(1920, 1080);
         canvasGO.AddComponent<GraphicRaycaster>();
 
-        // COLLECTION button (pravý stĺpec, medzi PLAY a QUIT)
+        // COLLECTION button (pravý stĺpec, medzi PLAY a QUIT) — jednotný prémiový štýl
         var go = new GameObject("CollectionBtn"); go.transform.SetParent(canvasGO.transform, false);
-        var img = UITheme.PanelImage(go, UITheme.PanelLight, 16);
+        var btnCol = new Color(0.13f, 0.14f, 0.18f, 0.97f);
+        var img = UITheme.PanelImage(go, btnCol, 18);
         var rt = go.GetComponent<RectTransform>();
         rt.anchorMin = rt.anchorMax = rt.pivot = new Vector2(0.5f, 0.5f);
         rt.anchoredPosition = new Vector2(540f, 10f); rt.sizeDelta = new Vector2(460f, 90f);
-        var btn = go.AddComponent<Button>(); btn.targetGraphic = img; UITheme.Hover(btn, UITheme.PanelLight, UITheme.PanelLight);
-        UITheme.Shadow(go, new Vector2(0, -3));
+        var btn = go.AddComponent<Button>(); btn.targetGraphic = img; UITheme.Hover(btn, btnCol, btnCol);
+        UITheme.Shadow(go, new Vector2(0, -4), 0.5f);
         btn.onClick.AddListener(() => SceneManager.LoadScene("Collection"));
-        Label(go.transform, "COLLECTION", 30, Color.white, Vector2.zero, Vector2.one, TextAnchor.MiddleCenter);
+        Label(go.transform, "COLLECTION", 32, new Color(1f, 0.85f, 0.1f), Vector2.zero, Vector2.one, TextAnchor.MiddleCenter);
+
+        // oranžový spodný akcent (ako PLAY/QUIT)
+        var acc = new GameObject("Accent"); acc.transform.SetParent(go.transform, false);
+        var ai = acc.AddComponent<Image>(); ai.sprite = UITheme.Rounded(4); ai.type = Image.Type.Sliced;
+        ai.color = UITheme.Accent; ai.raycastTarget = false;
+        var ar = acc.GetComponent<RectTransform>();
+        ar.anchorMin = new Vector2(0.08f, 0f); ar.anchorMax = new Vector2(0.92f, 0f); ar.pivot = new Vector2(0.5f, 0f);
+        ar.sizeDelta = new Vector2(0, 6); ar.anchoredPosition = new Vector2(0, 9);
 
         // Best stats (bottom-left)
         int level     = PlayerPrefs.GetInt("Level", 1);
