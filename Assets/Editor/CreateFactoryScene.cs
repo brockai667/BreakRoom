@@ -40,7 +40,19 @@ public class CreateFactoryScene
         Prop("Stena_Lava",   PrimitiveType.Cube, new Vector3(-10, 3f, 0),   new Vector3(0.3f, 6, 20),  wallCol, 0, false);
         Prop("Stena_Prava",  PrimitiveType.Cube, new Vector3(10, 3f, 0),    new Vector3(0.3f, 6, 20),  wallCol, 0, false);
         Prop("Strop",        PrimitiveType.Cube, new Vector3(0, 6, 0),      new Vector3(20, 0.3f, 20), ceilCol, 0, false);
- 
+
+        // ---------- ATMOSFÉRA (emisívne akcenty + farebné svetlá, ako hangár v Main Menu) ----------
+        // oranžové výstražné pruhy na stenách
+        PropEmissive("Stripe_Back_Top", new Vector3(0, 5.2f, 9.8f),  new Vector3(19, 0.22f, 0.08f), new Color(1f, 0.46f, 0.12f));
+        PropEmissive("Stripe_Back_Bot", new Vector3(0, 0.6f, 9.8f),  new Vector3(19, 0.16f, 0.08f), new Color(0.95f, 0.4f, 0.1f));
+        PropEmissive("Stripe_Left",     new Vector3(-9.8f, 4.4f, 0), new Vector3(0.08f, 0.2f, 19),  new Color(0.2f, 0.55f, 1f));
+        PropEmissive("Stripe_Right",    new Vector3( 9.8f, 4.4f, 0), new Vector3(0.08f, 0.2f, 19),  new Color(0.2f, 0.55f, 1f));
+        // farebné akcentové svetlá v rohoch a nad linkou
+        PointLight("Glow_BackL", new Vector3(-6f, 4.2f, 8.5f), new Color(1f, 0.5f, 0.18f), 3.0f, 16f);
+        PointLight("Glow_BackR", new Vector3( 6f, 4.2f, 8.5f), new Color(0.25f, 0.55f, 1f), 2.6f, 16f);
+        PointLight("Glow_Mid",   new Vector3( 0f, 4.5f, 0f),   new Color(1f, 0.85f, 0.6f), 2.2f, 18f);
+        PointLight("Glow_FrontL",new Vector3(-6f, 4.0f, -8f),  new Color(0.9f, 0.45f, 0.15f), 2.2f, 14f);
+
         // ---------- SCENÉRIA (nerozbíjateľná) ----------
         // Dopravníková linka stredom haly (-z -> +z)
         PlacePrefab("conveyor-long", new Vector3(0, 0, -5), Vector3.zero, 0, false, S);
@@ -199,7 +211,23 @@ public class CreateFactoryScene
         m.color = c; if (m.HasProperty("_BaseColor")) m.SetColor("_BaseColor", c);
         return m;
     }
- 
+
+    static void PropEmissive(string name, Vector3 pos, Vector3 scale, Color c)
+    {
+        var g = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        g.name = name; g.transform.position = pos; g.transform.localScale = scale;
+        var m = Mat(c);
+        if (m.HasProperty("_EmissionColor")) { m.EnableKeyword("_EMISSION"); m.SetColor("_EmissionColor", c * 2.2f); }
+        g.GetComponent<Renderer>().sharedMaterial = m;
+        Object.DestroyImmediate(g.GetComponent<Collider>());
+    }
+
+    static void PointLight(string name, Vector3 pos, Color col, float intensity, float range)
+    {
+        var go = new GameObject(name); go.transform.position = pos;
+        var l = go.AddComponent<Light>(); l.type = LightType.Point; l.color = col; l.intensity = intensity; l.range = range;
+    }
+
     static GameObject LoadPrefab(string name)
     {
         foreach (var g in AssetDatabase.FindAssets(name))

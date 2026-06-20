@@ -41,6 +41,12 @@ public class CreateGarageScene
         Place("lever-single",      new Vector3(-5.2f, 0f, 0.0f), Vector3.zero,        2,  S);
         Place("cone",              new Vector3( 1.6f, 0f, -3.4f),Vector3.zero,        2,  S);
 
+        // ── ATMOSFÉRA (priemyselné akcenty – emisívny pruh + farebné svetlá) ──
+        PropEmissive("Stripe_Back", new Vector3(0f, 4.4f, 5.85f), new Vector3(11f, 0.18f, 0.06f), new Color(1f, 0.46f, 0.12f));
+        PointLight("Glow_BackL", new Vector3(-3.5f, 3.4f, 5.2f), new Color(1f, 0.5f, 0.18f), 2.0f, 10f);
+        PointLight("Glow_BackR", new Vector3( 3.5f, 3.4f, 5.2f), new Color(0.28f, 0.55f, 1f), 1.7f, 10f);
+        PointLight("Glow_Mid",   new Vector3( 0f, 3.6f, 1.5f),   new Color(1f, 0.86f, 0.65f), 1.4f, 12f);
+
         EditorSceneManager.MarkSceneDirty(scene);
         EditorSceneManager.SaveScene(scene);
 
@@ -49,6 +55,24 @@ public class CreateGarageScene
         { list.Add(new EditorBuildSettingsScene(DST, true)); EditorBuildSettings.scenes = list.ToArray(); }
         AssetDatabase.SaveAssets(); AssetDatabase.Refresh();
         Debug.Log("✅ Garage (factory-kit, správna mierka) hotový.");
+    }
+
+    static void PropEmissive(string name, Vector3 pos, Vector3 scale, Color c)
+    {
+        var g = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        g.name = name; g.transform.position = pos; g.transform.localScale = scale;
+        var m = new Material(Shader.Find("Universal Render Pipeline/Lit"));
+        if (m.shader == null || m.shader.name == "Hidden/InternalErrorShader") m = new Material(Shader.Find("Standard"));
+        m.color = c; if (m.HasProperty("_BaseColor")) m.SetColor("_BaseColor", c);
+        if (m.HasProperty("_EmissionColor")) { m.EnableKeyword("_EMISSION"); m.SetColor("_EmissionColor", c * 2.2f); }
+        g.GetComponent<Renderer>().sharedMaterial = m;
+        Object.DestroyImmediate(g.GetComponent<Collider>());
+    }
+
+    static void PointLight(string name, Vector3 pos, Color col, float intensity, float range)
+    {
+        var go = new GameObject(name); go.transform.position = pos;
+        var l = go.AddComponent<Light>(); l.type = LightType.Point; l.color = col; l.intensity = intensity; l.range = range;
     }
 
     static GameObject LoadPrefab(string name)

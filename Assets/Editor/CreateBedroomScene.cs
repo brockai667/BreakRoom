@@ -49,6 +49,11 @@ public class CreateBedroomScene
         Place("cardboardBoxClosed",  new Vector3( 3.4f, 0f, -3.4f), new Vector3(0,20,0),  2, S);
         Place("cardboardBoxOpen",    new Vector3( 4.3f, 0f, -2.6f), new Vector3(0,-25,0), 2, S);
 
+        // ── ATMOSFÉRA (útulné teplé svetlo lampičky + jemný studený fill od okna) ──
+        PointLight("Glow_Lamp",   new Vector3(-1.7f, 0.9f, 5.0f), new Color(1f, 0.78f, 0.45f), 2.2f, 5.5f);
+        PointLight("Glow_WarmFill",new Vector3(0f, 2.6f, 3.5f),   new Color(1f, 0.72f, 0.4f),  0.9f, 9f);
+        PointLight("Glow_Window", new Vector3(5.4f, 2.6f, 0.5f),  new Color(0.5f, 0.62f, 0.95f),1.1f, 8f);
+
         EditorSceneManager.MarkSceneDirty(scene);
         EditorSceneManager.SaveScene(scene);
 
@@ -60,6 +65,12 @@ public class CreateBedroomScene
     }
 
     // ── HELPERY (rovnaké ako Obývačka) ──
+    static void PointLight(string name, Vector3 pos, Color col, float intensity, float range)
+    {
+        var go = new GameObject(name); go.transform.position = pos;
+        var l = go.AddComponent<Light>(); l.type = LightType.Point; l.color = col; l.intensity = intensity; l.range = range;
+    }
+
     static GameObject LoadPrefab(string name)
     {
         foreach (var g in AssetDatabase.FindAssets(name))
