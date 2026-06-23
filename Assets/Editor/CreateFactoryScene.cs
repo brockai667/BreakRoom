@@ -53,55 +53,78 @@ public class CreateFactoryScene
         PointLight("Glow_Mid",   new Vector3( 0f, 4.5f, 0f),   new Color(1f, 0.85f, 0.6f), 2.2f, 18f);
         PointLight("Glow_FrontL",new Vector3(-6f, 4.0f, -8f),  new Color(0.9f, 0.45f, 0.15f), 2.2f, 14f);
 
-        // ---------- SCENÉRIA (nerozbíjateľná) ----------
-        // Dopravníková linka stredom haly (-z -> +z)
-        PlacePrefab("conveyor-long", new Vector3(0, 0, -5), Vector3.zero, 0, false, S);
-        PlacePrefab("conveyor-long", new Vector3(0, 0, -2), Vector3.zero, 0, false, S);
-        PlacePrefab("conveyor-long", new Vector3(0, 0,  1), Vector3.zero, 0, false, S);
-        PlacePrefab("conveyor-long", new Vector3(0, 0,  4), Vector3.zero, 0, false, S);
-        // Žeriav v rohu + výstražné značky
-        PlacePrefab("crane",         new Vector3(-8, 0, -8), new Vector3(0, 45, 0), 0, false, S);
-        PlacePrefab("warning-traffic", new Vector3(8, 0, -8), Vector3.zero, 0, false, S);
- 
-        // ---------- ROZBÍJATEĽNÉ OBJEKTY (~25) ----------
-        // Boxy (nízke HP) — okolo dopravníka a pri vstupe
-        PlacePrefab("box-large", new Vector3(-3.0f, 0, -6.0f), new Vector3(0, 12, 0),  3, true, S);
-        PlacePrefab("box-small", new Vector3(-3.9f, 0, -6.8f), Vector3.zero,           2, true, S);
-        PlacePrefab("box-wide",  new Vector3( 3.0f, 0, -6.0f), new Vector3(0, -8, 0),  3, true, S);
-        PlacePrefab("box-long",  new Vector3( 3.8f, 0, -4.8f), new Vector3(0, 20, 0),  3, true, S);
-        PlacePrefab("box-small", new Vector3(-2.1f, 0, -5.2f), Vector3.zero,           2, true, S);
-        PlacePrefab("box-large", new Vector3( 4.2f, 0, -1.5f), new Vector3(0, -15, 0), 3, true, S);
-        PlacePrefab("box-wide",  new Vector3(-4.2f, 0,  2.2f), Vector3.zero,           3, true, S);
- 
-        // Ozubené kolesá (stredné HP) — pri ľavej stene
-        PlacePrefab("cog-a", new Vector3(-6.5f, 0, -3.0f), Vector3.zero, 4, true, S);
-        PlacePrefab("cog-b", new Vector3(-7.2f, 0, -1.2f), Vector3.zero, 4, true, S);
-        PlacePrefab("cog-c", new Vector3(-6.4f, 0,  0.4f), Vector3.zero, 4, true, S);
-        PlacePrefab("cog-d", new Vector3( 5.2f, 0,  3.2f), Vector3.zero, 4, true, S);
- 
-        // Piesty (stredné HP) — pri pravej stene
-        PlacePrefab("piston-round",      new Vector3(6.4f, 0, -4.2f), Vector3.zero, 4, true, S);
-        PlacePrefab("piston-square",     new Vector3(6.8f, 0, -2.0f), Vector3.zero, 4, true, S);
-        PlacePrefab("piston-thin-round", new Vector3(5.4f, 0, -6.2f), Vector3.zero, 4, true, S);
- 
-        // Násypky / hoppery (vyššie HP) — ľavý zadný roh
-        PlacePrefab("hopper-round",      new Vector3(-7.2f, 0, 3.2f), Vector3.zero, 5, true, S);
-        PlacePrefab("hopper-square",     new Vector3(-6.0f, 0, 4.6f), Vector3.zero, 5, true, S);
-        PlacePrefab("hopper-high-round", new Vector3( 7.2f, 0, 5.2f), Vector3.zero, 6, true, S);
- 
-        // Robotické ramená — pri dopravníku
-        PlacePrefab("robot-arm-a", new Vector3( 2.0f, 0, 5.2f), new Vector3(0, -90, 0), 5, true, S);
-        PlacePrefab("robot-arm-b", new Vector3(-2.0f, 0, 5.2f), new Vector3(0,  90, 0), 5, true, S);
- 
-        // Veľké stroje pri zadnej stene (vysoké HP), čelom k hráčovi (-z)
-        PlacePrefab("machine-window",    new Vector3(-3.5f, 0, 8.4f), new Vector3(0, 180, 0), 8, true, S);
-        PlacePrefab("machine",           new Vector3( 0.0f, 0, 8.6f), new Vector3(0, 180, 0), 8, true, S);
-        PlacePrefab("machine-bed",       new Vector3( 3.5f, 0, 8.4f), new Vector3(0, 180, 0), 7, true, S);
-        PlacePrefab("machine-fortified", new Vector3( 6.5f, 0, 8.4f), new Vector3(0, 180, 0), 9, true, S);
- 
-        // Obrazovky na stenách (nízke HP)
-        PlacePrefab("screen-wide", new Vector3(-9.4f, 1.4f,  1.0f), new Vector3(0,  90, 0), 3, true, S);
-        PlacePrefab("screen-flat", new Vector3( 9.4f, 1.4f,  2.5f), new Vector3(0, -90, 0), 3, true, S);
+        // ====== VÝROBNÁ LINKA (prepojená scenéria – nerozbíjateľná) ======
+        // Hlavný dopravníkový pás stredom haly: vstup (-z) → výstup (+z)
+        PlacePrefab("conveyor-long", new Vector3(0, 0, -6), Vector3.zero, 0, false, S);
+        PlacePrefab("conveyor-long", new Vector3(0, 0, -3), Vector3.zero, 0, false, S);
+        PlacePrefab("conveyor-long", new Vector3(0, 0,  0), Vector3.zero, 0, false, S);
+        PlacePrefab("conveyor-long", new Vector3(0, 0,  3), Vector3.zero, 0, false, S);
+        PlacePrefab("conveyor-long", new Vector3(0, 0,  6), Vector3.zero, 0, false, S);
+        // Skener-brána, ktorou pás prechádza
+        PlacePrefab("scanner-high", new Vector3(0, 0, -1.5f), Vector3.zero, 0, false, S);
+        // Podlahové šípky toku výroby (smer +z)
+        PlacePrefab("arrow", new Vector3(1.9f, 0.02f, -4f), Vector3.zero, 0, false, S);
+        PlacePrefab("arrow", new Vector3(1.9f, 0.02f,  1f), Vector3.zero, 0, false, S);
+        PlacePrefab("arrow", new Vector3(1.9f, 0.02f,  5f), Vector3.zero, 0, false, S);
+        // Lávka (catwalk) ponad linku + schody
+        PlacePrefab("catwalk-straight", new Vector3(0, 3.4f, -2f), Vector3.zero, 0, false, S);
+        PlacePrefab("catwalk-straight", new Vector3(0, 3.4f,  1f), Vector3.zero, 0, false, S);
+        PlacePrefab("catwalk-straight", new Vector3(0, 3.4f,  4f), Vector3.zero, 0, false, S);
+        PlacePrefab("catwalk-stairs",   new Vector3(2.6f, 0, -6.5f), new Vector3(0, -90, 0), 0, false, S);
+        // Potrubie pozdĺž pravej steny (prepája stroje)
+        PlacePrefab("pipe-large-long",  new Vector3(8.7f, 2.4f, -3f), Vector3.zero, 0, false, S);
+        PlacePrefab("pipe-large-long",  new Vector3(8.7f, 2.4f,  0f), Vector3.zero, 0, false, S);
+        PlacePrefab("pipe-large-long",  new Vector3(8.7f, 2.4f,  3f), Vector3.zero, 0, false, S);
+        PlacePrefab("pipe-large-valve", new Vector3(8.7f, 2.4f,  1.5f), Vector3.zero, 0, false, S);
+        // Priemyselné štruktúry v rohoch (pozadie)
+        PlacePrefab("structure-tall",   new Vector3(-8.6f, 0, 8.6f), Vector3.zero, 0, false, S);
+        PlacePrefab("structure-medium", new Vector3( 8.6f, 0, 8.6f), Vector3.zero, 0, false, S);
+        // Žeriav s magnetom nad výstupom
+        PlacePrefab("crane-magnet", new Vector3(0, 0, 9f), new Vector3(0, 180, 0), 0, false, S);
+
+        // ====== STROJE NAPOJENÉ NA LINKU (rozbíjateľné) ======
+        // Ľavá strana – čelom k pásu (+x)
+        PlacePrefab("machine-window", new Vector3(-2.9f, 0, -4f), new Vector3(0, 90, 0), 8, true, S);
+        PlacePrefab("machine",        new Vector3(-2.9f, 0,  0f), new Vector3(0, 90, 0), 8, true, S);
+        PlacePrefab("machine-bed",    new Vector3(-2.9f, 0,  4f), new Vector3(0, 90, 0), 7, true, S);
+        // Pravá strana – čelom k pásu (-x)
+        PlacePrefab("machine-fortified",       new Vector3(2.9f, 0, -4f), new Vector3(0, -90, 0), 9, true, S);
+        PlacePrefab("machine-connection-pipe", new Vector3(2.9f, 0,  0f), new Vector3(0, -90, 0), 6, true, S);
+        PlacePrefab("machine-window-bar",      new Vector3(2.9f, 0,  4f), new Vector3(0, -90, 0), 8, true, S);
+
+        // Násypky / silá (sypú materiál na linku)
+        PlacePrefab("hopper-high-round", new Vector3(0, 0, -8.3f), Vector3.zero, 6, true, S);
+        PlacePrefab("hopper-round",      new Vector3( 1.8f, 0, 2f), Vector3.zero, 5, true, S);
+        PlacePrefab("hopper-square",     new Vector3(-1.8f, 0, 6f), Vector3.zero, 5, true, S);
+
+        // Robotické ramená pri páse
+        PlacePrefab("robot-arm-a", new Vector3( 1.7f, 0, -1f), new Vector3(0, -90, 0), 5, true, S);
+        PlacePrefab("robot-arm-b", new Vector3(-1.7f, 0,  2f), new Vector3(0,  90, 0), 5, true, S);
+
+        // Produkty na páse (rozbíjateľné)
+        PlacePrefab("box-small", new Vector3(0, 0.55f, -4.5f), Vector3.zero, 2, true, S);
+        PlacePrefab("box-small", new Vector3(0, 0.55f, -1.5f), Vector3.zero, 2, true, S);
+        PlacePrefab("box-small", new Vector3(0, 0.55f,  2f),   Vector3.zero, 2, true, S);
+        PlacePrefab("box-small", new Vector3(0, 0.55f,  5f),   Vector3.zero, 2, true, S);
+
+        // Výstupné palety na konci linky (vzadu)
+        PlacePrefab("box-large", new Vector3(-1.1f, 0, 8.4f), new Vector3(0, 10, 0),  3, true, S);
+        PlacePrefab("box-wide",  new Vector3( 1.1f, 0, 8.4f), new Vector3(0, -8, 0),  3, true, S);
+        PlacePrefab("box-long",  new Vector3( 0f,   0, 7.4f), Vector3.zero,           3, true, S);
+        PlacePrefab("box-large", new Vector3( 2.4f, 0, 8.6f), new Vector3(0, 20, 0),  3, true, S);
+
+        // Kolesá a piesty na strojoch (akcenty)
+        PlacePrefab("cog-a",         new Vector3(-4.8f, 0, -2f), Vector3.zero, 4, true, S);
+        PlacePrefab("cog-c",         new Vector3(-4.8f, 0,  2f), Vector3.zero, 4, true, S);
+        PlacePrefab("cog-e",         new Vector3( 4.8f, 0,  0f), Vector3.zero, 4, true, S);
+        PlacePrefab("piston-round",  new Vector3( 4.8f, 0, -4f), Vector3.zero, 4, true, S);
+        PlacePrefab("piston-square", new Vector3( 4.8f, 0,  4f), Vector3.zero, 4, true, S);
+
+        // Obrazovky / panely na stenách + kužele pri vstupe
+        PlacePrefab("screen-wide", new Vector3(-9.4f, 1.8f, -2f), new Vector3(0,  90, 0), 3, true, S);
+        PlacePrefab("screen-flat", new Vector3( 9.4f, 1.8f,  6f), new Vector3(0, -90, 0), 3, true, S);
+        PlacePrefab("cone", new Vector3(-1.5f, 0, -7.5f), Vector3.zero, 1, true, S);
+        PlacePrefab("cone", new Vector3( 1.5f, 0, -7.5f), Vector3.zero, 1, true, S);
  
         // ---------- HRÁČ ----------
         int playerLayer = LayerMask.NameToLayer("Player"); if (playerLayer < 0) playerLayer = 3;
