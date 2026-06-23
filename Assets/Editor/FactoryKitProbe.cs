@@ -43,10 +43,54 @@ public class FactoryKitProbe
         sb.AppendLine("=== KENNEY FURNITURE (native scale) ===");
         foreach (var n in fur) Measure(FUR, n, sb);
 
+        sb.AppendLine("");
+        sb.AppendLine("=== BRICK PROJECT STUDIO (prefab, native) ===");
+        string BPK = "Assets/Brick Project Studio/Apartment Kit/_Prefabs/";
+        string[] bps = {
+            BPK+"Furniture/Kitchen/Cabinets/Cabinet_Base_SD_01.prefab",
+            BPK+"Furniture/Kitchen/Cabinets/Cabinet_Base_DD_01.prefab",
+            BPK+"Furniture/Kitchen/Cabinets/Cabinet_Base_Sink_01.prefab",
+            BPK+"Furniture/Kitchen/Cabinets/Cabinet_Base_Corner_01.prefab",
+            BPK+"Furniture/Kitchen/Cabinets/Cabinet_Wall_DD_01.prefab",
+            BPK+"Furniture/Kitchen/Cabinets/Cabinet_Tall_DD_01.prefab",
+            BPK+"Furniture/Kitchen/Appliances/Fridge_01.prefab",
+            BPK+"Furniture/Kitchen/Appliances/Stove_01.prefab",
+            BPK+"Furniture/Kitchen/Appliances/Range_Hood.prefab",
+            BPK+"Furniture/Living Room/Sofa_Apt_01.prefab",
+            BPK+"Furniture/Living Room/Chair_Apt_01.prefab",
+            BPK+"Furniture/Living Room/Table_Coffee_01.prefab",
+            BPK+"Furniture/Bedroom/Bed_Apt_01_01.prefab",
+            BPK+"Furniture/Bedroom/Dresser_Apt_01.prefab",
+            BPK+"Props/Electronics/TV_Apt_01.prefab",
+            BPK+"Props/Electronics/Monitor_Apt_01.prefab",
+            BPK+"Props/Electronics/Computer_apt_01.prefab",
+            BPK+"Props/Lighting/Lamp_Floor_Apt_01.prefab",
+            BPK+"Props/Art/Rug_Apt_01.prefab",
+            BPK+"Props/Kitchen/CoffeeMaker_Apt_01.prefab",
+            BPK+"Props/Kitchen/Blender_Apt_01.prefab",
+            BPK+"Props/Kitchen/Bowl_Apt_01.prefab",
+        };
+        foreach (var p in bps) MeasurePath(p, sb);
+
         string path = "Assets/kit_sizes.txt";
         System.IO.File.WriteAllText(path, sb.ToString());
         AssetDatabase.Refresh();
         Debug.Log("✅ Probe done -> " + path);
+    }
+
+    static void MeasurePath(string fullPath, StringBuilder sb)
+    {
+        var model = AssetDatabase.LoadAssetAtPath<GameObject>(fullPath);
+        string name = System.IO.Path.GetFileNameWithoutExtension(fullPath);
+        if (model == null) { sb.AppendLine(name + ": MISSING (" + fullPath + ")"); return; }
+        var go = (GameObject)PrefabUtility.InstantiatePrefab(model);
+        go.transform.position = Vector3.zero; go.transform.rotation = Quaternion.identity;
+        var rends = go.GetComponentsInChildren<Renderer>();
+        if (rends.Length == 0) { sb.AppendLine(name + ": (no renderer)"); Object.DestroyImmediate(go); return; }
+        Bounds b = rends[0].bounds;
+        foreach (var r in rends) b.Encapsulate(r.bounds);
+        sb.AppendLine($"{name}: size=({b.size.x:0.00},{b.size.y:0.00},{b.size.z:0.00})  yMin={b.min.y:0.00} yMax={b.max.y:0.00}");
+        Object.DestroyImmediate(go);
     }
 
     static void Measure(string folder, string name, StringBuilder sb)

@@ -5,7 +5,7 @@ if exist ".git\index.lock" del /f /q ".git\index.lock"
   echo ===== SYNC %date% %time% =====
   git status --short
   git add -A
-  git commit -m "Factory + Office rebuilt properly using measured model sizes (FactoryKitProbe -> kit_sizes.txt). Factory: pieces now actually CONNECT on the grid - belt rotated 90 and placed every 2u (continuous), machines flush to belt edge, connected pipe run, gantry crane over output, scanner gate, flow arrows. Office: real Kenney open-plan office (CreateOfficeKenney) - rows of desks with monitors+chairs, meeting table, bookcases, filing cabinets, plants; removed the giant pink Living-Room rug that bled through; player spawns at the entrance. Both Play-verified, 0 errors"
+  git commit -m "PRO LOOK via Brick Project Studio (realistic pack already in project, not Roblox blocks): Kitchen rebuilt with real BPS fitted kitchen - base cabinets/sink/stove/fridge counter run, wall cabinets, range hood, coffee maker/blender, dining set (measured BPS sizes, real-world scale). Garage: real garage with a low-poly CAR (body/cabin/windows/wheels/lights), workbench+tools, tyres, oil drums, shelf, garage door. Play-verified, 0 errors. (BPS rollout to Living Room/Bedroom/Office next.)"
   git pull --no-edit
   git push
   echo ---- EXIT CODE: %errorlevel% ----
