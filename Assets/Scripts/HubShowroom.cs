@@ -40,7 +40,14 @@ public class HubShowroom : MonoBehaviour
 
         // pozícia pódia (kde sa točí zbraň) + orientácia podľa kamery
         var wp = WeaponPreview.Instance != null ? WeaponPreview.Instance : FindFirstObjectByType<WeaponPreview>();
-        Vector3 podium = wp != null ? wp.transform.position : new Vector3(0f, 1.2f, 0f);
+        // vycentruj pódium a zväčši zbraň na výrazného hrdinu
+        var stalePod = GameObject.Find("PodiumBase"); if (stalePod != null) stalePod.SetActive(false);
+        if (wp != null)
+        {
+            wp.transform.position = new Vector3(0f, 1.45f, 0.4f);
+            wp.transform.localScale = Vector3.one * 1.7f;
+        }
+        Vector3 podium = wp != null ? wp.transform.position : new Vector3(0f, 1.45f, 0.4f);
         var cam = Camera.main;
         Vector3 camPos = cam != null ? cam.transform.position : podium + new Vector3(0, 1.5f, -6f);
 
@@ -161,22 +168,22 @@ public class HubShowroom : MonoBehaviour
         var id = Quaternion.identity;
 
         // ── nástenné akcentové trimy (po obvode) ──
-        Box("TrimBack", new Vector3(0f, 2.3f, 5.85f), new Vector3(15.6f, 0.12f, 0.06f), id, Emissive(warm));
-        Box("TrimLeft", new Vector3(-7.85f, 2.3f, 0f), new Vector3(0.06f, 0.12f, 15.6f), id, Emissive(warm));
+        Box("TrimBack",  new Vector3(0f, 2.3f, 5.85f), new Vector3(15.6f, 0.12f, 0.06f), id, Emissive(warm));
+        Box("TrimRight", new Vector3(7.85f, 2.3f, 0f), new Vector3(0.06f, 0.12f, 15.6f), id, Emissive(warm));
 
-        // ── plagáty / podsvietené panely na ľavej stene ──
-        Box("Poster1", new Vector3(-7.84f, 3.5f, -1.4f), new Vector3(0.05f, 1.5f, 2.0f), id, Emissive(new Color(1f, 0.35f, 0.12f)));
-        Box("Poster2", new Vector3(-7.84f, 3.5f, 1.6f),  new Vector3(0.05f, 1.5f, 2.0f), id, Emissive(new Color(0.2f, 0.7f, 0.95f)));
-        Box("Poster3", new Vector3(-7.84f, 3.5f, 4.4f),  new Vector3(0.05f, 1.5f, 2.0f), id, Emissive(new Color(0.85f, 0.2f, 0.5f)));
+        // ── plagáty / podsvietené panely na PRAVEJ stene (showroom pult je vľavo) ──
+        Box("Poster1", new Vector3(7.84f, 3.5f, -1.4f), new Vector3(0.05f, 1.5f, 2.0f), id, Emissive(new Color(1f, 0.35f, 0.12f)));
+        Box("Poster2", new Vector3(7.84f, 3.5f, 1.6f),  new Vector3(0.05f, 1.5f, 2.0f), id, Emissive(new Color(0.2f, 0.7f, 0.95f)));
+        Box("Poster3", new Vector3(7.84f, 3.5f, 4.4f),  new Vector3(0.05f, 1.5f, 2.0f), id, Emissive(new Color(0.85f, 0.2f, 0.5f)));
 
-        // ── nápojový automat (break room vibe) v ľavom rohu ──
-        Box("Vending",      new Vector3(-6.6f, 1.25f, 4.6f), new Vector3(1.5f, 2.5f, 0.95f), id, Mat(new Color(0.42f, 0.12f, 0.12f)));
-        Box("VendingGlass", new Vector3(-6.6f, 1.55f, 4.10f), new Vector3(1.05f, 1.5f, 0.05f), id, Mat(new Color(0.5f, 0.58f, 0.68f)));
-        Box("VendingTop",   new Vector3(-6.6f, 2.56f, 4.55f), new Vector3(1.55f, 0.14f, 1.0f), id, Emissive(new Color(0.9f, 0.45f, 0.14f)));
+        // ── nápojový automat (break room vibe) v pravom rohu ──
+        Box("Vending",      new Vector3(6.6f, 1.25f, 4.6f), new Vector3(1.5f, 2.5f, 0.95f), id, Mat(new Color(0.42f, 0.12f, 0.12f)));
+        Box("VendingGlass", new Vector3(6.6f, 1.55f, 4.10f), new Vector3(1.05f, 1.5f, 0.05f), id, Mat(new Color(0.5f, 0.58f, 0.68f)));
+        Box("VendingTop",   new Vector3(6.6f, 2.56f, 4.55f), new Vector3(1.55f, 0.14f, 1.0f), id, Emissive(new Color(0.9f, 0.45f, 0.14f)));
 
-        // ── kovové skrinky pri ľavej stene ──
+        // ── kovové skrinky pri pravej stene ──
         for (int i = 0; i < 3; i++)
-            Box("Locker" + i, new Vector3(-7.2f, 1.15f, 1.3f - i * 0.95f), new Vector3(0.85f, 2.3f, 0.7f), id,
+            Box("Locker" + i, new Vector3(7.2f, 1.15f, 1.3f - i * 0.95f), new Vector3(0.85f, 2.3f, 0.7f), id,
                 Mat(new Color(0.26f, 0.34f, 0.42f)));
 
         // ── stropné svetelné lišty + bodové svetlá ──
@@ -186,10 +193,10 @@ public class HubShowroom : MonoBehaviour
             Point("CeilGlow" + i, new Vector3(i * 3.4f, 5.2f, 2.5f), new Color(1f, 0.93f, 0.8f), 1.1f, 7f);
         }
 
-        // ── viac rastlín ──
+        // ── rastliny v rohoch (vyvážene) ──
         Plant(new Vector3(-7f, 0f, -2.2f));
-        Plant(new Vector3(-4.4f, 0f, 5.2f));
-        Plant(new Vector3(7f, 0f, -2.4f));
+        Plant(new Vector3(7f, 0f, -2.2f));
+        Plant(new Vector3(-4.6f, 0f, 5.2f));
     }
 
     // Lepšie materiály stien/podlahy + teplejšie svetlo (nie fádna sivá).

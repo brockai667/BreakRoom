@@ -21,10 +21,9 @@ public class LobbyCharacter : MonoBehaviour
     public static void EnsureInScene()
     {
         if (FindFirstObjectByType<LobbyCharacter>() != null) return;
-        // Hlavný robotník vľavo, otočený k hráčovi
-        Build(new Vector3(-2.4f, 0f, 1.0f), 188f, 1.0f);
-        // Druhý, menší vzadu vpravo - "partia"
-        Build(new Vector3( 1.9f, 0f, 3.0f), 158f, 0.92f);
+        // Robotníci po bokoch vycentrovaného pódia (nech neprekážajú stredu)
+        Build(new Vector3(-3.3f, 0f, -0.2f), 196f, 1.0f);
+        Build(new Vector3( 3.3f, 0f, 0.1f), 164f, 0.95f);
     }
 
     public static GameObject Build(Vector3 feet, float yRot, float scale)
