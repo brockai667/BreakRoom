@@ -5,7 +5,7 @@ if exist ".git\index.lock" del /f /q ".git\index.lock"
   echo ===== SYNC %date% %time% =====
   git status --short
   git add -A
-  git commit -m "Factory reborn as a connected assembly line (conveyor spine + products, machines flanking & facing the belt, input silo -> scanner gate -> robot arms -> output pallets, overhead catwalk + magnet crane, wall pipe run, floor flow arrows, structures backdrop) - researched real production-line flow. Lobby: move workers to the barrier so they no longer overlap the counter/crates. Screenshot-verified in Play, 0 errors"
+  git commit -m "Factory + Office rebuilt properly using measured model sizes (FactoryKitProbe -> kit_sizes.txt). Factory: pieces now actually CONNECT on the grid - belt rotated 90 and placed every 2u (continuous), machines flush to belt edge, connected pipe run, gantry crane over output, scanner gate, flow arrows. Office: real Kenney open-plan office (CreateOfficeKenney) - rows of desks with monitors+chairs, meeting table, bookcases, filing cabinets, plants; removed the giant pink Living-Room rug that bled through; player spawns at the entrance. Both Play-verified, 0 errors"
   git pull --no-edit
   git push
   echo ---- EXIT CODE: %errorlevel% ----
