@@ -42,7 +42,10 @@ public class HubManager : MonoBehaviour
             new GameObject("PlayerInventory").AddComponent<PlayerInventory>();
  
         if (resultsPanel != null) resultsPanel.SetActive(false);
- 
+
+        // Hub je vždy "Normal" – survival sa zapne až tlačidlom SURVIVAL
+        GameSession.Mode = GameSession.GameMode.Normal;
+
         // Postavička robotníka v pozadí lobby (low-poly, OAR/Synty štýl)
         LobbyCharacter.EnsureInScene();
 
@@ -142,8 +145,11 @@ public class HubManager : MonoBehaviour
         int lvl = XPManager.SavedLevel;
         bool ok = IsUnlocked(m.unlock);
         mapLabel.color = ok ? Color.white : new Color(1f, 0.45f, 0.3f);
+        mapLabel.horizontalOverflow = HorizontalWrapMode.Overflow;
+        int survBest = PlayerPrefs.GetInt("Survival_Best_" + m.scene, 0);
+        string survLine = survBest > 0 ? $"    •    Survival best: {survBest}" : "";
         mapLabel.text = ok
-            ? $"Map: {m.label}    •    Level {lvl}"
+            ? $"Map: {m.label}    •    Level {lvl}{survLine}"
             : $"LOCKED: {m.label} - unlocks at level {m.unlock}  (you are level {lvl})";
     }
  
@@ -156,6 +162,17 @@ public class HubManager : MonoBehaviour
             return;
         }
         Time.timeScale = 1f;
+        GameSession.Mode = GameSession.GameMode.Normal;
+        SceneManager.LoadScene(m.scene);
+    }
+
+    /// Spustí vybranú mapu v Survival móde (nekonečný mód + rebríček).
+    public void StartSurvival()
+    {
+        var m = MAPS[mapIndex];
+        if (!IsUnlocked(m.unlock)) { UpdateMapLabel(); return; }
+        Time.timeScale = 1f;
+        GameSession.Mode = GameSession.GameMode.Survival;
         SceneManager.LoadScene(m.scene);
     }
  
@@ -220,10 +237,20 @@ public class HubManager : MonoBehaviour
         {
             int m = (int)time / 60;
             int s = (int)time % 60;
-            resultsText.text = (cleared ? "PERFECT - whole room smashed!\n" : "")
-                             + $"Smashed: {destroyed}    Time: {m:00}:{s:00}    •    Grade: {grade}\n"
-                             + $"Smash earnings: ${GameSession.PendingBase}    End bonus: ${GameSession.PendingBonus}    Total: ${earned}"
-                             + (GameSession.PendingNewBest ? "\nNEW BEST!" : "");
+            if (GameSession.PendingSurvival)
+            {
+                resultsText.text = $"SURVIVAL — {GameSession.SelectedMap}\n"
+                                 + $"Score: {GameSession.PendingScore}    Survived: {m:00}:{s:00}    Wave: {GameSession.PendingWave}\n"
+                                 + $"Best combo: x{GameSession.PendingBestCombo}    Smashed: {destroyed}    Earned: ${earned}"
+                                 + (GameSession.PendingScoreBest ? "\nNEW SURVIVAL BEST!" : "");
+            }
+            else
+            {
+                resultsText.text = (cleared ? "PERFECT - whole room smashed!\n" : "")
+                                 + $"Smashed: {destroyed}    Time: {m:00}:{s:00}    •    Grade: {grade}\n"
+                                 + $"Smash earnings: ${GameSession.PendingBase}    End bonus: ${GameSession.PendingBonus}    Total: ${earned}"
+                                 + (GameSession.PendingNewBest ? "\nNEW BEST!" : "");
+            }
         }
         if (earnedFlyText != null) earnedFlyText.text = "";
  

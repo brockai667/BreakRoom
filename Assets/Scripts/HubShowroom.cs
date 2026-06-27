@@ -246,6 +246,9 @@ public class HubShowroom : MonoBehaviour
         StyleBtn("MapBtn",     UITheme.PanelLight,24, true);
         StyleBtn("StartBtn",   UITheme.Good,     34, true);
 
+        // SURVIVAL tlačidlo vedľa SMASH
+        AddSurvivalButton();
+
         // horná lišta tmavšia + akcentový spodný prúžok
         var top = GameObject.Find("TopBar");
         if (top != null)
@@ -261,6 +264,43 @@ public class HubShowroom : MonoBehaviour
                 lr.sizeDelta = new Vector2(0, 3); lr.anchoredPosition = Vector2.zero;
             }
         }
+    }
+
+    // Pridá tlačidlo SURVIVAL pod (alebo vedľa) SMASH a napojí ho na HubManager.
+    void AddSurvivalButton()
+    {
+        var start = GameObject.Find("StartBtn");
+        if (start == null) return;
+        if (GameObject.Find("SurvivalBtn") != null) return;
+
+        var srt = start.GetComponent<RectTransform>();
+        var hub = FindFirstObjectByType<HubManager>();
+
+        var go = new GameObject("SurvivalBtn");
+        go.transform.SetParent(start.transform.parent, false);
+        var col = new Color(0.55f, 0.18f, 0.62f);   // purpurová – odlíši od zeleného SMASH
+        var img = go.AddComponent<Image>();
+        img.sprite = UITheme.Rounded(14); img.type = Image.Type.Sliced; img.color = col;
+
+        var rt = go.GetComponent<RectTransform>();
+        rt.anchorMin = srt.anchorMin; rt.anchorMax = srt.anchorMax; rt.pivot = srt.pivot;
+        rt.sizeDelta = new Vector2(srt.sizeDelta.x, Mathf.Min(64f, srt.sizeDelta.y));
+        // umiestni tesne NAD SMASH (pod ním sa odrezáva mimo obrazovky)
+        rt.anchoredPosition = srt.anchoredPosition + new Vector2(0f, srt.sizeDelta.y * 0.5f + rt.sizeDelta.y * 0.5f + 14f);
+
+        var btn = go.AddComponent<Button>(); btn.targetGraphic = img; UITheme.Hover(btn, col, col);
+        UITheme.Shadow(go, new Vector2(0, -3), 0.4f);
+        if (hub != null) btn.onClick.AddListener(hub.StartSurvival);
+
+        var tgo = new GameObject("T"); tgo.transform.SetParent(go.transform, false);
+        var trt = tgo.AddComponent<RectTransform>();
+        trt.anchorMin = Vector2.zero; trt.anchorMax = Vector2.one; trt.offsetMin = Vector2.zero; trt.offsetMax = Vector2.zero;
+        var t = tgo.AddComponent<Text>();
+        t.text = "SURVIVAL";
+        t.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        t.fontSize = 26; t.fontStyle = FontStyle.Bold; t.color = Color.white;
+        t.alignment = TextAnchor.MiddleCenter;
+        t.horizontalOverflow = HorizontalWrapMode.Overflow; t.verticalOverflow = VerticalWrapMode.Overflow;
     }
 
     void StyleBtn(string name, Color col, int fontSize, bool setColor)

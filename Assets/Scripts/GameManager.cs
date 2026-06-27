@@ -78,6 +78,9 @@ public class GameManager : MonoBehaviour
             if (comboTimer <= 0f) { comboCount = 0; lastMilestoneAnnounced = 0; }
         }
 
+        // V Survival móde klok, respawn aj koniec rieši SurvivalManager
+        if (GameSession.Mode == GameSession.GameMode.Survival) return;
+
         // Odpocitavaci casovac
         float left = Mathf.Max(0f, roundDuration - elapsedTime);
         if (timerText != null)
@@ -144,6 +147,9 @@ public class GameManager : MonoBehaviour
 
         if (XPManager.Instance != null) XPManager.Instance.AddXP(baseXp);
 
+        // Survival mód: pripočítaj skóre + predĺž klok
+        if (SurvivalManager.Instance != null) SurvivalManager.Instance.OnBreak(pay, mult);
+
         AnnounceComboMilestone();
         return pay;
     }
@@ -187,6 +193,10 @@ public class GameManager : MonoBehaviour
 
     void EndAndGoHub(bool cleared)
     {
+        // V Survival móde finalizuje beh SurvivalManager (skóre + rekord)
+        if (GameSession.Mode == GameSession.GameMode.Survival && SurvivalManager.Instance != null)
+        { SurvivalManager.Instance.EndNow(); return; }
+
         Time.timeScale = 1f;
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;

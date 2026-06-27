@@ -5,6 +5,7 @@ public class MainMenu : MonoBehaviour
 {
     public void HratHru()
     {
+        GameSession.Mode = GameSession.GameMode.Normal;
         GameSession.InitialHubTab = "Play";
         SceneManager.LoadScene("Hub");
     }

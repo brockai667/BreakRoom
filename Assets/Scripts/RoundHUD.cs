@@ -91,11 +91,21 @@ public class RoundHUD : MonoBehaviour
         if (!canvasGO.activeSelf) canvasGO.SetActive(true);
 
         moneyText.text = "$ " + gm.roundMoney;
-        pctText.text   = "Smashed: " + Mathf.RoundToInt(gm.DestructionPct() * 100f) + "%";
 
-        // Cieľ kola (ak existuje)
-        if (objectiveText != null)
-            objectiveText.text = Objectives.Instance != null ? Objectives.Instance.HudText() : "";
+        // Survival mód: namiesto % zničenia ukáž vlnu + skóre
+        var sm = SurvivalManager.Instance;
+        if (GameSession.Mode == GameSession.GameMode.Survival && sm != null)
+        {
+            pctText.text = "Wave " + sm.Wave + "   •   Score " + sm.Score;
+            if (objectiveText != null) objectiveText.text = "SURVIVE!  Smash to add time";
+        }
+        else
+        {
+            pctText.text = "Smashed: " + Mathf.RoundToInt(gm.DestructionPct() * 100f) + "%";
+            // Cieľ kola (ak existuje)
+            if (objectiveText != null)
+                objectiveText.text = Objectives.Instance != null ? Objectives.Instance.HudText() : "";
+        }
 
         // Combo
         int combo = gm.comboCount;
