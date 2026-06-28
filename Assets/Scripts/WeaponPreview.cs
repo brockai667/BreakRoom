@@ -82,6 +82,21 @@ public class WeaponPreview : MonoBehaviour
             case "grenade":
                 BuildGrenade(root, handleMat, headMat);
                 break;
+            case "pan":
+                BuildPan(root, handleMat, headMat);
+                break;
+            case "wrench":
+                BuildWrench(root, handleMat, headMat);
+                break;
+            case "golf":
+                BuildGolf(root, handleMat, headMat);
+                break;
+            case "pickaxe":
+                BuildPickaxe(root, handleMat, headMat);
+                break;
+            case "mace":
+                BuildMace(root, handleMat, headMat);
+                break;
             case "flamethrower":
                 Add(root, PrimitiveType.Cube,     new Vector3(0, 0, -0.05f), new Vector3(0.34f, 0.32f, 0.62f), Quaternion.identity, headMat);
                 Add(root, PrimitiveType.Cylinder, new Vector3(0, -0.20f, -0.18f), new Vector3(0.07f, 0.18f, 0.07f), Quaternion.identity, handleMat);
@@ -168,6 +183,58 @@ public class WeaponPreview : MonoBehaviour
         Add(root, PrimitiveType.Cylinder, new Vector3(0, 0.30f, 0), new Vector3(0.20f, 0.08f, 0.20f), Quaternion.identity, steel); // poistka
         Add(root, PrimitiveType.Cube,     new Vector3(0.12f, 0.34f, 0), new Vector3(0.05f, 0.04f, 0.16f), Quaternion.Euler(0, 0, 8f), steel); // páčka
         Add(root, PrimitiveType.Cylinder, new Vector3(0.20f, 0.36f, 0), new Vector3(0.12f, 0.02f, 0.12f), Quaternion.Euler(90, 0, 0), steel); // krúžok
+    }
+
+    // --- Panvica: rukoväť + plochý disk + okraj ---
+    static void BuildPan(GameObject root, Material handleMat, Material headMat)
+    {
+        Add(root, PrimitiveType.Cylinder, new Vector3(0, -0.42f, 0), new Vector3(0.07f, 0.26f, 0.07f), Quaternion.identity, handleMat); // rukoväť
+        Add(root, PrimitiveType.Cylinder, new Vector3(0,  0.02f, 0), new Vector3(0.62f, 0.04f, 0.62f), Quaternion.identity, headMat);   // dno panvice
+        Add(root, PrimitiveType.Cylinder, new Vector3(0,  0.07f, 0), new Vector3(0.62f, 0.02f, 0.62f), Quaternion.identity, handleMat); // okraj
+    }
+
+    // --- Trubkový kľúč: rukoväť + pevná a pohyblivá čeľusť (tvar C) ---
+    static void BuildWrench(GameObject root, Material handleMat, Material headMat)
+    {
+        Add(root, PrimitiveType.Cylinder, new Vector3(0, -0.18f, 0), new Vector3(0.10f, 0.42f, 0.10f), Quaternion.identity, handleMat); // rukoväť
+        Add(root, PrimitiveType.Cube,     new Vector3(0,  0.34f, 0), new Vector3(0.16f, 0.20f, 0.14f), Quaternion.identity, headMat);   // hlava
+        Add(root, PrimitiveType.Cube,     new Vector3(-0.12f, 0.52f, 0), new Vector3(0.20f, 0.10f, 0.12f), Quaternion.Euler(0,0,20f), headMat); // horná čeľusť
+        Add(root, PrimitiveType.Cube,     new Vector3(-0.12f, 0.30f, 0), new Vector3(0.16f, 0.09f, 0.12f), Quaternion.Euler(0,0,-12f), headMat); // dolná čeľusť
+    }
+
+    // --- Golfová palica: dlhý tenký driek + uhlová hlava ---
+    static void BuildGolf(GameObject root, Material handleMat, Material headMat)
+    {
+        Add(root, PrimitiveType.Cylinder, new Vector3(0, 0.36f, 0), new Vector3(0.045f, 0.62f, 0.045f), Quaternion.identity, handleMat); // grip+driek
+        Add(root, PrimitiveType.Cylinder, new Vector3(0, 0.66f, 0), new Vector3(0.06f, 0.14f, 0.06f), Quaternion.identity, handleMat);   // grip vrch
+        Add(root, PrimitiveType.Cube,     new Vector3(0.06f, -0.28f, 0), new Vector3(0.22f, 0.12f, 0.14f), Quaternion.Euler(0,0,-22f), headMat); // hlava (wood)
+    }
+
+    // --- Krompáč: násada + zahnutý hrot na oboch stranách ---
+    static void BuildPickaxe(GameObject root, Material handleMat, Material headMat)
+    {
+        Add(root, PrimitiveType.Cylinder, new Vector3(0, -0.10f, 0), new Vector3(0.07f, 0.52f, 0.07f), Quaternion.identity, handleMat); // násada
+        Add(root, PrimitiveType.Cylinder, new Vector3(0.30f, 0.45f, 0), new Vector3(0.06f, 0.32f, 0.06f), Quaternion.Euler(0,0,80f), headMat); // pravý hrot
+        Add(root, PrimitiveType.Cylinder, new Vector3(-0.30f, 0.45f, 0), new Vector3(0.06f, 0.32f, 0.06f), Quaternion.Euler(0,0,100f), headMat); // ľavý hrot
+        Add(root, PrimitiveType.Cube,     new Vector3(0, 0.45f, 0), new Vector3(0.10f, 0.12f, 0.10f), Quaternion.identity, headMat); // stred
+    }
+
+    // --- Palcát: násada + ostnatá guľa ---
+    static void BuildMace(GameObject root, Material handleMat, Material headMat)
+    {
+        Add(root, PrimitiveType.Cylinder, new Vector3(0, -0.18f, 0), new Vector3(0.08f, 0.42f, 0.08f), Quaternion.identity, handleMat); // násada
+        Add(root, PrimitiveType.Sphere,   new Vector3(0, 0.42f, 0), Vector3.one * 0.42f, Quaternion.identity, headMat); // guľa
+        // osem ostňov
+        Vector3[] dirs = {
+            new Vector3(0,1,0), new Vector3(0,-1,0), new Vector3(1,0,0), new Vector3(-1,0,0),
+            new Vector3(0,0,1), new Vector3(0,0,-1), new Vector3(0.7f,0.7f,0), new Vector3(-0.7f,0.7f,0)
+        };
+        foreach (var d in dirs)
+        {
+            Vector3 dir = d.normalized;
+            var rot = Quaternion.FromToRotation(Vector3.up, dir);
+            Add(root, PrimitiveType.Cube, new Vector3(0,0.42f,0) + dir * 0.26f, new Vector3(0.10f, 0.16f, 0.10f), rot, headMat);
+        }
     }
 
     static GameObject Add(GameObject root, PrimitiveType t, Vector3 pos, Vector3 scale, Quaternion rot, Material m)
