@@ -37,8 +37,8 @@ public class Objectives : MonoBehaviour
         done = false; progress = 0; sampleDelay = 0.5f; desc = "";
         if (!active) return;
 
-        // Vyber náhodný cieľ
-        kind = (Kind)Random.Range(0, 4);
+        // Vyber náhodný cieľ (Kind.Count je len sentinel, nie skutočná voľba)
+        kind = (Kind)Random.Range(0, (int)Kind.Count);
         switch (kind)
         {
             case Kind.Golden:

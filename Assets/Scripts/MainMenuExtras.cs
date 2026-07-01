@@ -68,9 +68,10 @@ public class MainMenuExtras : MonoBehaviour
         int bestCombo = PlayerPrefs.GetInt("Stat_bestCombo", 0);
         int cleared   = PlayerPrefs.GetInt("Stat_cleared", 0);
         string bestGrade = PlayerPrefs.GetString("Stat_bestGrade", "-");
-        int bestRound = Mathf.Max(PlayerPrefs.GetInt("Best_Obyvacka", 0),
-                        Mathf.Max(PlayerPrefs.GetInt("Best_Garage", 0),
-                                  PlayerPrefs.GetInt("Best_Kitchen", 0)));
+        // Najlepší zárobok naprieč VŠETKÝMI mapami (musí sedieť s HubManager.MAPS)
+        int bestRound = 0;
+        foreach (string map in new[] { "Obyvacka", "Office", "Factory", "Garage", "Kitchen", "Bedroom", "Bathroom", "Warehouse" })
+            bestRound = Mathf.Max(bestRound, PlayerPrefs.GetInt("Best_" + map, 0));
         int bestSurvival = PlayerPrefs.GetInt("Survival_BestEver", 0);
         var statsGO = new GameObject("Stats"); statsGO.transform.SetParent(canvasGO.transform, false);
         var srt = statsGO.AddComponent<RectTransform>();

@@ -98,3 +98,30 @@ Pracujem samostatne na TODO.md, bez čakania na potvrdenie. Commit + push priebe
   Zároveň overiť v Hube/MainMenu/Shope/Collection, že sa XP HUD nezobrazuje (podľa dizajnu).
 - Voliteľné (nie nutné): v Unity editore môžete cez staré scény prejsť a ručne zmazať osirotené GameObjecty
   "XPManager" (sú neškodné — zničia sa samé za behu), pre čistotu scén.
+
+### 6. Vlastná iniciatíva — nájdené a opravené bugy (Extra#8/#9)
+- `Scripts/MainMenuExtras.cs`: "Best round" štatistika na MainMenu počítala `Mathf.Max` len z 3 z 8 máp
+  (`Best_Obyvacka/Best_Garage/Best_Kitchen`), chýbali `Best_Office/Best_Factory/Best_Bedroom/Best_Bathroom/
+  Best_Warehouse` (zoznam všetkých 8 máp je v `HubManager.MAPS`). Ak hráč dosiahol svoj najlepší zárobok v inej
+  izbe, MainMenu ukazovalo nesprávne (nižšie) číslo. Opravené na cyklus cez všetkých 8 mien máp.
+- `Scripts/Objectives.cs`: výber náhodného cieľa používal `Random.Range(0, 4)` namiesto
+  `Random.Range(0, (int)Kind.Count)` — keďže `Kind.Count` (hodnota 3) je len sentinel bez vlastného `case` vetvy
+  v switchi, hodnota 3 padala do `default:` (Electronics) rovnako ako hodnota 0. Efekt: Electronics cieľ mal
+  2× vyššiu šancu než Golden/UnderTime namiesto rovnomerného 1/3 rozdelenia. Opravené.
+- PlayerPrefs kontrola (Extra#9): prešiel som `PlayerInventory.cs` (Money/Equipped/Own_/Up_), `XPManager.cs`
+  (Level/XP), `Achievements.cs` (Stat_smashed/Stat_bestCombo/Stat_cleared/Stat_bestGrade/Ach_), `Perks.cs`
+  (Perk_), `GameSession.cs` (Best_<mapa>/Survival_Best_<mapa>/Survival_BestEver), `SettingsMenu.cs`,
+  `Tutorial.cs`, `MusicManager.cs`, `PlayerController.cs` — kľúče sa neprekrývajú, každý `Set*` má zodpovedajúci
+  `Get*` s rovnakým názvom a defaultom, `Save()`/`OnChanged?.Invoke()` sa volajú po každej zmene stavu (okrem
+  `PlayerInventory.GiveWeapon()`, ktoré nevolá `OnChanged` samo — ale všetci 3 volajúci (`Load`, `TryBuy`,
+  `ShopManager` premium flow) hneď potom volajú niečo, čo `OnChanged` aj tak vyvolá, takže to nie je reálny bug,
+  len krehké voči budúcim zmenám — nechal som to tak, aby som nepridával kód navyše bez skutočnej potreby).
+- `Scripts/SpecialObjects.cs`, `Scripts/GameManager.cs` a ostatné už používajú `FindFirstObjectByType`
+  (Unity 6 API) — žiadny výskyt zastaraného `FindObjectOfType` v celom `Assets/Scripts`.
+
+### 7. XML docstringy / slovenské komentáre (Extra#7)
+- Delegované na subagenta (mechanická, rozsiahla úloha naprieč ~49 súbormi). Existujúci štýl komentárov v
+  projekte je čisté `///` prózové zhrnutie bez `<summary>` XML tagov (napr. `CollectionManager.cs`,
+  `Achievements.cs`, `Objectives.cs`) — subagent dostal inštrukciu držať sa presne tohto štýlu namiesto
+  zavádzania `<summary>` blokov, ktoré by boli v kóde jediné svojho druhu.
+- Výsledok bude doplnený nižšie po dokončení + review.
