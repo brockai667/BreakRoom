@@ -10,6 +10,16 @@ Autonómna kontrola integrity: (1) HubManager.MAPS vs. reálne existujúce scén
 EditMode test suite skompiluje, (3) konzistencia zbrane "Shovel" naprieč UI. `git pull` na začiatku →
 up-to-date (working tree malo len tú istú nesúvisiacu zmenu fontu ako v predošlých sessions).
 
+## Zhrnutie na konci Session 3
+- **(1) Reálny problém nájdený a opravený**: `HubManager.MAPS` odkazovalo na mapu "Laundry", ktorej scéna
+  ešte neexistuje — pridaný `SceneAvailable()` guard (skip pri cyklovaní, reset pri sync, odlíšená hláška
+  "NOT AVAILABLE", finálny check pred `LoadScene`) + TODO komentár nad `MAPS`.
+- **(2) Žiadny problém**: celý EditMode test suite (6 súborov) staticky overený riadok po riadku proti
+  aktuálnemu zdrojovému kódu — všetko sedí, nič sa nemenilo.
+- **(3) Žiadny problém**: zbraň "Shovel" znova prekontrolovaná naprieč všetkými UI cestami — plne
+  konzistentná, nič chýba.
+- 3 commity (jeden po každom kroku), na konci `git push`.
+
 ## Log krokov — Session 3
 
 ### 1) HubManager.MAPS integrity — NÁJDENÝ A OPRAVENÝ REÁLNY PROBLÉM
@@ -67,6 +77,32 @@ up-to-date (working tree malo len tú istú nesúvisiacu zmenu fontu ako v predo
   - Žiadna kolízia mien tried (`class GameManagerTests` a pod. sa vyskytuje presne raz, len vo vlastnom súbore).
 - **Záver: test suite je staticky v poriadku, nič netreba opravovať.** Stále platí obmedzenie z minulej
   session — bez Unity binárky v tomto prostredí sa nedá reálne spustiť Test Runner, len staticky overiť.
+
+### 3) Konzistencia zbrane "Shovel" — ŽIADNY PROBLÉM, potvrdené znova
+- `grep -n "shovel" -i` naprieč `Assets/Scripts` potvrdil, že všetky 4 miesta pridané v Session 2 sú stále
+  na mieste a nedotknuté: `WeaponData.cs` (dátový záznam + `UnlockLevel("shovel")=4`), `WeaponPreview.cs`
+  (`case "shovel": BuildShovel(...)` v `BuildModel` + samotná metóda `BuildShovel`), `FirstPersonHands.cs`
+  (`shovel` v skupine `Style.Diagonal`).
+- Overil som znova aj signatúry: `Add(...)` helper v `WeaponPreview.cs` má poradie parametrov
+  `(root, type, pos, scale, rot, mat)` a `BuildShovel` ho volá presne v tomto poradí — žiadny swap.
+- Rarita: `price=520` → `RARE` (`<=1200`) — rovnaké prahové hodnoty potvrdené zhodné v `ShopManager.Rarity()`
+  aj `CollectionManager.Rarity()` (obe `<=300 UNCOMMON, <=1200 RARE, <=2500 EPIC, inak LEGENDARY`).
+- Skontroloval som ešte raz kompletný zoznam miest s per-id switchom naprieč celým `Assets/Scripts`
+  (`grep` na `case "fists"/"bat"/"flamethrower"/"mace"` atď.) — vracia presne tých istých 8 súborov ako
+  v Session 2, žiadne nové/zabudnuté miesto: `HeadSize()` fallback v `ShopManager`/`CollectionManager` (7
+  explicitných zbraní z 18, zvyšok vrátane shovel používa spoločný `default:` — rovnaká situácia ako pre
+  10 predošlých zbraní, nie je to nekonzistencia), `HandDisplay` bladeRect (rovnaký fallback vzor),
+  `WeaponHit` (`isFlamethrower/isChainsaw/isGrenade/isBowling` — shovel v žiadnom z nich, ide bežnou
+  `Swing()`/`PerformHit()` cestou, presne ako malo byť), `PlayerInventory.Owns()` (`id=="fists"` špeciálny
+  prípad — netýka sa shovel).
+- `PowerUps.cs` a `VisualUpgrade.cs` nemajú žiadnu per-id logiku naviazanú na konkrétne zbrane — netreba nič
+  dopĺňať.
+- `CollectionManager`'s "Weapons unlocked: X/Y" počíta `total = WeaponData.All.Length` dynamicky (nie
+  natvrdo zapísané číslo) — teraz correctně ukáže 18 namiesto pôvodných 17, žiadna úprava potrebná. Grid
+  (`GridLayoutGroup`, `FixedColumnCount=6`) má 18/6=3 rovné riadky, žiadny vizuálny overflow problém.
+  `ShopManager` iteruje `WeaponData.All` do scrollovateľného kontajnera — tiež bez hardcoded počtu.
+- **Záver: zbraň "Shovel" je plne konzistentná a pokrytá vo všetkých relevantných UI cestách, nič sa
+  nezmenilo/nerozbilo od Session 2, žiadna zmena kódu v tejto časti nebola potrebná.**
 
 ---
 
