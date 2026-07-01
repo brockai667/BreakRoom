@@ -4,6 +4,41 @@ Pracujem samostatne na TODO.md, bez čakania na potvrdenie. Commit + push priebe
 
 ---
 
+# Session 3 — integrity check po Session 2
+
+Autonómna kontrola integrity: (1) HubManager.MAPS vs. reálne existujúce scény, (2) statická kontrola, že
+EditMode test suite skompiluje, (3) konzistencia zbrane "Shovel" naprieč UI. `git pull` na začiatku →
+up-to-date (working tree malo len tú istú nesúvisiacu zmenu fontu ako v predošlých sessions).
+
+## Log krokov — Session 3
+
+### 1) HubManager.MAPS integrity — NÁJDENÝ A OPRAVENÝ REÁLNY PROBLÉM
+- `graphify query` + priame porovnanie `Assets/Scenes/*.unity` vs. `ProjectSettings/EditorBuildSettings.asset`
+  vs. `HubManager.MAPS` potvrdilo presne to, čo bolo v PROGRESS.md z minulej session zapísané ako riziko:
+  `MAPS` obsahuje `("Laundry", "Laundry Room", 17)`, ale `Assets/Scenes/Laundry.unity` **neexistuje** a nie je
+  v Build Settings (generátor `Assets/Editor/CreateLaundryScene.cs` ešte nebol spustený v Unity editore).
+  Predtým jediná ochrana bola `IsUnlocked()` (level 17 je vysoký, takže náhodou nehrozilo skoré zlyhanie),
+  ale nič nebránilo priamemu pádu na `SceneManager.LoadScene("Laundry")`, keby hráč/testovanie level dosiahol
+  (alebo keby sa unlock level v budúcnosti znížil).
+- Pridaná `HubManager.SceneAvailable(string sceneName)` — číta `SceneManager.sceneCountInBuildSettings` +
+  `SceneUtility.GetScenePathByBuildIndex(i)` (funguje v Editore aj v builde, keďže odzrkadľuje reálne Build
+  Settings, nie len súbory na disku).
+- Zapojené na 4 miestach: `CycleMap()` teraz preskakuje nedostupné mapy pri prepínaní (safety-bound
+  `MAPS.Length` iterácií, nezacyklí sa, aj keby chýbalo všetko); `SyncMapIndex()` pri štarte Hubu resetuje na
+  Obývačku, ak je uložená mapa nedostupná (rovnako ako už robila pre "LOCKED"); `UpdateMapLabel()` rozlišuje
+  nový stav "NOT AVAILABLE: ... - scéna ešte nebola vygenerovaná v editore" od bežného "LOCKED" (iný dôvod —
+  progres hráča vs. chýbajúci build obsah); `StartGame()`/`StartSurvival()` majú finálny obranný check tesne
+  pred `SceneManager.LoadScene`, takže aj keby niečo obišlo CycleMap, nespadne to.
+- TODO poznámka priamo nad `MAPS` poľom (žiadané v zadaní) vysvetľuje presne čo treba spraviť (spustiť
+  generátor v editore) a odkazuje na mechanizmus, ktorý to dovtedy bezpečne rieši.
+- Zvyšných 8 máp (Obyvacka/Office/Factory/Garage/Kitchen/Bedroom/Bathroom/Warehouse) je v Build Settings
+  potvrdené — `SceneAvailable` pre ne vždy vráti `true`, správanie sa pre nich nemení.
+- Nepridal som nový EditMode test pre `SceneAvailable` (je `private static` v `HubManager`, mimo scope zadania
+  časti 2, ktorá žiada len overiť, že *existujúci* test suite kompiluje) — poznamenané tu pre budúcu session,
+  ak by niekto chcel `SceneAvailable` sprístupniť (napr. `internal` + `InternalsVisibleTo`) a otestovať priamo.
+
+---
+
 # Session 2 — testy, dorobenie "na overenie", nový obsah
 
 Pokračovanie samostatnej práce (bez pýtania), zadanie: A) edit-mode NUnit testy pre čistú logiku,

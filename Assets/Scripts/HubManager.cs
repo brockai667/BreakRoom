@@ -106,6 +106,11 @@ public class HubManager : MonoBehaviour
  
     // ---------- MAPA ----------
     // Mapy v poradí + level potrebný na odomknutie (Obývačka = prvý level)
+    // TODO: "Laundry" má už generátor Assets/Editor/CreateLaundryScene.cs, ale samotná scéna
+    // Assets/Scenes/Laundry.unity ešte neexistuje (nie je v Build Settings) - treba ju
+    // vygenerovať v Unity editore (menu Break Room > Build Laundry Scene). Dovtedy ju
+    // SceneAvailable()/CycleMap()/StartGame()/StartSurvival() nižšie bezpečne preskočia
+    // namiesto pádu na SceneManager.LoadScene s neexistujúcou scénou.
     static readonly (string scene, string label, int unlock)[] MAPS =
     {
         ("Obyvacka",  "Living Room", 1),
@@ -119,51 +124,82 @@ public class HubManager : MonoBehaviour
         ("Laundry",   "Laundry Room",17),
     };
     int mapIndex = 0;
- 
+
+    // Je scéna danej mapy reálne v Build Settings? (chráni pred pádom na LoadScene,
+    // ak niekto pridá mapu do MAPS skôr, než sa jej scéna vygeneruje v editore.)
+    static bool SceneAvailable(string sceneName)
+    {
+        for (int i = 0; i < SceneManager.sceneCountInBuildSettings; i++)
+        {
+            string path = SceneUtility.GetScenePathByBuildIndex(i);
+            if (System.IO.Path.GetFileNameWithoutExtension(path) == sceneName) return true;
+        }
+        return false;
+    }
+
     // Tlačidlo mapy: prepína medzi mapami (vidíš aj zamknuté + ich požiadavku)
     /// Napriek názvu len prepína na ďalšiu mapu v poradí (alias pre CycleMap).
     public void SelectOffice() => CycleMap();
- 
+
     public void CycleMap()
     {
-        mapIndex = (mapIndex + 1) % MAPS.Length;
+        // Preskoč mapy, ktorých scéna ešte neexistuje (napr. čerstvo pridaná, ešte nevygenerovaná
+        // v editore) - safety bound MAPS.Length, nech sa to nezacyklí, ak by chýbali úplne všetky.
+        for (int step = 0; step < MAPS.Length; step++)
+        {
+            mapIndex = (mapIndex + 1) % MAPS.Length;
+            if (SceneAvailable(MAPS[mapIndex].scene)) break;
+        }
         GameSession.SelectedMap = MAPS[mapIndex].scene;
         UpdateMapLabel();
     }
- 
+
     bool IsUnlocked(int unlockLevel) => XPManager.SavedLevel >= unlockLevel;
- 
+
     void SyncMapIndex()
     {
         mapIndex = 0;
         for (int i = 0; i < MAPS.Length; i++)
             if (MAPS[i].scene == GameSession.SelectedMap) { mapIndex = i; break; }
-        if (!IsUnlocked(MAPS[mapIndex].unlock)) mapIndex = 0; // Obývačka je vždy dostupná
+        if (!IsUnlocked(MAPS[mapIndex].unlock) || !SceneAvailable(MAPS[mapIndex].scene))
+            mapIndex = 0; // Obývačka je vždy dostupná a odomknutá
         GameSession.SelectedMap = MAPS[mapIndex].scene;
     }
- 
+
     void UpdateMapLabel()
     {
         if (mapLabel == null) return;
         var m = MAPS[mapIndex];
         int lvl = XPManager.SavedLevel;
         bool ok = IsUnlocked(m.unlock);
-        mapLabel.color = ok ? Color.white : new Color(1f, 0.45f, 0.3f);
+        bool available = SceneAvailable(m.scene);
         mapLabel.horizontalOverflow = HorizontalWrapMode.Overflow;
         int survBest = PlayerPrefs.GetInt("Survival_Best_" + m.scene, 0);
         string survLine = survBest > 0 ? $"    •    Survival best: {survBest}" : "";
-        mapLabel.text = ok
-            ? $"Map: {m.label}    •    Level {lvl}{survLine}"
-            : $"LOCKED: {m.label} - unlocks at level {m.unlock}  (you are level {lvl})";
+
+        if (!available)
+        {
+            // Scéna zatiaľ nebola vygenerovaná v editore - odlíšené od bežného "LOCKED" (progres hráča).
+            mapLabel.color = new Color(0.6f, 0.6f, 0.62f);
+            mapLabel.text = $"NOT AVAILABLE: {m.label} - scéna ešte nebola vygenerovaná v editore";
+        }
+        else
+        {
+            mapLabel.color = ok ? Color.white : new Color(1f, 0.45f, 0.3f);
+            mapLabel.text = ok
+                ? $"Map: {m.label}    •    Level {lvl}{survLine}"
+                : $"LOCKED: {m.label} - unlocks at level {m.unlock}  (you are level {lvl})";
+        }
     }
- 
-    /// Spustí vybranú mapu v Normal móde; ak je mapa zamknutá (nedosiahnutý level), len zvýrazní zámok.
+
+    /// Spustí vybranú mapu v Normal móde; ak je mapa zamknutá (nedosiahnutý level) alebo jej
+    /// scéna ešte neexistuje v Build Settings, len zvýrazní dôvod namiesto pádu na LoadScene.
     public void StartGame()
     {
         var m = MAPS[mapIndex];
-        if (!IsUnlocked(m.unlock))
+        if (!IsUnlocked(m.unlock) || !SceneAvailable(m.scene))
         {
-            UpdateMapLabel();   // zvýrazní zámok na červeno
+            UpdateMapLabel();   // zvýrazní zámok/nedostupnosť
             return;
         }
         Time.timeScale = 1f;
@@ -175,7 +211,7 @@ public class HubManager : MonoBehaviour
     public void StartSurvival()
     {
         var m = MAPS[mapIndex];
-        if (!IsUnlocked(m.unlock)) { UpdateMapLabel(); return; }
+        if (!IsUnlocked(m.unlock) || !SceneAvailable(m.scene)) { UpdateMapLabel(); return; }
         Time.timeScale = 1f;
         GameSession.Mode = GameSession.GameMode.Survival;
         SceneManager.LoadScene(m.scene);
