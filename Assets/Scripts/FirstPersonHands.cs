@@ -60,12 +60,12 @@ public class FirstPersonHands : MonoBehaviour
 
         // Styl svihu + dlzka podla rychlosti
         string id = w != null ? w.id : "fists";
-        style = id == "hammer" || id == "sledge" ? Style.Overhead
-              : id == "bat" || id == "katana"     ? Style.Horizontal
-              : id == "axe" || id == "crowbar"    ? Style.Diagonal
-              : id == "bowling"                   ? Style.Overhead
-              : id == "flamethrower"              ? Style.None
-              :                                     Style.Jab;
+        style = id == "hammer" || id == "sledge"             ? Style.Overhead
+              : id == "bat" || id == "katana"                ? Style.Horizontal
+              : id == "axe" || id == "crowbar" || id == "shovel" ? Style.Diagonal
+              : id == "bowling"                               ? Style.Overhead
+              : id == "flamethrower"                          ? Style.None
+              :                                                  Style.Jab;
         float sp = w != null ? w.swingSpeed : 1f;
         dur = Mathf.Clamp(0.30f / Mathf.Max(0.4f, sp), 0.14f, 0.5f);
 

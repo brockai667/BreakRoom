@@ -19,8 +19,11 @@ nesúvisiacu zmenu fontu ako predtým, nechávam ju tak).
   staticky overený ako kompletný a konzistentný, zvyšné overenie je čisto vizuálne/interaktívne (vyžaduje
   bežiaci editor). Presné kroky sú v sekcii "Na overenie v Unity" nižšie.
 
+## Hotové (pokrač.)
+- C1) Nová zbraň "Shovel" (pozri Log krokov — Session 2 / C1).
+
 ## Rozrobené
-- C) Nová zbraň + nová room scéna.
+- C2) Nová room scéna cez generátor (Assets/Editor/Create*Scene.cs).
 
 ## Log krokov — Session 2
 
@@ -85,6 +88,31 @@ v testoch), ale reálne prejdenie cez NUnit runner nie je odtiaľto možné.
   štandardný, Unity-dokumentovaný postup pre projekty, kde hlavný kód nemá asmdef a testy sa pridávajú dodatočne.
 - **`.meta` súbory pre nové assety (asmdef, testové .cs) negenerujem ručne** — necháva sa na Unity pri
   najbližšom otvorení projektu, rovnaká konvencia ako pri predošlých nových skriptoch v tomto repozitári.
+
+### C1) Nová zbraň "Shovel" — HOTOVÉ
+- Pred zmenou som si cez `WeaponPreview.cs`/`WeaponIcon.cs`/`CollectionManager.cs`/`ShopManager.cs`/
+  `HandDisplay.cs`/`FirstPersonHands.cs`/`WeaponHit.cs` overil, ktoré miesta majú per-id switch a ktoré majú
+  bezpečný `default:` fallback používaný väčšinou existujúcich zbraní (napr. `HeadSize()` v Shop/Collection
+  a `HandDisplay`'s bladeRect majú explicitné case len pre 7 z 17 zbraní — zvyšných 10 už bežne používa
+  `default:`, takže nová zbraň bez vlastného 2D fallbacku nič nekazí). Jediné miesto, kde si **každá** doteraj­šia
+  zbraň nesie vlastný kód, je `WeaponPreview.BuildModel` (3D model na pódiu aj v ruke) — tam som teda pridal
+  vlastný tvar, nech "Shovel" vyzerá rovnako doladene ako ostatné.
+- `Scripts/WeaponData.cs`: nový záznam `id="shovel", displayName="Shovel"`, `price=520` (medzi crowbar 450
+  a hammer 550 → rarita RARE podľa existujúcej cenovej škály), `damage=3, splashRadius=0.25f, hitDistance=3.6f,
+  swingSpeed=1.0f` (podobný tier ako hammer/wrench). `UnlockLevel("shovel") = 4` (rovnaký tier ako hammer, keďže
+  cena je blízko).
+- `Scripts/WeaponPreview.cs`: nový `case "shovel": BuildShovel(...)` v `BuildModel` switchi + metóda
+  `BuildShovel` (drevená násada + zjednodušená D-rukoväť + plochý list s hrotom) — rovnaký štýl ako ostatné
+  `Build*` metódy (primitíva + `Mat()` helper).
+- `Scripts/FirstPersonHands.cs`: `shovel` pridané do skupiny `Style.Diagonal` (spolu s axe/crowbar) — sedí
+  k "wide flat smack" popisu lepšie než default Jab štýl švihu.
+- **Netreba meniť** (fungujú univerzálne pre akékoľvek `id`, overené code-review): `WeaponIcon.Get` (renderuje
+  čokoľvek, čo vráti `WeaponPreview.BuildModel`), `ShopManager`/`CollectionManager` rarita (odvodená z ceny),
+  `HeadSize()` 2D fallback v Shop/Collection kartách, `HandDisplay` bladeRect fallback, `WeaponHit` (shovel nie
+  je flamethrower/chainsaw/grenade/bowling → ide bežnou sekacou cestou `Swing()`/`PerformHit()`).
+- `WeaponDataTests.cs` (Session 2 / A) testuje `WeaponData.All` generickými assertmi (žiadne duplicity, rozumné
+  rozsahy polí) bez natvrdo zapísaného počtu zbraní — nová zbraň teda automaticky prejde tými istými testami
+  bez potreby úpravy testov.
 
 ## Stav na začiatku
 - `git pull` → up-to-date, žiadne nové commity zvonku.

@@ -101,6 +101,9 @@ public class WeaponPreview : MonoBehaviour
             case "mace":
                 BuildMace(root, handleMat, headMat);
                 break;
+            case "shovel":
+                BuildShovel(root, handleMat, headMat);
+                break;
             case "flamethrower":
                 Add(root, PrimitiveType.Cube,     new Vector3(0, 0, -0.05f), new Vector3(0.34f, 0.32f, 0.62f), Quaternion.identity, headMat);
                 Add(root, PrimitiveType.Cylinder, new Vector3(0, -0.20f, -0.18f), new Vector3(0.07f, 0.18f, 0.07f), Quaternion.identity, handleMat);
@@ -239,6 +242,15 @@ public class WeaponPreview : MonoBehaviour
             var rot = Quaternion.FromToRotation(Vector3.up, dir);
             Add(root, PrimitiveType.Cube, new Vector3(0,0.42f,0) + dir * 0.26f, new Vector3(0.10f, 0.16f, 0.10f), rot, headMat);
         }
+    }
+
+    // --- Lopata: drevená násada + D-rukoväť + plochý kovový list ---
+    static void BuildShovel(GameObject root, Material handleMat, Material headMat)
+    {
+        Add(root, PrimitiveType.Cylinder, new Vector3(0,  0.10f, 0),    new Vector3(0.055f, 0.55f, 0.055f), Quaternion.identity, handleMat); // násada
+        Add(root, PrimitiveType.Cylinder, new Vector3(0,  0.62f, 0),    new Vector3(0.09f, 0.10f, 0.09f),   Quaternion.identity, handleMat); // D-rukoväť (zjednodušene)
+        Add(root, PrimitiveType.Cube,     new Vector3(0, -0.42f, 0.04f),new Vector3(0.30f, 0.34f, 0.04f),   Quaternion.Euler(8f, 0, 0), headMat); // plochý list
+        Add(root, PrimitiveType.Cube,     new Vector3(0, -0.60f, 0.05f),new Vector3(0.16f, 0.10f, 0.03f),   Quaternion.Euler(8f, 0, 0), headMat); // hrot dole
     }
 
     static GameObject Add(GameObject root, PrimitiveType t, Vector3 pos, Vector3 scale, Quaternion rot, Material m)

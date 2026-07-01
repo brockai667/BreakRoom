@@ -105,6 +105,11 @@ public class WeaponData
             price=2700, damage=6, splashRadius=0.85f, hitDistance=3.6f, swingSpeed=0.65f,
             handColor=new Color(0.32f,0.32f,0.36f), handleColor=new Color(0.3f,0.2f,0.08f)
         },
+        new WeaponData {
+            id="shovel", displayName="Shovel", description="Digs deep.\nWide flat smack.",
+            price=520, damage=3, splashRadius=0.25f, hitDistance=3.6f, swingSpeed=1.0f,
+            handColor=new Color(0.5f,0.5f,0.54f), handleColor=new Color(0.45f,0.3f,0.12f)
+        },
     };
 
     /// Nájde zbraň podľa id; ak neexistuje, vráti prvú (fists) ako fallback.
@@ -122,6 +127,7 @@ public class WeaponData
             case "pan":          return 2;
             case "crowbar":      return 2;
             case "gloves":       return 3;
+            case "shovel":       return 4;
             case "hammer":       return 4;
             case "wrench":       return 5;
             case "axe":          return 6;
