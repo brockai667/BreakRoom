@@ -15,9 +15,11 @@ nesúvisiacu zmenu fontu ako predtým, nechávam ju tak).
 - Malé, bezpečné production zmeny na umožnenie EditMode testov (pozri Rozhodnutia + Log krokov #1).
 - A) Celý test assembly + 5 test súborov (WeaponData/GameManager/PlayerInventory/XPManager/Breakable),
   spolu ~50 test prípadov. Pozri "Log krokov — Session 2 / A".
+- B) Prešiel som obe položky zo starého zoznamu "Na overenie v Unity" (Collection nav, XP bar) — kód je
+  staticky overený ako kompletný a konzistentný, zvyšné overenie je čisto vizuálne/interaktívne (vyžaduje
+  bežiaci editor). Presné kroky sú v sekcii "Na overenie v Unity" nižšie.
 
 ## Rozrobené
-- B) Prejsť "Na overenie v Unity" a vyriešiť čo sa dá staticky.
 - C) Nová zbraň + nová room scéna.
 
 ## Log krokov — Session 2
@@ -108,9 +110,6 @@ obrazovka). `TODO.md` som nechal nezmazaný (nebolo požadované), ale všetky j
 - Používam `graphify query` pred väčšími zmenami podľa CLAUDE.md.
 - Veci overiteľné len v Unity editore (napr. scéna sa naozaj vygeneruje/nič sa nerozbije) zapíšem nižšie ako "na overenie v Unity".
 
-## Na overenie v Unity
-(bude dopĺňané priebežne)
-
 ## Log krokov
 
 ### 1. GameManager legacy cleanup — HOTOVÉ
@@ -181,11 +180,41 @@ obrazovka). `TODO.md` som nechal nezmazaný (nebolo požadované), ale všetky j
   som ich, keďže runtime oprava problém rieši univerzálne bez ohľadu na obsah scén.
 
 ## Na overenie v Unity
-- XP bar TODO#6: otvoriť ľubovoľnú izbu (Bathroom/Bedroom/Factory/Garage/Kitchen/Obyvacka/Office/Warehouse),
-  rozbiť niečo a overiť, že vpravo dole naskočí XP bar/level text a pri level-upe sa ukáže "LEVEL UP!" flash.
-  Zároveň overiť v Hube/MainMenu/Shope/Collection, že sa XP HUD nezobrazuje (podľa dizajnu).
-- Voliteľné (nie nutné): v Unity editore môžete cez staré scény prejsť a ručne zmazať osirotené GameObjecty
-  "XPManager" (sú neškodné — zničia sa samé za behu), pre čistotu scén.
+
+### B) Prejdené položky zo starého zoznamu — Session 2
+Prešiel som obe pôvodné položky nižšie ešte raz a doplnil, čo sa dalo overiť staticky (bez spustenia editora):
+
+- **Collection nav (TODO#1)** — staticky overené, že celý tok je kód-kompletný a konzistentný:
+  `Assets/Scenes/Collection.unity` existuje a je v `ProjectSettings/EditorBuildSettings.asset`;
+  `MainMenuExtras.cs` má tlačidlo COLLECTION s `SceneManager.LoadScene("Collection")`; `CollectionManager.cs`
+  (self-bootstrapping cez `RuntimeInitializeOnLoadMethod`) reaguje na scénu "Collection" a jeho tlačidlo SPÄŤ
+  volá `SceneManager.LoadScene("MainMenu")`. Kód je teda logicky bezchybný — zostáva len vizuálne/interaktívne
+  overenie (skutočné vykreslenie UI, klikanie), čo sa dá overiť LEN v behu Unity editora.
+  **Presný postup:** otvoriť projekt v Unity 6000.3.16f1 (nech sa vygenerujú chýbajúce .meta) → otvoriť scénu
+  `MainMenu` → Play → klik na "COLLECTION" → skontrolovať, že sa zobrazí mriežka zbraní + štatistiky (vrátane
+  nového "Best grade") → klik "BACK TO MENU" → späť v MainMenu.
+- **XP bar (TODO#6)** — logika (`XPManager.AddXP/XPForLevel/XPProgress`) je teraz pokrytá aj unit testami
+  (`XPManagerTests.cs`), samotné code review self-bootstrap vzoru (viď sekcia 5 vyššie) je nezmenené a stále
+  správne. Zostáva len vizuálne overiť v behu hry:
+  **Presný postup:** otvoriť ľubovoľnú izbu (Bathroom/Bedroom/Factory/Garage/Kitchen/Obyvacka/Office/Warehouse)
+  → Play → rozbiť niečo → skontrolovať, že vpravo dole naskočí XP bar/level text a pri level-upe sa ukáže
+  "LEVEL UP!" flash → prejsť do Hub/MainMenu/Shop/Collection a overiť, že sa XP HUD nezobrazuje (podľa dizajnu).
+- Voliteľné (nie nutné, kozmetické): v Unity editore môžete cez staré scény prejsť a ručne zmazať osirotené
+  GameObjecty "XPManager" (sú neškodné — zničia sa samé za behu ako duplicitná inštancia).
+
+### A) Ako spustiť nové EditMode testy
+1. Otvoriť projekt v Unity → Window → General → **Test Runner**.
+2. Záložka **EditMode** → mal by sa objaviť `BreakRoom.EditModeTests` s ~50 testami
+   (WeaponDataTests/GameManagerTests/PlayerInventoryTests/XPManagerTests/BreakableTests).
+3. **Run All**. Očakávaný výsledok: všetky zelené. Čísla v `[TestCase]` som si ručne prepočítal proti
+   zdrojovému kódu (pozri komentáre v testoch), ale keďže odtiaľto (bez Unity binárky) neviem testy reálne
+   spustiť, môže sa objaviť prekvapenie najmä pri:
+   - `PlayerInventoryTests` — závisí od toho, či `DontDestroyOnLoad` s `Application.isPlaying` guardom
+     naozaj umožní `AddComponent<PlayerInventory>()` v Edit Mode bez chyby v konzole (mala by byť; ak Test
+     Runner testy napriek tomu zlyhajú kvôli neočakávanému LogError, over tento konkrétny riadok v `Awake()`).
+   - Ak niektorý test zlyhá na hodnote (nie na chybe/exception), over si prepočet v komentári nad danou
+     `[TestCase]`/`[Test]` metódou — je možné, že som sa niekde pomýlil vo výpočte, kód samotný meniť netreba,
+     stačí opraviť očakávanú hodnotu v teste.
 
 ### 6. Vlastná iniciatíva — nájdené a opravené bugy (Extra#8/#9)
 - `Scripts/MainMenuExtras.cs`: "Best round" štatistika na MainMenu počítala `Mathf.Max` len z 3 z 8 máp
