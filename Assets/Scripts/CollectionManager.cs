@@ -76,10 +76,11 @@ public class CollectionManager : MonoBehaviour
                  new Vector2(0f, 0.815f), new Vector2(1f, 0.875f), TextAnchor.MiddleCenter);
 
         // Lifetime štatistiky
-        int smashed   = PlayerPrefs.GetInt("Stat_smashed", 0);
-        int bestCombo = PlayerPrefs.GetInt("Stat_bestCombo", 0);
-        int cleared   = PlayerPrefs.GetInt("Stat_cleared", 0);
-        MakeText(canvasGO, $"Smashed: {smashed}        Best combo: {bestCombo}        Rooms cleared: {cleared}",
+        int smashed     = PlayerPrefs.GetInt("Stat_smashed", 0);
+        int bestCombo   = PlayerPrefs.GetInt("Stat_bestCombo", 0);
+        int cleared     = PlayerPrefs.GetInt("Stat_cleared", 0);
+        string bestGrade = PlayerPrefs.GetString("Stat_bestGrade", "-");
+        MakeText(canvasGO, $"Smashed: {smashed}        Best combo: {bestCombo}        Rooms cleared: {cleared}        Best grade: {bestGrade}",
                  22, FontStyle.Bold, new Color(0.7f, 1f, 0.78f),
                  new Vector2(0f, 0.76f), new Vector2(1f, 0.81f), TextAnchor.MiddleCenter);
 

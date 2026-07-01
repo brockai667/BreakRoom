@@ -10,7 +10,7 @@ using UnityEngine.SceneManagement;
 public class SpecialObjects : MonoBehaviour
 {
     static readonly string[] EXPLOSIVE = { "barrel", "sud", "canister", "tank", "gas", "propan", "extinguisher", "hasiac", "bomb", "drum", "fuel" };
-    static readonly string[] ELECTRONIC = { "tv", "television", "monitor", "screen", "pc", "computer", "laptop", "radio", "lamp", "lamp", "console", "machine", "robot" };
+    static readonly string[] ELECTRONIC = { "tv", "television", "monitor", "screen", "pc", "computer", "laptop", "radio", "lamp", "console", "machine", "robot" };
 
     static readonly Color GOLD = new Color(1f, 0.78f, 0.12f);
     static readonly Color DANGER = new Color(0.85f, 0.22f, 0.12f);

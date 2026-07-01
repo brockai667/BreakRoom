@@ -47,3 +47,18 @@ Pracujem samostatne na TODO.md, bez čakania na potvrdenie. Commit + push priebe
   `File.Exists` by to aj tak preskočil, ale radšej vyčistené, nech zoznam nezavádza).
 - Zmazaný aj `Assets/Settings/SampleSceneProfile.asset` (+.meta) — URP Volume Profile, ktorý používala výhradne
   táto scéna a po jej zmazaní by ostal osirotený (nikde inde v Assets ani ProjectSettings sa naň neodkazuje).
+
+### 3. SpecialObjects — duplicitné "lamp" — HOTOVÉ
+- `Scripts/SpecialObjects.cs`: pole `ELECTRONIC` malo `"lamp"` dvakrát — odstránený duplikát.
+
+### 4. Collection lifetime štatistiky — HOTOVÉ
+- Zistil som, že `Stat_smashed` (celkovo rozbité), `Stat_bestCombo` a `Stat_cleared` **už existovali** —
+  počíta a ukladá ich `Scripts/Achievements.cs` (`CommitRound`, volané pri prechode `GameSession.HasPendingResult`
+  false→true) a zobrazuje ich `CollectionManager.cs` aj `MainMenuExtras.cs`. Chýbal iba "najlepší grade".
+- Pridané: `Achievements.CommitRound` teraz berie aj `GameSession.PendingGrade`, porovná ho s uloženým
+  `Stat_bestGrade` cez pomocník `GradeRank(string)` (S=5...D=1) a uloží lepší z oboch do PlayerPrefs
+  (`PlayerPrefs.SetString("Stat_bestGrade", ...)`).
+- Zobrazenie: `CollectionManager.cs` (riadok lifetime štatistík) a `MainMenuExtras.cs` (stĺpec štatistík na
+  MainMenu) teraz obsahujú aj "Best grade: X".
+- Rozhodnutie: logiku som pridal do existujúceho `Achievements.CommitRound`, nie do `GameManager`, lebo tam už
+  bola jediná zbernica pre všetky lifetime štatistiky (jednotné miesto zápisu, žiadna duplicita).

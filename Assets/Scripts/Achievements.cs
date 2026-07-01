@@ -1,8 +1,9 @@
 using UnityEngine;
 
 /// Achievementy / mileniky. Self-bootstrapping, sleduje lifetime statistiky
-/// (celkovo rozbite, najlepsie combo, vycistene miestnosti) v PlayerPrefs a
-/// pri prekroceni prahu odomkne achievement -> odmena $ + hlaska.
+/// (celkovo rozbite, najlepsie combo, vycistene miestnosti, najlepsie hodnotenie
+/// kola S/A/B/C/D) v PlayerPrefs a pri prekroceni prahu odomkne achievement
+/// -> odmena $ + hlaska.
 public class Achievements : MonoBehaviour
 {
     // id, nazov, typ ("smashed"/"combo"/"cleared"), prah, odmena $
@@ -39,13 +40,13 @@ public class Achievements : MonoBehaviour
         bool pending = GameSession.HasPendingResult;
         if (pending && !hadPending)
         {
-            CommitRound(GameSession.PendingDestroyed, GameSession.PendingCleared, maxComboThisRound);
+            CommitRound(GameSession.PendingDestroyed, GameSession.PendingCleared, maxComboThisRound, GameSession.PendingGrade);
             maxComboThisRound = 0;
         }
         hadPending = pending;
     }
 
-    void CommitRound(int smashedThisRound, bool cleared, int maxCombo)
+    void CommitRound(int smashedThisRound, bool cleared, int maxCombo, string grade)
     {
         int smashed     = PlayerPrefs.GetInt("Stat_smashed", 0) + Mathf.Max(0, smashedThisRound);
         int bestCombo    = Mathf.Max(PlayerPrefs.GetInt("Stat_bestCombo", 0), maxCombo);
@@ -54,10 +55,21 @@ public class Achievements : MonoBehaviour
         PlayerPrefs.SetInt("Stat_smashed", smashed);
         PlayerPrefs.SetInt("Stat_bestCombo", bestCombo);
         PlayerPrefs.SetInt("Stat_cleared", clearedTotal);
+
+        // Najlepsie dosiahnute hodnotenie kola (S najlepsie, D najhorsie)
+        string bestGrade = PlayerPrefs.GetString("Stat_bestGrade", "");
+        if (bestGrade == "" || GradeRank(grade) > GradeRank(bestGrade))
+            PlayerPrefs.SetString("Stat_bestGrade", grade);
+
         PlayerPrefs.Save();
 
         CheckAll(smashed, bestCombo, clearedTotal);
     }
+
+    static int GradeRank(string grade) => grade switch
+    {
+        "S" => 5, "A" => 4, "B" => 3, "C" => 2, "D" => 1, _ => 0
+    };
 
     void CheckAll(int smashed, int bestCombo, int cleared)
     {
