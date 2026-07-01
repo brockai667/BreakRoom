@@ -6,6 +6,7 @@ using UnityEngine;
 /// Rage = x2 damage, Frenzy = slow-mo, Cash = bonus penazi, Quake = plosny smash.
 public class PowerUps : MonoBehaviour
 {
+    /// Druhy power-upov: Rage (x2 damage), Frenzy (slow-mo), Cash (bonus $), Quake (plošný smash).
     public enum Kind { Rage, Frenzy, Cash, Quake }
     static PowerUps inst;
 
@@ -91,6 +92,7 @@ public class PowerUps : MonoBehaviour
         return g;
     }
 
+    /// Aktivuje efekt daného power-upu (volá sa pri zobratí pickupu hráčom).
     public static void Collect(Kind k, Vector3 at)
     {
         if (inst != null) inst.Activate(k, at);
@@ -174,7 +176,9 @@ public class PowerUps : MonoBehaviour
 /// (magnet) a aktivuje efekt. Kratsia zivotnost, nech zostava prehladne.
 public class PowerUpPickup : MonoBehaviour
 {
+    /// Druh tohto power-upu (určuje efekt pri zobratí).
     public PowerUps.Kind kind;
+    /// Vizuálne telo (tvar), ktoré rotuje a levituje.
     public Transform body;
     float baseY;
     float life = 14f;

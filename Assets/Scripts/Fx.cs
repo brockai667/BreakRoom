@@ -111,9 +111,11 @@ public static class Fx
 /// Animuje ziariacu gulu vybuchu (rozpne sa a zhasne) a zhasne svetlo.
 public class FxAnim : MonoBehaviour
 {
+    /// Typ animácie (zatiaľ len Explosion).
     public enum Kind { Explosion }
     Kind kind; Light glowLight; float t; Renderer rend; Vector3 start;
 
+    /// Naštartuje animáciu daného typu, prepojí sa so svetlom vybuchu (zhasína spolu s ňou).
     public void Init(Kind k, Light l)
     {
         kind = k; glowLight = l; rend = GetComponent<Renderer>();

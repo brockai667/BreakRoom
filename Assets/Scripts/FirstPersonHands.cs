@@ -17,6 +17,7 @@ public class FirstPersonHands : MonoBehaviour
     static readonly Vector3 RestPos   = new Vector3(0.4f, -0.4f, 0.82f);
     static readonly Vector3 RestEuler = new Vector3(6f, -18f, 6f);
 
+    /// Vytvorí ruky ako dieťa danej kamery a rovno ich postaví (Build).
     public static FirstPersonHands Create(Camera cam)
     {
         var root = new GameObject("FirstPersonHands");
@@ -51,6 +52,7 @@ public class FirstPersonHands : MonoBehaviour
         g.GetComponent<Renderer>().sharedMaterial = SkinMat();
     }
 
+    /// Vymení model v ruke a nastaví štýl/rýchlosť švihu podľa zbrane (null/fists = holé ruky).
     public void SetWeapon(WeaponData w)
     {
         if (weaponGO != null) Destroy(weaponGO);
@@ -75,6 +77,7 @@ public class FirstPersonHands : MonoBehaviour
         weaponGO.transform.localEulerAngles = new Vector3(10f, 0f, 0f);
     }
 
+    /// Spustí animáciu úderu (ak už nebeží).
     public void PlaySwing()
     {
         if (!swinging) { swinging = true; swingT = 0f; }

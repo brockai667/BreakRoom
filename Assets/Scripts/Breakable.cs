@@ -8,19 +8,25 @@ public class Breakable : MonoBehaviour
     public int hp            = 3;
     public int damage        = 1;
 
+    /// -1 = dopočíta sa v Configure() podľa veľkosti objektu (maxDim * koeficient).
     [Header("Hodnoty (-1 = automaticky podla velkosti)")]
     public int xpValue       = -1;
     public int reward        = -1;
     public int fragmentCount = 6;
 
+    /// -1 = počet stupňov delenia na chunky sa dopočíta podľa veľkosti (0-2).
     [Header("Viacstupnove nicenie")]
     public int subdivideStages = -1;
     public int childPieces     = 0;
 
+    /// Označuje, že ide o odštiepený kúsok (chunk), nie pôvodný predmet — chunky sa už ďalej nedelia na chunky, len na fragmenty.
     [System.NonSerialized] public bool isChunk = false;
 
+    /// Zlatá varianta: pri rozbití vypláca 3x odmenu (bez GameManager) a hlási sa v Objectives.
     [System.NonSerialized] public bool golden;
+    /// Výbušná varianta: pri rozbití spustí Explode() — splash poškodenie okolitých Breakable.
     [System.NonSerialized] public bool explosive;
+    /// Elektronická varianta: pri rozbití spustí iskry/sklo/zvuk a hlási sa v Objectives.
     [System.NonSerialized] public bool electronic;
     [System.NonSerialized] public bool jackpot;     // mini-boss: vela HP, velka odmena
 
@@ -95,6 +101,7 @@ public class Breakable : MonoBehaviour
         baseColor = c;
     }
 
+    /// Zásah zbraňou v danom bode a smere švihu; odčíta damage a pri hp<=0 spustí Break (rozlet úlomkov podľa smeru).
     public void Hit(Vector3 hitPoint, Vector3 swingDir)
     {
         if (broken) return;
@@ -105,6 +112,7 @@ public class Breakable : MonoBehaviour
         else { SfxManager.Hit(hitPoint); if (!isChunk) CrosshairUI.Ping(false); }
     }
 
+    /// Zjednodušený zásah bez konkrétneho bodu/smeru (napr. skriptované rozbitie).
     public void Hit() { Hit(transform.position, Vector3.forward); }
 
     void Break(Vector3 hitPoint, Vector3 swingDir)
@@ -178,6 +186,7 @@ public class Breakable : MonoBehaviour
         }
     }
 
+    /// Okamžite zničí objekt v dôsledku výbuchu neďalekého explosive predmetu (hp na 0, Break so smerom od zdroja).
     public void KillFromExplosion(Vector3 source)
     {
         if (broken || this == null) return;

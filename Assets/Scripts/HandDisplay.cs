@@ -26,6 +26,7 @@ public class HandDisplay : MonoBehaviour
             SetWeapon(WeaponData.All[0]);
     }
 
+    /// Nastaví farby, popisok a tvar (podľa w.id) zobrazenej zbrane v ruke.
     public void SetWeapon(WeaponData w)
     {
         if (handleImg != null) handleImg.color = w.handleColor;
@@ -57,6 +58,7 @@ public class HandDisplay : MonoBehaviour
         }
     }
 
+    /// Spustí animáciu švihu zbraňou (ak už beží, ignoruje sa).
     public void PlaySwing()
     {
         if (swinging) return;

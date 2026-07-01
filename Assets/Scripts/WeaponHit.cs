@@ -2,9 +2,14 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+/// Útok aktuálne vybavenej zbrane z pohľadu prvej osoby. Rieši bežný sekaný
+/// úder (raycast + splash), kontinuálne zbrane (plamenomet/motorová píla),
+/// a hodové zbrane (granát/bowling guľa). Damage/splash/dosah/rýchlosť
+/// sa počítajú z WeaponData + upgrade levelu z PlayerInventory + Perks bonusov.
 public class WeaponHit : MonoBehaviour
 {
     public Camera playerCamera;
+    /// Max. dosah raycastu pre úder (m); prepočíta sa v ApplyWeapon z WeaponData + Perks.ReachBonus().
     public float hitDistance = 4f;
 
     private int   damage     = 1;
@@ -37,6 +42,8 @@ public class WeaponHit : MonoBehaviour
         BuildFlameFX();
     }
 
+    /// Prepočíta damage/splash/dosah/rýchlosť podľa WeaponData a upgrade levelu
+    /// (+1 damage a +0.1 splash za level) a prepne správanie na typ zbrane.
     public void ApplyWeapon(WeaponData w)
     {
         int up = PlayerInventory.Instance != null ? PlayerInventory.Instance.UpgradeLevel(w.id) : 0;

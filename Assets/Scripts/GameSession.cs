@@ -33,6 +33,8 @@ public static class GameSession
     public static int  PendingBestCombo = 0;
     public static bool PendingScoreBest = false;
 
+    /// Uloží výsledok bežného kola (na vyhodnotenie v hube) a zapíše nový mapový
+    /// rekord zárobku do PlayerPrefs ("Best_<mapa>"), ak bol prekonaný.
     public static void SetResult(int earned, int destroyed, float time,
                                  string grade = "C", bool cleared = false,
                                  int baseMoney = 0, int bonus = 0)
@@ -87,12 +89,14 @@ public static class GameSession
         HasPendingResult = true;
     }
 
+    /// Hodnotenie S/A/B/C/D podľa dosiahnutého survival skóre.
     public static string SurvivalGrade(int score)
         => score >= 5000 ? "S"
          : score >= 3000 ? "A"
          : score >= 1500 ? "B"
          : score >=  600 ? "C" : "D";
 
+    /// Vynuluje pending výsledok kola (zavolá hub po spracovaní/zobrazení).
     public static void ClearResult()
     {
         HasPendingResult = false;

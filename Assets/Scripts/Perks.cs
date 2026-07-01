@@ -16,9 +16,12 @@ public static class Perks
     };
 
     public static int  Level(string id)  => Mathf.Clamp(PlayerPrefs.GetInt("Perk_" + id, 0), 0, MAX);
+    /// Cena ďalšieho levelu: 300 * (aktuálny level + 1).
     public static int  Cost(string id)   => 300 * (Level(id) + 1);
     public static bool CanBuy(string id) => Level(id) < MAX;
 
+    /// Skúsi kúpiť ďalší level perku za peniaze z PlayerInventory; pri úspechu
+    /// odpočíta cenu a uloží nový level do PlayerPrefs.
     public static bool TryBuy(string id)
     {
         if (!CanBuy(id)) return false;
@@ -32,8 +35,12 @@ public static class Perks
     }
 
     // ---------- EFEKTY ----------
+    /// Násobič peňazí: +10% za level.
     public static float MoneyMult()        => 1f + 0.10f * Level("money");
+    /// Bonus k dĺžke combo okna v sekundách: +0.25s za level.
     public static float ComboWindowBonus() => 0.25f * Level("combo");
+    /// Násobič rýchlosti švihu: +8% za level.
     public static float SwingMult()        => 1f + 0.08f * Level("swing");
+    /// Bonus k dosahu v metroch: +0.2m za level.
     public static float ReachBonus()       => 0.20f * Level("reach");
 }

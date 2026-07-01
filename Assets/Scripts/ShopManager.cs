@@ -2,6 +2,9 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
+/// Obrazovka obchodu (Shop). Generuje mriežku kariet zbraní z WeaponData
+/// (rarita podľa ceny, 3D ikona cez WeaponIcon s 2D fallbackom), rieši
+/// kúpu/equip/upgrade cez PlayerInventory a náhľad na pódiu cez WeaponPreview.
 public class ShopManager : MonoBehaviour
 {
     [Header("UI Root")]
@@ -279,5 +282,6 @@ public class ShopManager : MonoBehaviour
         return go;
     }
 
+    /// Návrat do hlavného menu.
     public void GoBack() { SceneManager.LoadScene("MainMenu"); }
 }

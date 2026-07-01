@@ -8,6 +8,7 @@ public class WeaponPreview : MonoBehaviour
     public static WeaponPreview Instance;
 
     private GameObject current;
+    /// Rýchlosť rotácie modelu na pódiu (stupne/s).
     public float spinSpeed = 35f;
 
     void Awake() { Instance = this; }
@@ -18,6 +19,7 @@ public class WeaponPreview : MonoBehaviour
             current.transform.Rotate(0f, spinSpeed * Time.deltaTime, 0f, Space.World);
     }
 
+    /// Zobrazí (a nahradí prípadný predošlý) 3D model danej zbrane na pódiu.
     public void Show(WeaponData w)
     {
         if (w == null) return;
@@ -28,12 +30,14 @@ public class WeaponPreview : MonoBehaviour
         current.SetActive(true);
     }
 
+    /// Zapne/vypne viditeľnosť aktuálneho modelu na pódiu.
     public void SetVisible(bool v)
     {
         if (current != null) current.SetActive(v);
     }
 
     // ---------- STAVBA MODELU ----------
+    /// Postaví low-poly model zbrane z primitív podľa w.id (tvar špecifický pre danú zbraň).
     public static GameObject BuildModel(WeaponData w)
     {
         var root = new GameObject("WeaponModel_" + w.id);

@@ -69,6 +69,7 @@ public class Announcer : MonoBehaviour
         if (Instance != null) Instance.Display(SMASH[Random.Range(0, SMASH.Length)], false);
     }
 
+    /// Zobrazí ľubovoľnú hlášku; strong = väčšie písmo a dlhšie zobrazenie.
     public static void Show(string text, bool strong = false)
     {
         if (Instance != null) Instance.Display(text, strong);

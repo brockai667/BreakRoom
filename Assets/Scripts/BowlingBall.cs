@@ -8,6 +8,8 @@ public class BowlingBall : MonoBehaviour
     float life = 5f;
     Rigidbody rb;
 
+    /// Vytvorí a odhodí guľu z pos v smere dir s daným damage; naspodku
+    /// dostane dopredné kotúľanie (angularVelocity krížom k smeru letu).
     public static BowlingBall Throw(Vector3 pos, Vector3 dir, int dmg)
     {
         var go = GameObject.CreatePrimitive(PrimitiveType.Sphere);

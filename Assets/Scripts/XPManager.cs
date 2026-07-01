@@ -112,6 +112,7 @@ public class XPManager : MonoBehaviour
         leg.levelText = lvlT; leg.xpText = xpT; leg.levelUpText = luT; leg.levelUpGO = luGO;
     }
 
+    /// Pridá XP, prípadne posunie level (max 100), a uloží postup do PlayerPrefs (Level, XP).
     public void AddXP(int amount)
     {
         currentXP += amount;
@@ -127,6 +128,7 @@ public class XPManager : MonoBehaviour
         UpdateUI();
     }
 
+    /// Celkové XP potrebné na dosiahnutie daného levelu: súčet i*i*20 pre i od 2 po level.
     public int XPForLevel(int level)
     {
         if (level <= 1) return 0;
@@ -136,6 +138,7 @@ public class XPManager : MonoBehaviour
         return total;
     }
 
+    /// Postup v rámci aktuálneho levelu (0-1) na vykreslenie XP baru.
     public float XPProgress()
     {
         if (currentLevel >= 100) return 1f;

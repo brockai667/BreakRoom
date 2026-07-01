@@ -6,15 +6,21 @@ Pracujem samostatne na TODO.md, bez čakania na potvrdenie. Commit + push priebe
 - `git pull` → up-to-date, žiadne nové commity zvonku.
 - V pracovnom strome bola nekomitnutá zmena `Assets/TextMesh Pro/Resources/Fonts & Materials/Bangers-Regular SDF.asset` (Unity re-serializovalo font asset, -421/+9 riadkov). Nesúvisí s mojou úlohou, nechávam ju tak (nekomitujem ju samostatne, ak sa nepremieša s mojimi zmenami omylom).
 
-## Plán (z TODO.md + vlastná iniciatíva)
-1. [ ] GameManager legacy cleanup (EndRound, endPanel, timeText, destroyedText, moneyEarnedText, totalMoneyText)
-2. [ ] Zmazať Assets/Scenes/SampleScene.unity + .meta
-3. [ ] SpecialObjects — duplicitné "lamp" v ELECTRONIC
-4. [ ] Collection lifetime štatistiky (najlepší grade, celkovo rozbitých vecí) → PlayerPrefs + zobrazenie v Collection UI
-5. [ ] XP bar flow (LegacyXPUI/XPManager) — overiť a opraviť
-6. [ ] XML docstringy + slovenské komentáre k verejnému API
-7. [ ] Bugy / dead code / zastarané Unity API
-8. [ ] Konzistencia PlayerPrefs kľúčov a Save()/OnChanged v PlayerInventory
+## Plán (z TODO.md + vlastná iniciatíva) — VŠETKO HOTOVÉ
+1. [x] GameManager legacy cleanup (EndRound, endPanel, timeText, destroyedText, moneyEarnedText, totalMoneyText)
+2. [x] Zmazať Assets/Scenes/SampleScene.unity + .meta
+3. [x] SpecialObjects — duplicitné "lamp" v ELECTRONIC
+4. [x] Collection lifetime štatistiky (najlepší grade, celkovo rozbitých vecí) → PlayerPrefs + zobrazenie v Collection UI
+5. [x] XP bar flow (LegacyXPUI/XPManager) — overiť a opraviť (skutočný bug nájdený a opravený)
+6. [x] XML docstringy + slovenské komentáre k verejnému API
+7. [x] Bugy / dead code / zastarané Unity API
+8. [x] Konzistencia PlayerPrefs kľúčov a Save()/OnChanged v PlayerInventory
+
+## Zhrnutie na konci session
+Celé `TODO.md` je hotové (5/5 pôvodných položiek) + 3 vlastné iniciatívy (docstringy, bug sweep, PlayerPrefs
+audit). Commitnuté priebežne po každom logickom kroku, na konci `git push`. Zoznam vecí na manuálne overenie
+v Unity editore je v sekcii "Na overenie v Unity" vyššie (hlavne XP bar naskočenie v scénach a Collection
+obrazovka). `TODO.md` som nechal nezmazaný (nebolo požadované), ale všetky jeho položky sú odškrtnuté vyššie.
 
 ## Rozhodnutia
 - Používam `graphify query` pred väčšími zmenami podľa CLAUDE.md.
@@ -124,4 +130,15 @@ Pracujem samostatne na TODO.md, bez čakania na potvrdenie. Commit + push priebe
   projekte je čisté `///` prózové zhrnutie bez `<summary>` XML tagov (napr. `CollectionManager.cs`,
   `Achievements.cs`, `Objectives.cs`) — subagent dostal inštrukciu držať sa presne tohto štýlu namiesto
   zavádzania `<summary>` blokov, ktoré by boli v kóde jediné svojho druhu.
-- Výsledok bude doplnený nižšie po dokončení + review.
+- Subagent si prácu interne rozdelil na 5 dávok (pokryl presne všetkých 49 súborov v `Assets/Scripts`), pridal
+  spolu 103 nových `///` riadkov (27 súborov zmenených, netýkalo sa `Assets/Editor` ani scén). Skontroloval som
+  celý diff: len pridané riadky (žiadne mazanie/zmena existujúceho kódu ani komentárov), žiadna zmena logiky.
+  Jediná vec, ktorú som opravil po review: 4 nové komentáre používali HTML entity `&lt;id&gt;`/`&lt;mapa&gt;`
+  namiesto surových `<id>`/`<mapa>` — nekonzistentné s existujúcim pôvodným komentárom v `Perks.cs`
+  (`"Perk_<id>"`), zjednotené na rovnaký (pôvodný) štýl v `PlayerInventory.cs` (2×) a `GameSession.cs` (1×).
+- Súbory bez zmeny: mali už úplné pokrytie (napr. `CollectionManager.cs`, `Achievements.cs`, `Objectives.cs`,
+  `UITheme.cs`, `CrosshairUI.cs`, `Juice.cs`, `CameraShaker.cs`, `CardHover.cs`, `MenuCameraPan.cs`,
+  `MenuSpin.cs`, `AchievementsMenu.cs`, `RoomTheme.cs`, `RoundHUD.cs`, `Tutorial.cs`, `VisualUpgrade.cs`,
+  `MainMenuExtras.cs`, `MusicManager.cs`, `PerksMenu.cs`, `HubShowroom.cs`, `ChainsawBlade.cs`) alebo boli
+  zámerne ponechané (`RampageManager.cs` — 2-riadkový úmyselný "tombstone" komentár bez triedy,
+  vysvetľujúci odstránenie RAMPAGE režimu; nemá čo dokumentovať a jeho zmazanie by zahodilo tento kontext).

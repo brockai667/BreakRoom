@@ -141,18 +141,21 @@ public class SfxManager : MonoBehaviour
         Instance.uiSource.PlayOneShot(Instance.levelClip, 0.6f);
     }
 
+    /// Výbuch (napr. explosive Breakable) na danej pozícii v 3D priestore.
     public static void Boom(Vector3 pos)
     {
         if (Instance == null) return;
         Instance.PlayAt(Instance.boomClip, pos, Random.Range(0.9f, 1.1f), 1f);
     }
 
+    /// Elektrické iskrenie (napr. electronic Breakable) na danej pozícii.
     public static void Zap(Vector3 pos)
     {
         if (Instance == null) return;
         Instance.PlayAt(Instance.zapClip, pos, Random.Range(0.95f, 1.2f), 0.5f);
     }
 
+    /// Krátky hlásičový "sting" (napr. achievement/oznámenie na HUD).
     public static void Sting()
     {
         if (Instance == null) return;

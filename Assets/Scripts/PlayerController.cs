@@ -1,6 +1,8 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+/// Prvoosobový pohyb hráča (CharacterController): WASD, skok, myš na rozhliadanie.
+/// Citlivosť a FOV číta z PlayerPrefs. Rešpektuje pauzu a koniec kola.
 public class PlayerController : MonoBehaviour
 {
     public float speed = 6f;

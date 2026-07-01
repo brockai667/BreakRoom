@@ -1,4 +1,4 @@
-# Break Room — TODO (nedokončené)
+# Break Room — TODO (hotové, pozri PROGRESS.md pre detaily)
 
 ## 1. Collection (zbierka) — ✅ HOTOVÉ
 Vytvorený `Assets/Scripts/CollectionManager.cs` — postaví sa sám z kódu
@@ -9,19 +9,27 @@ Vytvorený `Assets/Scripts/CollectionManager.cs` — postaví sa sám z kódu
 - [x] Tlačidlo SPÄŤ -> MainMenu.
 - [ ] OVERIŤ V UNITY: otvoriť projekt (vygeneruje sa .meta), spustiť hru,
       MainMenu -> Collection -> späť. (nedá sa otestovať bez editora)
-- [ ] Voliteľne neskôr: pridať lifetime štatistiky (najlepší grade, celkovo
-      rozbitých vecí) — vyžaduje uložiť ich do PlayerPrefs na konci kola.
+- [x] Lifetime štatistiky (najlepší grade, celkovo rozbitých vecí) — hotové,
+      pozri PROGRESS.md sekcia 4.
 
-## 2. Vyčistiť legacy kód v GameManager
-`GameManager` má staré End-Round UI polia označené "legacy - nepoužité"
+## 2. Vyčistiť legacy kód v GameManager — ✅ HOTOVÉ
+`GameManager` mal staré End-Round UI polia označené "legacy - nepoužité"
 (endPanel, timeText, destroyedText, moneyEarnedText, totalMoneyText) a metódu
 `EndRound()`. Nový flow ide cez Hub.
-- [ ] Odstrániť nepoužité polia a legacy metódy (po overení, že ich už nič nevolá).
+- [x] Odstránené nepoužité polia a legacy metóda (overené cez graphify + grep,
+      že ich už nič nevolá) aj naviazaný kód v `Assets/Editor/AddGameSystems.cs`.
 
-## 3. Zmazať SampleScene
-`Assets/Scenes/SampleScene.unity` je default Unity scéna, nikde sa nepoužíva.
-- [ ] Vymazať scénu + .meta.
+## 3. Zmazať SampleScene — ✅ HOTOVÉ
+`Assets/Scenes/SampleScene.unity` bola default Unity scéna, nikde sa nepoužívala.
+- [x] Vymazaná scéna + .meta, odstránená z EditorBuildSettings a z
+      `Assets/Editor/ButtonSetup.cs`, zmazaný aj osirotený SampleSceneProfile.
 
-## 4. Drobnosti na overenie
-- [ ] XP bar (LegacyXPUI / XPManager) — overiť, či sa v hube/kole reálne zobrazuje.
-- [ ] SpecialObjects: zoznam ELECTRONIC má "lamp" dvakrát (kozmetické).
+## 4. Drobnosti na overenie — ✅ HOTOVÉ
+- [x] XP bar (LegacyXPUI / XPManager) — nájdený a opravený skutočný bug (bar
+      sa nikdy nezobrazoval, pozri PROGRESS.md sekcia 5). Na overenie v Unity.
+- [x] SpecialObjects: duplicitné "lamp" v ELECTRONIC odstránené.
+
+## Ďalšie (vlastná iniciatíva, pozri PROGRESS.md)
+- [x] XML/slovenské doc komentáre k verejnému API v Assets/Scripts.
+- [x] Bug sweep (MainMenuExtras Best_<mapa> pokrytie, Objectives RNG skew).
+- [x] Audit PlayerPrefs kľúčov a Save()/OnChanged v PlayerInventory.

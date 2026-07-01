@@ -120,6 +120,7 @@ public class HubManager : MonoBehaviour
     int mapIndex = 0;
  
     // Tlačidlo mapy: prepína medzi mapami (vidíš aj zamknuté + ich požiadavku)
+    /// Napriek názvu len prepína na ďalšiu mapu v poradí (alias pre CycleMap).
     public void SelectOffice() => CycleMap();
  
     public void CycleMap()
@@ -155,6 +156,7 @@ public class HubManager : MonoBehaviour
             : $"LOCKED: {m.label} - unlocks at level {m.unlock}  (you are level {lvl})";
     }
  
+    /// Spustí vybranú mapu v Normal móde; ak je mapa zamknutá (nedosiahnutý level), len zvýrazní zámok.
     public void StartGame()
     {
         var m = MAPS[mapIndex];

@@ -2,6 +2,8 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
 
+/// Riadi beh herného kola: časovač, combo systém, odmeny za rozbitie,
+/// auto-koniec pri vyčistení miestnosti a hodnotenie S/A/B/C/D. Singleton.
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
@@ -107,6 +109,7 @@ public class GameManager : MonoBehaviour
     }
 
     // ---------- COMBO / ODMENY ----------
+    /// Multiplikátor odmeny podľa aktuálneho comba: 1x (0-2), 1.25x (3-5), 1.5x (6-9), 2x (10-15), 2.5x (16-24), 3x (25+).
     public float ComboMultiplier()
     {
         int c = comboCount;
@@ -118,6 +121,7 @@ public class GameManager : MonoBehaviour
                       : 3f;
     }
 
+    /// Percento zničenia povodných objektov miestnosti (0-1).
     public float DestructionPct()
         => origTotal > 0 ? Mathf.Clamp01(1f - (float)origRemaining / origTotal) : 0f;
 
@@ -163,15 +167,18 @@ public class GameManager : MonoBehaviour
     public void RegisterDestroy() => destroyedCount++;
     public void AddRoundMoney(int amount) => roundMoney += amount;
 
+    /// Zaregistruje povodný objekt miestnosti do počítadla pre auto-koniec (chunky sa neráta).
     public void RegisterBreakable(bool isChunk = false)
     {
         if (!isChunk) { origTotal++; origRemaining++; }
     }
+    /// Odregistruje zničený povodný objekt (chunky sa neráta).
     public void UnregisterBreakable(bool isChunk = false)
     {
         if (!isChunk) origRemaining--;
     }
 
+    /// Bonus $ podľa počtu zničených objektov: 80 (120+), 50 (80+), 25 (45+), 10 (20+), inak 0.
     public int CalculateBonus()
     {
         return destroyedCount >= 120 ? 80
@@ -180,6 +187,7 @@ public class GameManager : MonoBehaviour
              : destroyedCount >=  20 ? 10 : 0;
     }
 
+    /// Predčasné ukončenie kola bez vyčistenia (napr. z menu) -> Hub.
     public void QuitToHub() => EndAndGoHub(false);
 
     void EndAndGoHub(bool cleared)

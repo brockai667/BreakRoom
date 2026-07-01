@@ -2,6 +2,8 @@ using UnityEngine;
 using UnityEngine.UI;
 
 // Bridges XPManager to legacy Unity UI Text (no TMP required)
+/// Prepája XPManager s legacy UnityEngine.UI.Text (level, XP, level-up flash).
+/// Nevyžaduje TextMeshPro.
 public class LegacyXPUI : MonoBehaviour
 {
     public Text levelText;

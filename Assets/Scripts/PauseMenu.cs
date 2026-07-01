@@ -78,6 +78,7 @@ public class PauseMenu : MonoBehaviour
         else SceneManager.LoadScene("Hub");
     }
 
+    /// Alias pre GoToMainMenu (volané z UI tlačidiel).
     public void QuitToHub() => GoToMainMenu();
 
     // ---------- OVERLAY ----------

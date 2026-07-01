@@ -1,5 +1,8 @@
 using UnityEngine;
 
+/// Dátový popis jednej zbrane (cena, poškodenie, dosah, splash, farby v ruke).
+/// Statický zoznam `All` je jediný zdroj pravdy pre shop/inventár/preview;
+/// nákup, equip a upgrade rieši výhradne PlayerInventory.
 [System.Serializable]
 public class WeaponData
 {
@@ -104,6 +107,7 @@ public class WeaponData
         },
     };
 
+    /// Nájde zbraň podľa id; ak neexistuje, vráti prvú (fists) ako fallback.
     public static WeaponData Get(string id)
     {
         foreach (var w in All) if (w.id == id) return w;

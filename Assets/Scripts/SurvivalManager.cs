@@ -26,9 +26,13 @@ public class SurvivalManager : MonoBehaviour
     float respawnDelay = 1.2f;
     float spawnCooldown;
     int   targetAlive  = 12;
+    /// Aktuálne číslo vlny (rastie každých WAVE_SECONDS, sprísňuje respawn a cieľový počet objektov).
     public int Wave { get; private set; }
+    /// Aktuálne skóre behu (rastie o pay*2 pri každom rozbití).
     public int Score { get; private set; }
+    /// Najvyššie dosiahnuté combo v tomto behu (na end-screen).
     public int BestCombo { get; private set; }
+    /// Zostávajúci čas (klok) v sekundách.
     public float Clock => clock;
     bool ended;
 
@@ -202,5 +206,6 @@ public class SurvivalManager : MonoBehaviour
         SceneManager.LoadScene("Hub");
     }
 
+    /// Vynútené okamžité ukončenie behu (napr. z pauzy) - alias pre EndSurvival.
     public void EndNow() => EndSurvival();
 }

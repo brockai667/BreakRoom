@@ -15,6 +15,7 @@ public static class WeaponIcon
     static Camera cam;
     static Light keyLight, fillLight;
 
+    /// Vráti (a cachuje) ikonu danej zbrane; null ak render zlyhá alebo w je null.
     public static Sprite Get(WeaponData w)
     {
         if (w == null) return null;

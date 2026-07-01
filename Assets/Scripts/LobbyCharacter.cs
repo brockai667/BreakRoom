@@ -26,6 +26,7 @@ public class LobbyCharacter : MonoBehaviour
         Build(new Vector3( 2.4f, 0f, -1.3f), 158f, 0.95f);
     }
 
+    /// Postaví jednu postavičku na danej pozícii nôh (feet), s natočením yRot a mierkou scale.
     public static GameObject Build(Vector3 feet, float yRot, float scale)
     {
         var root = new GameObject("LobbyWorker");

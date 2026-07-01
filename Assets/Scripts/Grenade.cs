@@ -9,6 +9,7 @@ public class Grenade : MonoBehaviour
     public int   damage = 8;
     bool exploded;
 
+    /// Vytvorí a odhodí granát z pos v smere dir (guľová fyzika + rotácia).
     public static Grenade Throw(Vector3 pos, Vector3 dir)
     {
         var go = GameObject.CreatePrimitive(PrimitiveType.Sphere);

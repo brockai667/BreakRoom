@@ -28,6 +28,7 @@ public class SettingsMenu : MonoBehaviour
         inst.OnScene(SceneManager.GetActiveScene().name);
     }
 
+    /// Aplikuje uložené nastavenia (SfxVolume, Quality) na aktuálnu scénu; volá sa pri každom načítaní scény.
     public static void ApplyGlobal()
     {
         AudioListener.volume = PlayerPrefs.GetFloat("SfxVolume", 0.8f);
