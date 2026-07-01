@@ -13,11 +13,49 @@ nesúvisiacu zmenu fontu ako predtým, nechávam ju tak).
 
 ## Hotové
 - Malé, bezpečné production zmeny na umožnenie EditMode testov (pozri Rozhodnutia + Log krokov #1).
+- A) Celý test assembly + 5 test súborov (WeaponData/GameManager/PlayerInventory/XPManager/Breakable),
+  spolu ~50 test prípadov. Pozri "Log krokov — Session 2 / A".
 
 ## Rozrobené
-- A) Test assembly + testy (WeaponData, GameManager, PlayerInventory, XPManager, Breakable).
 - B) Prejsť "Na overenie v Unity" a vyriešiť čo sa dá staticky.
 - C) Nová zbraň + nová room scéna.
+
+## Log krokov — Session 2
+
+### A) EditMode testy — HOTOVÉ (napísané, nespustené — vyžaduje Unity Test Runner)
+- `Assets/Tests/EditMode/BreakRoom.EditModeTests.asmdef` — nový test assembly. `references` obsahuje
+  `"Assembly-CSharp"` priamo menom (Assets/Scripts nemá vlastný asmdef, takže sa kompiluje do defaultnej
+  `Assembly-CSharp`); `defineConstraints: ["UNITY_INCLUDE_TESTS"]`, `includePlatforms: ["Editor"]`,
+  `precompiledReferences: ["nunit.framework.dll"]` — presne taká štruktúra, akú Unity samo generuje cez
+  Test Runner "Create EditMode Test Assembly Folder", len ručne doplnené o referenciu na Assembly-CSharp.
+- `PlayerPrefsSnapshot.cs` — pomocná trieda pre testy: pamätá si pôvodnú hodnotu PlayerPrefs kľúča (alebo že
+  neexistoval) a vie ju v [TearDown] presne vrátiť, nech testy nekazia reálny uložený progres hráča v tomto
+  projekte a sú deterministické (nezávislé od toho, čo je práve uložené). Int a string kľúče sa pamätajú
+  oddelene (nikdy sa nečíta kľúč iným accessorom než akým bol zapísaný, aby to bolo bezpečné naprieč platformami
+  PlayerPrefs úložiska).
+- `WeaponDataTests.cs` — čisto dátové testy (žiadny GameObject): `All` neprázdne, žiadne duplicitné `id`,
+  všetky polia vyplnené a v rozumných rozsahoch (price>=0, damage>0, ...), `fists` je zadarmo, `Get`
+  existujúce/neexistujúce id (fallback na `All[0]`), `UnlockLevel` fists/bat=1 a hrubá monotónnosť.
+- `GameManagerTests.cs` — `ComboMultiplier`/`CalculateBonus`/`ComputeGrade` cez `[TestCase]` na presných
+  hraniciach (0/19/20/44/45/... pre bonus; 0/2/3/5/6/... pre combo; 50/90/91/160/161 pre cleared-grade;
+  0/19/20/49/50/... pre necleared-grade). `AwardBreak`: základná odmena, kombo-škálovanie naprieč viacerými
+  zásahmi (zvolený `baseReward=8`, nech všetky medzivýsledky vyjdu celé čísla — vyhol som sa .5 zaokrúhľovacím
+  hraniciam, kde `Mathf.RoundToInt` používa banker's rounding a mohol by dať prekvapivý výsledok), zlatý bonus
+  x3, a že sa nič nepripočíta keď `roundActive=false`. `Perk_money`/`Perk_combo` sa v [SetUp] vynulujú (inak by
+  `AwardBreak` závisel od reálne uložených perkov hráča v tomto projekte).
+- `PlayerInventoryTests.cs` — kúpa (dosť/nedosť peňazí, dvojitá kúpa), equip (len vlastnenej zbrane), upgrade
+  (cena, level, zablokovanie nad MAX_UPGRADE), `AddMoney` (perzistencia, floor na nulu, `OnChanged`).
+  Testovacia zbraň = "bat" (cena 150), nie "fists" (tá je vždy vlastnená). Kľúče "Money"/"Equipped"/"Own_bat"/
+  "Up_bat" sa v [SetUp]/[TearDown] snapshotujú cez `PlayerPrefsSnapshot`.
+- `XPManagerTests.cs` — `XPForLevel` (kvadratická krivka), `AddXP` (bez/s prekročením levelu, aj viac levelov
+  naraz), `XPProgress` (v polovici intervalu, na max leveli), `SavedLevel` (statický getter bez inštancie).
+- `BreakableTests.cs` — testuje novú `Breakable.ComputeStatsForSize(maxDim, jackpot, out ...)` (viz nižšie):
+  malý/stredný/veľký objekt, presné hranice 0.7 a 1.3, a jackpot floor/násobenie na malom aj strednom objekte.
+  Zvolené `maxDim` hodnoty (0.4/1.0/2.0/0.69/1.29) tak, aby žiadny medzivýsledok nepadol presne na .5 hranicu.
+
+**Prečo som nemohol testy priamo spustiť:** som v headless (bez Unity binárky) prostredí, Unity Test Runner
+beží len v editore. Logiku a čísla v `[TestCase]` som si ručne prepočítal proti zdrojovému kódu (viď komentáre
+v testoch), ale reálne prejdenie cez NUnit runner nie je odtiaľto možné.
 
 ## Rozhodnutia
 - **Testovací framework beží len v Unity Editore** (NUnit cez `com.unity.test-framework`, ktorý je už
