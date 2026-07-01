@@ -11,6 +11,24 @@ B) dořešiť položky z "Na overenie v Unity" nižšie, C) nová zbraň + nová
 `git pull` na začiatku → up-to-date, žiadne nové commity zvonku (working tree malo len tú istú
 nesúvisiacu zmenu fontu ako predtým, nechávam ju tak).
 
+## Zhrnutie na konci Session 2
+Všetky 3 časti (A/B/C) hotové a commitnuté (5 commitov), na konci `git push`. Zhrnutie:
+- **A)** Nový `Assets/Tests/EditMode/` assembly + 5 test súborov (~50 testov) pre WeaponData/GameManager/
+  PlayerInventory/XPManager/Breakable. Napísané a ručne prepočítané proti zdroju, ale **nespustené** — vyžaduje
+  Unity Test Runner (žiadna Unity binárka v tomto prostredí). Postup spustenia je v "Na overenie v Unity".
+- **B)** Obe staré položky "Na overenie v Unity" (Collection nav, XP bar) prejdené — kód je staticky
+  overený ako kompletný, zvyšok je čisto vizuálna/interaktívna kontrola v editore.
+- **C)** Nová zbraň "Shovel" (plne zapojená do Shop/Collection/Preview/hand modelu) + nový generátor
+  `CreateLaundryScene.cs` pre mapu "Laundry Room" (Práčovňa), zaregistrovaný v `HubManager.MAPS` aj
+  `MainMenuExtras`. **Scéna samotná zatiaľ neexistuje** — vyžaduje spustenie generátora v Unity editore
+  (označené ⚠️ ako POVINNÝ krok v "Na overenie v Unity", inak by výber tejto mapy v Hube skončil chybou).
+- Vedľajšie malé, bezpečné produkčné zmeny kvôli testovateľnosti (viď "Rozhodnutia" nižšie): `GameManager.
+  ComputeGrade` public, `PlayerInventory` `Application.isPlaying` guard okolo `DontDestroyOnLoad`, `AddMoney`
+  floor na nulu, `Breakable.ComputeStatsForSize` extrakcia.
+- Nič, čo vyžaduje bežiaci Unity editor, som nespúšťal — len pripravil kód/testy/generátor a presne napísal,
+  čo treba dobehnúť v editore (3 samostatné položky v "Na overenie v Unity": Laundry scéna generátor,
+  Collection nav vizuálna kontrola, XP bar vizuálna kontrola + spustenie Test Runnera).
+
 ## Hotové
 - Malé, bezpečné production zmeny na umožnenie EditMode testov (pozri Rozhodnutia + Log krokov #1).
 - A) Celý test assembly + 5 test súborov (WeaponData/GameManager/PlayerInventory/XPManager/Breakable),
