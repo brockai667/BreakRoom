@@ -37,6 +37,37 @@ up-to-date (working tree malo len tú istú nesúvisiacu zmenu fontu ako v predo
   časti 2, ktorá žiada len overiť, že *existujúci* test suite kompiluje) — poznamenané tu pre budúcu session,
   ak by niekto chcel `SceneAvailable` sprístupniť (napr. `internal` + `InternalsVisibleTo`) a otestovať priamo.
 
+### 2) EditMode test suite — statická kontrola kompilácie: ŽIADNY PROBLÉM
+- Prešiel som riadok po riadku všetkých 6 súborov v `Assets/Tests/EditMode/` (`BreakRoom.EditModeTests.asmdef`,
+  `PlayerPrefsSnapshot.cs`, `WeaponDataTests.cs`, `GameManagerTests.cs`, `PlayerInventoryTests.cs`,
+  `XPManagerTests.cs`, `BreakableTests.cs`) a porovnal každý použitý člen (pole/vlastnosť/metóda) proti
+  aktuálnemu stavu `Assets/Scripts/GameManager.cs`, `PlayerInventory.cs`, `XPManager.cs`, `Breakable.cs`,
+  `WeaponData.cs` (viacero z nich sa v Session 2 menilo — `ComputeGrade` public, `AddMoney` floor,
+  `ComputeStatsForSize` extrakcia, celý `XPManager` prerobený, `WeaponData` +1 zbraň).
+  - **Asmdef**: `Assets/Scripts` stále nemá vlastný `.asmdef` (jediný `.asmdef` v projekte je test assembly),
+    takže referencia `"Assembly-CSharp"` menom je stále platná a potrebná presne tak, ako bola nastavená.
+  - **Using-y**: každý súbor má presne to, čo potrebuje (`NUnit.Framework` všade, `UnityEngine` len tam, kde sa
+    priamo používa `GameObject`/`Object`/`Vector3`/`PlayerPrefs`, `System.Linq`/`System.Collections.Generic`
+    len tam, kde sa naozaj používajú LINQ/`Dictionary`) — žiadny chýbajúci ani zbytočný using.
+  - **Členy**: `GameManagerTests` (`comboCount`, `ComboMultiplier()`, `destroyedCount`, `CalculateBonus()`,
+    `elapsedTime`, `ComputeGrade(bool)`, `AwardBreak(int,int,bool,Vector3)`, `roundMoney`, `roundActive`) —
+    všetko sedí presne (vrátane `ComputeGrade`, ktorá bola v Session 2 zmenená na `public`).
+    `PlayerInventoryTests` (`Money`, `EquippedId`, `MAX_UPGRADE`, `OnChanged` ako `System.Action`, `Owns`,
+    `TryBuy`, `Equip`, `AddMoney`, `UpgradeLevel`, `UpgradeCost`, `CanUpgrade`, `TryUpgrade`) — sedí presne
+    (vrátane nového floor-behavior v `AddMoney`, ktorý test explicitne overuje).
+    `XPManagerTests` (`currentLevel`, `currentXP`, `XPForLevel(int)`, `AddXP(int)`, `XPProgress()`,
+    `SavedLevel`) — sedí presne aj po kompletnom prepísaní `XPManager` na self-bootstrapping vzor (test
+    vytvára inštanciu priamo cez `AddComponent`, čo obchádza `[RuntimeInitializeOnLoadMethod] Bootstrap()`,
+    ktorý sa v EditMode aj tak nespúšťa — potvrdené, žiadny konflikt).
+    `BreakableTests` (`Breakable.ComputeStatsForSize(float,bool,out int,out int,out int,out int,out int)`) —
+    signatúra aj poradie `out` parametrov sedí presne.
+    `WeaponDataTests` (`WeaponData.All`, `.Get(string)`, `.UnlockLevel(string)`, polia `id/displayName/price/
+    damage/splashRadius/hitDistance/swingSpeed`) — testy používajú len generické assercie (žiadny natvrdo
+    zapísaný počet zbraní), takže nová zbraň "Shovel" z Session 2 prechádza bez úprav testov.
+  - Žiadna kolízia mien tried (`class GameManagerTests` a pod. sa vyskytuje presne raz, len vo vlastnom súbore).
+- **Záver: test suite je staticky v poriadku, nič netreba opravovať.** Stále platí obmedzenie z minulej
+  session — bez Unity binárky v tomto prostredí sa nedá reálne spustiť Test Runner, len staticky overiť.
+
 ---
 
 # Session 2 — testy, dorobenie "na overenie", nový obsah
