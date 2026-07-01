@@ -38,3 +38,12 @@ Pracujem samostatne na TODO.md, bez čakania na potvrdenie. Commit + push priebe
   ak by ešte v scéne ostala zo starej verzie).
 - Dôvod ponechania zvyšku `AddGameSystems.cs`: stále vytvára platné HandDisplay UI, nie je súčasťou zadania na zmazanie.
 - `graphify update .` spustené, graf aktuálny.
+
+### 2. Zmazanie SampleScene — HOTOVÉ
+- Overené: žiadny runtime kód nevolá `SceneManager.LoadScene("SampleScene")`.
+- Scéna bola v `ProjectSettings/EditorBuildSettings.asset` (index 1, MainMenu je index 0 = štartovacia) — odstránená
+  aj odtiaľ, inak by build obsahoval odkaz na neexistujúci súbor.
+- `Assets/Editor/ButtonSetup.cs` mal v `toAdd[]` hardcoded reťazec `"Assets/Scenes/SampleScene.unity"` (guard
+  `File.Exists` by to aj tak preskočil, ale radšej vyčistené, nech zoznam nezavádza).
+- Zmazaný aj `Assets/Settings/SampleSceneProfile.asset` (+.meta) — URP Volume Profile, ktorý používala výhradne
+  táto scéna a po jej zmazaní by ostal osirotený (nikde inde v Assets ani ProjectSettings sa naň neodkazuje).

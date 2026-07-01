@@ -106,7 +106,6 @@ public class ButtonSetup : Editor
         var scenes = new List<EditorBuildSettingsScene>(EditorBuildSettings.scenes);
         string[] toAdd = {
             "Assets/Scenes/MainMenu.unity",
-            "Assets/Scenes/SampleScene.unity",
             "Assets/Scenes/Shop.unity",
             "Assets/Scenes/Collection.unity"
         };
