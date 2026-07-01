@@ -62,3 +62,39 @@ Pracujem samostatne na TODO.md, bez čakania na potvrdenie. Commit + push priebe
   MainMenu) teraz obsahujú aj "Best grade: X".
 - Rozhodnutie: logiku som pridal do existujúceho `Achievements.CommitRound`, nie do `GameManager`, lebo tam už
   bola jediná zbernica pre všetky lifetime štatistiky (jednotné miesto zápisu, žiadna duplicita).
+
+### 5. XP bar — NÁJDENÝ A OPRAVENÝ SKUTOČNÝ BUG
+- Tok: `Breakable`/`GameManager.AwardBreak` volajú `XPManager.Instance.AddXP()`, `XPManager.UpdateUI()` nastaví
+  `xpBarFill.fillAmount`, text (level/XP/level-up) rieši `LegacyXPUI.Update()` cez polia `levelText/xpText/...`.
+  Samotná logika (XP krivka, ukladanie do PlayerPrefs) bola v poriadku.
+- Problém bol v **prepojení UI**: `XPManager` predtým nebol self-bootstrapping (na rozdiel od `RoundHUD`,
+  `CollectionManager`, `Achievements`, `MainMenuExtras`) — čakal, že ho niekto ručne vloží do scény a prepojí
+  `xpBarFill`/`LegacyXPUI` polia v Editore. Skontroloval som všetky uložené scény (`grep XPManager
+  Assets/Scenes/*.unity`):
+  - `Office.unity` malo GameObject `XPManager`, ale **`xpBarFill: {fileID: 0}`** (neprepojené) a **žiadny
+    `LegacyXPUI`** — hoci `Assets/Editor/CreateOfficeScene.cs` (generátor) XP HUD aj `LegacyXPUI` correctly stavia,
+    uložená scéna je zjavne staršia než tento generátor (nebol odvtedy znova spustený/scéna neuložená).
+  - `Bathroom/Bedroom/Factory/Garage/Kitchen/Obyvacka/Warehouse.unity` mali len holý GameObject `XPManager` bez
+    `xpBarFill` a bez akéhokoľvek textu/baru v scéne vôbec — `Assets/Editor/Create{Factory,LivingRoom}Scene.cs`
+    XPManager len vytvoria (`AddComponent<XPManager>()`), ale UI vôbec nestavajú; ostatné generátory
+    (Bathroom/Bedroom/Garage/Kitchen/Warehouse) XPManager nevytvárajú vôbec.
+  - Výsledok: XP sa reálne pripočítavalo a ukladalo (`PlayerPrefs`), ale **XP bar/level text sa hráčovi nikdy
+    nezobrazil v žiadnej scéne** (ani v Hube — tam `XPManager` nikdy nebol, len `XPManager.SavedLevel` na
+    odomykanie).
+- Oprava (`Scripts/XPManager.cs`): prerobené na presne ten istý self-bootstrapping vzor ako `RoundHUD.cs`
+  — `[RuntimeInitializeOnLoadMethod]` vytvorí jedinú trvalú inštanciu (`DontDestroyOnLoad`), tá si cez
+  `SceneManager.sceneLoaded` sama postaví XP HUD (level text, XP text, bar, level-up flash + `LegacyXPUI`)
+  z kódu a zapína/vypína ho podľa scény (skrytý v `Hub/MainMenu/Shop/Collection`, rovnaký `SKIP` zoznam ako
+  `RoundHUD`). Staré, holé `XPManager` GameObjecty uložené v scénach sa teraz jednoducho zničia ako duplicitná
+  inštancia (singleton guard v `Awake()`) — neškodné, netreba scény ručne upravovať.
+- `LegacyXPUI.cs` som nemenil — logika bola správna, len jej polia dovtedy nikdy neboli prepojené.
+- Editor generátory (`CreateOfficeScene.cs`, `CreateFactoryScene.cs`, `CreateLivingRoomScene.cs`) som nechal tak,
+  ako sú (ich manuálne vytváraný `XPManager` je teraz len neškodný duplikát, ktorý sa hneď zničí) — neprerábal
+  som ich, keďže runtime oprava problém rieši univerzálne bez ohľadu na obsah scén.
+
+## Na overenie v Unity
+- XP bar TODO#6: otvoriť ľubovoľnú izbu (Bathroom/Bedroom/Factory/Garage/Kitchen/Obyvacka/Office/Warehouse),
+  rozbiť niečo a overiť, že vpravo dole naskočí XP bar/level text a pri level-upe sa ukáže "LEVEL UP!" flash.
+  Zároveň overiť v Hube/MainMenu/Shope/Collection, že sa XP HUD nezobrazuje (podľa dizajnu).
+- Voliteľné (nie nutné): v Unity editore môžete cez staré scény prejsť a ručne zmazať osirotené GameObjecty
+  "XPManager" (sú neškodné — zničia sa samé za behu), pre čistotu scén.
