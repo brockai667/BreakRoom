@@ -21,9 +21,10 @@ nesúvisiacu zmenu fontu ako predtým, nechávam ju tak).
 
 ## Hotové (pokrač.)
 - C1) Nová zbraň "Shovel" (pozri Log krokov — Session 2 / C1).
-
-## Rozrobené
-- C2) Nová room scéna cez generátor (Assets/Editor/Create*Scene.cs).
+- C2) Nová room scéna "Laundry Room" (pozri Log krokov — Session 2 / C2). **Vyžaduje spustenie generátora
+  v Unity editore** (menu `Break Room ▸ Build Laundry Scene`) — samotný `.cs` generátor je hotový a
+  commitnutý, ale skutočný `Assets/Scenes/Laundry.unity` súbor vznikne až po spustení v editore (rovnaký
+  princíp ako všetky ostatné `Create*Scene.cs` v tomto repozitári — sú to nástroje, nie samotné výstupy).
 
 ## Log krokov — Session 2
 
@@ -113,6 +114,33 @@ v testoch), ale reálne prejdenie cez NUnit runner nie je odtiaľto možné.
 - `WeaponDataTests.cs` (Session 2 / A) testuje `WeaponData.All` generickými assertmi (žiadne duplicity, rozumné
   rozsahy polí) bez natvrdo zapísaného počtu zbraní — nová zbraň teda automaticky prejde tými istými testami
   bez potreby úpravy testov.
+
+### C2) Nová room scéna "Laundry Room" — HOTOVÝ GENERÁTOR (scéna vznikne až v Unity, viď vyššie)
+- Skontroloval som všetkých 5 existujúcich `Create*Scene.cs` generátorov (`Bedroom/Kitchen/Garage/Bathroom/
+  Warehouse`) — **všetky** bez výnimky klonujú `Assets/Scenes/Obyvacka.unity` (otvoria ju, uložia pod novým
+  menom, zmažú staré `Breakable` objekty a rug, položia vlastný nábytok) — `CreateKitchenScene.cs` to má priamo
+  zdokumentované v hlavičke: "Vzor: CreateBedroomScene — otvor funkčnú Obývačku... zachová hráča, GM, HUD,
+  pauzu, svetlo, steny." Toto som presne zopakoval v `Assets/Editor/CreateLaundryScene.cs`, nech sa
+  nová scéna nemusí nanovo stavať od nuly (hráč/kamera/WeaponHit/PlayerInventory/XPManager/Crosshair/HandDisplay/
+  GameManager+časovač/PauseMenu/EventSystem sú už hotové v `Obyvacka.unity` a klonovaním sa prenesú).
+- Téma: **Práčovňa** (Laundry Room) — skontroloval som katalóg `Assets/KenneyFurniture/Models/FBX format/`
+  (285 súborov) a našiel presné modely `washer`, `dryer`, `sideTable`, `bookcaseOpen`, `cardboardBoxClosed/Open`,
+  `coatRackStanding`, `trashcan`, `plantSmall2`, `lampRoundFloor`, `rugDoormat` — všetko už použité inde v
+  projekte (žiadny nový import assetov, ktorý by som z tohto prostredia rovnako nevedel spraviť).
+  `washer`/`dryer` pri zadnej stene, skladací stôl (`sideTable`) + krabica na roztriedené prádlo (pravá stena),
+  regál so saponátmi + skladovacie krabice (ľavá stena), stojan na sušenie (`coatRackStanding`, predná stena),
+  doplnky (rastlina, stojaca lampa, rohožka pri vchode). Mierka `S=0.4` a rozostup stien rovnaké ako
+  Obývačka/Bedroom (izba ±6, nábytok v rámci ±5.4 s okrajom).
+- Registrácia mapy: pridané do `HubManager.MAPS` (`("Laundry", "Laundry Room", 17)` — pokračuje existujúci vzor
+  +2 unlock levelov na mapu, hneď za Warehouse) a do `MainMenuExtras.cs`'s `foreach` cez všetky mapy pre "Best
+  round" štatistiku (ten istý zoznam, ktorý som v Session 2 / Extra#8 opravoval — keby som naň zabudol, presne
+  ten istý bug by sa vrátil pre novú mapu). Skontroloval som `grep "Warehouse"` a `grep "Obyvacka"` naprieč
+  `Assets/Scripts`, aby som si bol istý, že to sú JEDINÉ dve miesta so zoznamom všetkých máp.
+- **DÔLEŽITÉ obmedzenie:** samotný `.unity` súbor vie vyrobiť len spustenie generátora v Unity Editore
+  (klonovanie scény, `PrefabUtility.InstantiatePrefab`, ukladanie scény — všetko Editor-only API, nedá sa
+  spustiť z tohto headless prostredia). Scéna teda zatiaľ v repozitári neexistuje, hoci `HubManager`/
+  `MainMenuExtras` už na ňu odkazujú. Presný postup a dôsledky sú v sekcii "Na overenie v Unity" vyššie
+  (označené ⚠️ ako POVINNÝ krok, nie voliteľný).
 
 ## Stav na začiatku
 - `git pull` → up-to-date, žiadne nové commity zvonku.
@@ -208,6 +236,19 @@ obrazovka). `TODO.md` som nechal nezmazaný (nebolo požadované), ale všetky j
   som ich, keďže runtime oprava problém rieši univerzálne bez ohľadu na obsah scén.
 
 ## Na overenie v Unity
+
+### ⚠️ C2) POVINNÝ krok pred hraním — vygenerovať scénu Laundry
+`Scripts/HubManager.cs` (`MAPS`) aj `Scripts/MainMenuExtras.cs` už odkazujú na mapu **"Laundry"**
+(unlock level 17), ale samotný `Assets/Scenes/Laundry.unity` **ešte neexistuje** — vytvára ho až
+`Assets/Editor/CreateLaundryScene.cs`, ktorý viem napísať, ale nie spustiť (Editor-only, žiadna Unity
+binárka v tomto prostredí). Kým sa nespustí, je to neškodné (mapa má vysoký unlock level, v Hube sa dá len
+prezerať/prepínať), ale **ak by hráč mapu Laundry vybral a stlačil START skôr, než scéna existuje,
+`SceneManager.LoadScene("Laundry")` zlyhá** (chýbajúci scéna v builde).
+**Presný postup:** otvoriť projekt v Unity → menu `Break Room ▸ Build Laundry Scene` → skontrolovať v Console,
+že žiadny `LoadPrefab` volania nevypísali "model nenájdený" (znamenalo by to nezhodu s Kenney Furniture
+katalógom) → scéna sa uloží ako `Assets/Scenes/Laundry.unity` a automaticky pridá do Build Settings →
+otestovať Play priamo v tejto scéne (rozbiť washer/dryer/regál/atď.) → v Hube prepnúť na "Laundry Room" a
+overiť, že sa spustí správne.
 
 ### B) Prejdené položky zo starého zoznamu — Session 2
 Prešiel som obe pôvodné položky nižšie ešte raz a doplnil, čo sa dalo overiť staticky (bez spustenia editora):
