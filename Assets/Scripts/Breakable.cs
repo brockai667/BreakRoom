@@ -65,6 +65,14 @@ public class Breakable : MonoBehaviour
 
         if (isChunk) return;
 
+        ComputeStatsForSize(maxDim, jackpot, out subdivideStages, out childPieces, out hp, out reward, out xpValue);
+    }
+
+    /// Čistá (bezscénová) časť Configure(): z najväčšieho rozmeru objektu (maxDim) a jackpot
+    /// príznaku dopočíta stupne delenia na chunky, HP, odmenu a XP. Testovateľné bez GameObjectu.
+    public static void ComputeStatsForSize(float maxDim, bool jackpot,
+        out int subdivideStages, out int childPieces, out int hp, out int reward, out int xpValue)
+    {
         if      (maxDim >= 1.3f) { subdivideStages = 2; childPieces = 4; }
         else if (maxDim >= 0.7f) { subdivideStages = 1; childPieces = 3; }
         else                     { subdivideStages = 0; childPieces = 0; }

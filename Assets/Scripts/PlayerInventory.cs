@@ -22,7 +22,9 @@ public class PlayerInventory : MonoBehaviour
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
-        DontDestroyOnLoad(gameObject);
+        // Application.isPlaying guard: DontDestroyOnLoad nemá v edit-mode zmysel a
+        // takto sa dá PlayerInventory bezpečne vytvoriť aj v EditMode testoch.
+        if (Application.isPlaying) DontDestroyOnLoad(gameObject);
         Load();
     }
 
@@ -78,9 +80,10 @@ public class PlayerInventory : MonoBehaviour
         if (hd != null) hd.SetWeapon(WeaponData.Get(id));
     }
 
+    /// Pripočíta (alebo odpočíta pri zápornom amount) peniaze; nikdy nejde pod nulu.
     public void AddMoney(int amount)
     {
-        Money += amount;
+        Money = Mathf.Max(0, Money + amount);
         Save();
         OnChanged?.Invoke();
     }

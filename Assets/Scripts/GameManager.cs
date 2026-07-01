@@ -213,7 +213,8 @@ public class GameManager : MonoBehaviour
         SceneManager.LoadScene("Hub");
     }
 
-    string ComputeGrade(bool cleared)
+    /// Hodnotenie kola S/A/B/C/D: pri vyčistení podľa uplynulého času, inak podľa počtu zničených vecí.
+    public string ComputeGrade(bool cleared)
     {
         if (cleared)
             return elapsedTime <= 90f ? "S" : elapsedTime <= 160f ? "A" : "B";

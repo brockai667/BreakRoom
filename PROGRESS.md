@@ -2,6 +2,50 @@
 
 Pracujem samostatne na TODO.md, bez čakania na potvrdenie. Commit + push priebežne po každom logickom kroku (bolo vopred schválené v zadaní).
 
+---
+
+# Session 2 — testy, dorobenie "na overenie", nový obsah
+
+Pokračovanie samostatnej práce (bez pýtania), zadanie: A) edit-mode NUnit testy pre čistú logiku,
+B) dořešiť položky z "Na overenie v Unity" nižšie, C) nová zbraň + nová room scéna cez generátor.
+`git pull` na začiatku → up-to-date, žiadne nové commity zvonku (working tree malo len tú istú
+nesúvisiacu zmenu fontu ako predtým, nechávam ju tak).
+
+## Hotové
+- Malé, bezpečné production zmeny na umožnenie EditMode testov (pozri Rozhodnutia + Log krokov #1).
+
+## Rozrobené
+- A) Test assembly + testy (WeaponData, GameManager, PlayerInventory, XPManager, Breakable).
+- B) Prejsť "Na overenie v Unity" a vyriešiť čo sa dá staticky.
+- C) Nová zbraň + nová room scéna.
+
+## Rozhodnutia
+- **Testovací framework beží len v Unity Editore** (NUnit cez `com.unity.test-framework`, ktorý je už
+  v `Packages/manifest.json`) — z tohto bezhlavého (headless, bez Unity binárky) prostredia neviem testy
+  reálne spustiť. Napíšem ich staticky správne, skontrolujem si logiku ručne, a do PROGRESS.md napíšem presný
+  postup na spustenie + čo overiť v Unity Test Runneri.
+- **Malé zmeny v produkčnom kóde na umožnenie testovania** (žiadna zmena správania v reálnej hre):
+  1. `GameManager.ComputeGrade` bola `private` → `public` (rovnaká viditeľnosť ako susedné čisté query metódy
+     `ComboMultiplier`/`CalculateBonus`/`DestructionPct`, ktoré už boli public) — potrebné na priamy test
+     hraníc S/A/B/C/D bez reflection hackov.
+  2. `PlayerInventory.Awake()`: `DontDestroyOnLoad(gameObject)` obalené do `if (Application.isPlaying)` —
+     v Edit Mode nemá DontDestroyOnLoad zmysel (žiadne prepínanie scén), takto sa dá singleton bezpečne
+     vytvoriť aj v EditMode teste cez `AddComponent<PlayerInventory>()`. Počas reálnej hry je
+     `Application.isPlaying` vždy true, takže správanie sa nemení.
+  3. `PlayerInventory.AddMoney`: pridaný `Mathf.Max(0, ...)` floor na nulu. V praxi sa už aj predtým peniaze
+     nedostali pod nulu (všetky volania so záporným amount — `Perks.TryBuy` — si to overia pred volaním), ale
+     zadanie explicitne žiada otestovať, že "peniaze nejdú pod nulu" — bez skutočného floor v `AddMoney` by to
+     bol len test disciplíny volajúcich, nie invariant samotnej metódy. Pridaný floor je defense-in-depth,
+     nemení žiadne existujúce volanie (nikdy sa doteraz nespustil).
+  4. `Breakable.Configure()`: časť počítajúca HP/reward/XP/subdivideStages/childPieces z `maxDim` (+jackpot)
+     vyextrahovaná do novej `public static void ComputeStatsForSize(...)` — čistá funkcia bez závislosti na
+     GameObjecte/Collideri, priamo testovateľná. Čistý extract, žiadna zmena logiky/poradia výpočtov.
+- **`Assets/Tests/EditMode/*.asmdef` referencuje `"Assembly-CSharp"` menom** (nie cez asmdef-to-asmdef odkaz),
+  keďže `Assets/Scripts` nemá vlastný `.asmdef` (kompiluje sa do defaultného `Assembly-CSharp`). Toto je
+  štandardný, Unity-dokumentovaný postup pre projekty, kde hlavný kód nemá asmdef a testy sa pridávajú dodatočne.
+- **`.meta` súbory pre nové assety (asmdef, testové .cs) negenerujem ručne** — necháva sa na Unity pri
+  najbližšom otvorení projektu, rovnaká konvencia ako pri predošlých nových skriptoch v tomto repozitári.
+
 ## Stav na začiatku
 - `git pull` → up-to-date, žiadne nové commity zvonku.
 - V pracovnom strome bola nekomitnutá zmena `Assets/TextMesh Pro/Resources/Fonts & Materials/Bangers-Regular SDF.asset` (Unity re-serializovalo font asset, -421/+9 riadkov). Nesúvisí s mojou úlohou, nechávam ju tak (nekomitujem ju samostatne, ak sa nepremieša s mojimi zmenami omylom).
