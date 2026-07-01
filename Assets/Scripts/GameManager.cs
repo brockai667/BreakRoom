@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using TMPro;
 
@@ -30,13 +29,6 @@ public class GameManager : MonoBehaviour
     public float    roundDuration = 300f;
     public TMP_Text timerText;
 
-    [Header("End Round UI (legacy - nepouzite v novom hub flow)")]
-    public GameObject endPanel;
-    public Text timeText;
-    public Text destroyedText;
-    public Text moneyEarnedText;
-    public Text totalMoneyText;
-
     void Awake()
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
@@ -46,7 +38,6 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         Time.timeScale = 1f;
-        if (endPanel != null) endPanel.SetActive(false);
         roundActive    = true;
         elapsedTime    = 0f;
         destroyedCount = 0;
@@ -221,8 +212,6 @@ public class GameManager : MonoBehaviour
         int d = destroyedCount;
         return d >= 150 ? "S" : d >= 90 ? "A" : d >= 50 ? "B" : d >= 20 ? "C" : "D";
     }
-
-    public void EndRound() => QuitToHub();
 
     public void GoToMenu()  { Time.timeScale = 1f; SceneManager.LoadScene("MainMenu"); }
     public void GoToShop()  { Time.timeScale = 1f; GameSession.InitialHubTab = "Shop"; SceneManager.LoadScene("Hub"); }
